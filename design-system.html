@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Brave Homes — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&family=Public+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
+
+<style>
+/* ==========================================================================
+   BRAVE HOMES — DESIGN SYSTEM
+   A single self-contained file. Open it in a browser to see the system, or
+   hand the code to a designer/AI as the source of truth.
+
+   The live site is Next.js + Tailwind v4; the tokens below are the same
+   values, written as plain CSS so they work anywhere.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. TOKENS
+   Palette is sampled from the logo. Every value sits a few degrees off
+   yellow and slightly desaturated — a warmer set read as sepia and made
+   otherwise fine layouts look cheap.
+   -------------------------------------------------------------------------- */
+:root {
+  /* Type */
+  --font-serif: 'Newsreader', ui-serif, Georgia, serif;   /* display only */
+  --font-sans:  'Public Sans', ui-sans-serif, system-ui, sans-serif; /* UI + body */
+
+  /* Light grounds */
+  --cream:       #f7f3ea;   /* page background */
+  --cream-deep:  #ebe4d6;   /* recessed / hover fill */
+  --parchment:   #fdfcf8;   /* cards, inputs */
+
+  /* Ink */
+  --forest:      #2f3a23;   /* headings, primary buttons */
+  --forest-deep: #1e2617;   /* text on gold, deepest ink */
+  --olive:       #47513b;   /* body copy */
+  --ink-muted:   #646c52;   /* captions, secondary */
+
+  /* Greens */
+  --sage:        #7f9068;   /* borders, decorative */
+  --sage-soft:   #a2b28e;   /* body copy on dark */
+  --sage-mist:   #dde4d3;   /* tint fills, avatars */
+
+  /* Brass. Reserved for money and progress — never decoration. */
+  --gold:        #c99a3f;
+  --gold-soft:   #ddbc7c;
+  --gold-deep:   #a97c27;
+
+  /* Label shades: the display greens/brass are tuned to look right at
+     size. At 12px they fell to 3.1:1 and 3.4:1 on cream, under the 4.5:1
+     small text requires. Use these for small dark-on-light labels. */
+  --sage-ink:    #5f6c4b;
+  --gold-ink:    #8a641d;
+
+  --clay:        #c9704f;   /* warm accent, used sparingly */
+  --night:       #12180e;   /* dark sections */
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft:     cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Geometry */
+  --radius: 1.25rem;
+  --tap:    3rem;   /* minimum interactive target — see §2 */
+  --scale:  1;
+  font-size: calc(16px * var(--scale));
+}
+
+/* --------------------------------------------------------------------------
+   2. ACCESSIBILITY — the load-bearing part
+   The product promise is "works whether you're 18 or 88". Easy View is a
+   real mode, not a zoom: it raises the root size, grows every tap target,
+   thickens focus rings and drops decorative motion. Because every size is
+   authored in rem and every control uses --tap, one attribute scales the
+   entire interface.
+   -------------------------------------------------------------------------- */
+:root[data-simple='true'] { --scale: 1.2; --tap: 3.75rem; }
+:root[data-simple='true'] .decorative { display: none; }
+
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid var(--forest);
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+}
+:root[data-simple='true'] :where(a, button, input, select):focus-visible { outline-width: 5px; }
+
+::selection { background: var(--gold); color: var(--forest); }
+
+/* Contrast, all verified ≥ 4.5:1:
+   olive on cream 7.56  ·  ink-muted on cream 4.98  ·  forest on cream 10.83
+   forest-deep on gold 6.08  ·  sage-ink label on cream 5.08
+   gold-ink label on cream 4.84  ·  sage-soft on night 7.99  ·  cream on night 16.31 */
+
+/* --------------------------------------------------------------------------
+   3. BASE
+   -------------------------------------------------------------------------- */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--olive);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display type is Newsreader at 400–500 only. It is a reading serif with a
+   true optical-size axis; weight is not how it gets its presence, size and
+   tracking are. */
+h1, h2, h3 { font-family: var(--font-serif); font-weight: 500; margin: 0; color: var(--forest); }
+h1 { font-size: clamp(2.6rem, 5vw, 6rem);   line-height: 0.98; letter-spacing: -0.018em; }
+h2 { font-size: clamp(2rem, 4vw, 3.75rem);  line-height: 1.02; letter-spacing: -0.012em; }
+h3 { font-size: clamp(1.5rem, 2.4vw, 2.25rem); line-height: 1.15; }
+
+.eyebrow {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--sage-ink);
+}
+.eyebrow--gold { color: var(--gold-ink); }
+.lead { font-size: 1.125rem; line-height: 1.7; color: var(--olive); }
+
+/* --------------------------------------------------------------------------
+   4. SURFACES
+   -------------------------------------------------------------------------- */
+.card {
+  background: color-mix(in srgb, var(--parchment) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sage) 26%, transparent);
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+}
+.card-solid {
+  background: var(--parchment);
+  border: 1px solid color-mix(in srgb, var(--sage) 30%, transparent);
+  border-radius: var(--radius);
+}
+/* Glass card for dark sections */
+.card-dark {
+  background: rgba(247, 243, 234, 0.06);
+  border: 1px solid rgba(162, 178, 142, 0.2);
+  border-radius: var(--radius);
+  backdrop-filter: blur(12px);
+}
+
+/* Paper grain. Sits on top at very low opacity; stops large flat fills
+   and wide gradients from banding. */
+.grain { position: relative; }
+.grain::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  opacity: 0.035; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* --------------------------------------------------------------------------
+   5. BUTTONS
+   Every control is at least --tap tall by construction, not case by case.
+   That single rule is what makes the product usable at 88.
+   -------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+  min-height: var(--tap); padding: 0.75rem 1.5rem;
+  border: 0; border-radius: 999px; cursor: pointer;
+  font-family: var(--font-sans); font-size: 1rem; font-weight: 600;
+  white-space: nowrap; text-decoration: none;
+  transition: all 0.2s var(--ease-soft);
+}
+.btn:active { transform: scale(0.98); }
+.btn--lg { padding: 1rem 2rem; font-size: 1.125rem; }
+
+.btn--primary   { background: var(--forest); color: var(--cream); box-shadow: 0 10px 30px -12px rgba(47,58,35,0.6); }
+.btn--primary:hover { background: var(--forest-deep); }
+
+.btn--gold      { background: var(--gold); color: var(--forest-deep); box-shadow: 0 10px 34px -12px rgba(201,154,63,0.8); }
+.btn--gold:hover{ background: var(--gold-soft); }   /* lighter on hover, never darker */
+
+.btn--secondary { background: var(--parchment); color: var(--forest); border: 1px solid color-mix(in srgb, var(--sage) 40%, transparent); }
+.btn--secondary:hover { border-color: var(--forest); background: var(--cream-deep); }
+
+.btn--ghost     { background: transparent; color: var(--forest); }
+.btn--ghost:hover { background: color-mix(in srgb, var(--sage-mist) 60%, transparent); }
+
+/* For use over photography or the dark panels */
+.btn--on-dark   { background: rgba(247,243,234,0.10); color: var(--cream); border: 1px solid rgba(247,243,234,0.35); backdrop-filter: blur(8px); }
+.btn--on-dark:hover { background: rgba(247,243,234,0.20); }
+
+/* --------------------------------------------------------------------------
+   6. FORM CONTROLS
+   -------------------------------------------------------------------------- */
+.field { display: block; margin-bottom: 1.25rem; }
+.field > span { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--forest); }
+.input {
+  min-height: var(--tap); width: 100%; padding: 0 1rem;
+  border: 2px solid color-mix(in srgb, var(--sage) 30%, transparent);
+  border-radius: 1rem; background: var(--parchment);
+  font-family: var(--font-sans); font-size: 1rem; color: var(--forest);
+  outline: none; transition: all 0.2s var(--ease-soft);
+}
+.input:focus { border-color: var(--sage); box-shadow: 0 0 0 4px rgba(127,144,104,0.18); }
+
+/* Progress meter. The bar is decorative; the figures beside it are the
+   accessible source of truth, and the wrapper carries role="progressbar". */
+.meter { height: 0.625rem; width: 100%; border-radius: 999px; background: var(--cream-deep); overflow: hidden; }
+.meter > i { display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(to right, var(--gold-deep), var(--gold), var(--gold-soft)); }
+
+/* --------------------------------------------------------------------------
+   7. ANIMATION
+   Every one of these resolves to its final state under reduced motion —
+   see §8. Nothing is ever left invisible.
+   -------------------------------------------------------------------------- */
+@keyframes bh-rise    { from { opacity: 0; transform: translate3d(0,1.75rem,0); } to { opacity: 1; transform: none; } }
+@keyframes bh-float   { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-0.75rem); } }
+@keyframes bh-pulse-ring { 0% { transform: scale(0.85); opacity: 0.7; } 100% { transform: scale(1.9); opacity: 0; } }
+@keyframes bh-line-up { from { transform: translate3d(0,115%,0); } to { transform: translate3d(0,0,0); } }
+@keyframes bh-rule    { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* (a) Scroll reveal — JS adds .is-in via one IntersectionObserver for the
+   whole page. Guarded by .js so a no-JS visitor never loses content. */
+.js .reveal { opacity: 0; }
+.js .reveal.is-in { animation: bh-rise 0.9s var(--ease-out-expo) forwards; }
+
+/* (b) Above-the-fold entrance, no observer needed */
+.rise-in { opacity: 0; animation: bh-rise 0.85s var(--ease-out-expo) forwards; }
+
+/* (c) Masked line reveal — used on every major heading.
+   Each line is clipped in its own box and rises into it. The
+   padding/negative-margin pair gives descenders (g, y, p) room so the mask
+   doesn't shave them off, without adding space between lines. */
+.line-mask { display: block; overflow: hidden; padding-bottom: 0.14em; margin-bottom: -0.14em; }
+.line-mask > span { display: block; transform: translate3d(0,115%,0);
+  animation: bh-line-up 1.05s var(--ease-out-expo) forwards; }
+
+/* (d) Hairline that draws itself */
+.rule-in { transform: scaleX(0); animation: bh-rule 0.9s var(--ease-out-expo) forwards; }
+
+/* (e) Scroll-driven word reveal — the signature effect.
+   Each word carries its index in --i and reads a --progress value that JS
+   writes to an ancestor once per frame. The whole sentence assembles left
+   to right off ONE variable: no per-word JS, no extra React renders.
+
+   --w is each word's own 0–1 progress. Unregistered custom properties
+   substitute as tokens, so --w can be reused in both opacity and transform
+   and still compute correctly in each.
+
+   The highlight matches ::selection exactly. The gap between words is
+   padding rather than margin so neighbouring highlights meet and read as
+   one continuous marker stroke instead of separate chips. */
+.word {
+  --w: clamp(0, calc((var(--progress, 1) - var(--i) * 0.031) * 3.6), 1);
+  display: inline-block;
+  opacity: var(--w);
+  transform: translate3d(0, calc((1 - var(--w)) * 0.4em), 0);
+  background: var(--gold);
+  color: var(--forest);
+  padding: 0.04em 0 0.1em;
+  padding-right: 0.26em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+.word:first-child { padding-left: 0.14em; }
+
+.float { animation: bh-float 6s ease-in-out infinite; }
+
+/* --------------------------------------------------------------------------
+   8. REDUCED MOTION — non-negotiable for this audience
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .js .reveal { opacity: 1; }
+  .word { --w: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   9. DEMO PAGE CHROME (not part of the system)
+   -------------------------------------------------------------------------- */
+.wrap { max-width: 68rem; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+.sec { padding: 3rem 0; border-top: 1px solid color-mix(in srgb, var(--sage) 25%, transparent); }
+.sec:first-child { border-top: 0; }
+.sec > h2 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+.note { font-size: 0.875rem; color: var(--ink-muted); max-width: 46rem; margin: 0.5rem 0 1.75rem; }
+.row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 0.75rem; }
+.sw { border-radius: 0.75rem; overflow: hidden; border: 1px solid color-mix(in srgb, var(--sage) 25%, transparent); }
+.sw i { display: block; height: 3.5rem; }
+.sw b { display: block; padding: 0.5rem 0.625rem 0.125rem; font-size: 0.8125rem; }
+.sw code { display: block; padding: 0 0.625rem 0.5rem; font-size: 0.75rem; color: var(--ink-muted); }
+.dark { background: var(--night); border-radius: var(--radius); padding: 2rem; }
+.dark h3, .dark p { color: var(--cream); }
+.dark .lead { color: var(--sage-soft); }
+</style>
+</head>
+
+<body class="js">
+<div class="wrap">
+
+  <header class="sec">
+    <p class="eyebrow">Brave Homes</p>
+    <h1 style="margin-top:.75rem">Design system</h1>
+    <p class="lead" style="margin-top:1rem;max-width:44rem">
+      Every token, component and animation used on the site, in one file.
+      Open it in a browser to see it; hand the code over as the source of truth.
+    </p>
+  </header>
+
+  <!-- ---------------------------------------------------------------- -->
+  <section class="sec">
+    <h2>Colour</h2>
+    <p class="note">
+      Brass is reserved for money and progress — never decoration. The two
+      “ink” shades exist because the display greens and brass drop below
+      4.5:1 at label sizes.
+    </p>
+    <div class="swatches" id="swatches"></div>
+  </section>
+
+  <!-- ---------------------------------------------------------------- -->
+  <section class="sec">
+    <h2>Typography</h2>
+    <p class="note">
+      Newsreader for display at 400–500 only; Public Sans for everything
+      else. Public Sans was drawn for government services with legibility
+      as the brief, which is the same problem this product has.
+    </p>
+    <h1 class="line-mask"><span>Nobody should grow old</span></h1>
+    <h2 style="margin-top:1.25rem">Real bricks, in real places</h2>
+    <h3 style="margin-top:1.25rem">Create your profile</h3>
+    <p class="lead" style="margin-top:.75rem;max-width:44rem">
+      Body copy sits at 1.125rem with 1.7 line-height. Long measures are
+      capped around 44rem so a line never runs past comfortable reading.
+    </p>
+    <p class="eyebrow" style="margin-top:1.25rem">Simple by design</p>
+  </section>
+
+  <!-- ---------------------------------------------------------------- -->
+  <section class="sec">
+    <h2>Buttons</h2>
+    <p class="note">
+      Minimum height is <code>--tap</code> (3rem, or 3.75rem in Easy View)
+      on every variant by construction.
+    </p>
+    <div class="row">
+      <a class="btn btn--primary btn--lg" href="#">Join free — takes a minute</a>
+      <a class="btn btn--gold btn--lg" href="#">Donate</a>
+      <a class="btn btn--secondary" href="#">Follow the builds</a>
+      <a class="btn btn--ghost" href="#">Sign in</a>
+    </div>
+    <div class="dark" style="margin-top:1.25rem">
+      <div class="row">
+        <a class="btn btn--gold" href="#">Give to a home</a>
+        <a class="btn btn--on-dark" href="#">Follow the builds</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------------- -->
+  <section class="sec">
+    <h2>Surfaces &amp; controls</h2>
+    <div class="row" style="align-items:stretch">
+      <div class="card-solid grain" style="padding:1.5rem;flex:1 1 18rem">
+        <p class="eyebrow eyebrow--gold">Raised so far</p>
+        <p style="font-family:var(--font-serif);font-size:2.5rem;color:var(--gold-ink);margin:.5rem 0 1rem">£58,500</p>
+        <div class="meter" role="progressbar" aria-valuenow="48" aria-valuemin="0" aria-valuemax="100"><i style="width:48%"></i></div>
+        <p class="note" style="margin:.75rem 0 0">48% of £122,000</p>
+      </div>
+      <div class="card-solid" style="padding:1.5rem;flex:1 1 18rem">
+        <label class="field">
+          <span>Your name</span>
+          <input class="input" placeholder="Margaret" />
+        </label>
+        <label class="field" style="margin-bottom:0">
+          <span>City</span>
+          <input class="input" placeholder="Manchester" />
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------------- -->
+  <section class="sec">
+    <h2>The signature animation</h2>
+    <p class="note">
+      A scroll value is written to one CSS variable each frame; every word
+      derives its own progress from it and the highlight sweeps across.
+      Drag the slider to scrub it.
+    </p>
+    <blockquote id="quote" style="--progress:1;margin:0">
+      <p style="font-family:var(--font-serif);font-style:italic;font-size:clamp(1.4rem,3vw,2.4rem);line-height:1.16;margin:0"></p>
+    </blockquote>
+    <input id="scrub" type="range" min="0" max="100" value="100"
+           style="width:100%;max-width:28rem;margin-top:1.75rem" aria-label="Scrub the reveal" />
+  </section>
+
+  <!-- ---------------------------------------------------------------- -->
+  <section class="sec">
+    <h2>Easy View</h2>
+    <p class="note">
+      A real mode, not a zoom. It raises the root font size, grows every tap
+      target, thickens focus rings and hides decorative motion — one
+      attribute on <code>&lt;html&gt;</code> scales the whole interface.
+    </p>
+    <button class="btn btn--secondary" id="easy" aria-pressed="false">Toggle Easy View</button>
+  </section>
+
+</div>
+
+<script>
+/* Swatches */
+const COLOURS = [
+  ['cream','#f7f3ea'],['cream-deep','#ebe4d6'],['parchment','#fdfcf8'],
+  ['forest','#2f3a23'],['forest-deep','#1e2617'],['olive','#47513b'],['ink-muted','#646c52'],
+  ['sage','#7f9068'],['sage-soft','#a2b28e'],['sage-mist','#dde4d3'],
+  ['gold','#c99a3f'],['gold-soft','#ddbc7c'],['gold-deep','#a97c27'],
+  ['sage-ink','#5f6c4b'],['gold-ink','#8a641d'],['clay','#c9704f'],['night','#12180e'],
+];
+document.getElementById('swatches').innerHTML = COLOURS.map(
+  ([n,h]) => `<div class="sw"><i style="background:${h}"></i><b>${n}</b><code>${h}</code></div>`
+).join('');
+
+/* Word-by-word reveal, exactly as the site builds it */
+const QUOTE = '“If we help just one person feel less alone — every brick we’ve laid was worth it.”';
+document.querySelector('#quote p').innerHTML = QUOTE.split(' ')
+  .map((w, i) => `<span class="word" style="--i:${i}">${w}</span>`).join('');
+
+const scrub = document.getElementById('scrub');
+scrub.addEventListener('input', () => {
+  document.getElementById('quote').style.setProperty('--progress', scrub.value / 100);
+});
+
+/* Easy View */
+const easy = document.getElementById('easy');
+easy.addEventListener('click', () => {
+  const on = document.documentElement.dataset.simple !== 'true';
+  document.documentElement.dataset.simple = String(on);
+  easy.setAttribute('aria-pressed', String(on));
+});
+
+/* Scroll reveal */
+new IntersectionObserver((es, o) => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add('is-in'); o.unobserve(e.target); }
+}), { threshold: 0.1 }).observe(document.body);
+</script>
+</body>
+</html>

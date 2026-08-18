@@ -1,0 +1,434 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   BraveHomes design tokens
+   Palette sampled from the logo: cream ground, forest ink,
+   sage/gold accents. Gold is reserved for money + progress.
+   ============================================================ */
+@theme {
+  --font-serif: var(--font-serif-brand), ui-serif, Georgia, serif;
+  --font-sans: var(--font-sans-brand), ui-sans-serif, system-ui, sans-serif;
+
+  /* The page is white. The greens and brass are the brand, but carrying
+     them in the background too made every screen feel tinted — a warm
+     off-white ground read as sepia and left no room for the accents to
+     register as accents. White ground, colour used deliberately. */
+  --color-cream: #ffffff;        /* page background */
+  --color-cream-deep: #f2f2ef;   /* recessed / hover fill */
+  --color-parchment: #ffffff;    /* cards — separated by border, not fill */
+  --color-forest: #2f3a23;
+  --color-forest-deep: #1e2617;
+  --color-olive: #47513b;
+  --color-sage: #7f9068;
+  --color-sage-soft: #a2b28e;
+  --color-sage-mist: #edf1e8;   /* lightest green tint */
+  /* Antique brass rather than highlighter yellow. The old values were a
+     saturated startup gold that cheapened everything they touched;
+     these are desaturated and warmed toward ochre, which reads closer to
+     a brass plaque on a building. */
+  --color-gold: #c99a3f;
+  --color-gold-soft: #ddbc7c;
+  --color-gold-deep: #a97c27;
+  --color-clay: #c9704f;
+  --color-ink-muted: #646c52;
+
+  /* Darker cousins of sage and brass, for small labels on light grounds.
+     The display shades are tuned to look right at size; at 12px eyebrow
+     text they were 3.1:1 and 3.4:1 against cream — well under the 4.5:1
+     small text needs. Use these anywhere the type is small and dark-on-light. */
+  --color-sage-ink: #5f6c4b;
+  --color-gold-ink: #8a641d;
+
+  /* Near-black green. The page now alternates hard between this and
+     cream; the old layout was one continuous cream slab, which is why
+     every section read at the same weight. */
+  --color-night: #12180e;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ------------------------------------------------------------
+   Accessibility scale.
+   The whole product promise is "works whether you're 18 or 88".
+   Simple Mode is a real mode, not a zoom: it bumps the root font
+   size, thickens focus rings, and drops decorative motion.
+   Every size below is authored in rem so it scales with it.
+   ------------------------------------------------------------ */
+:root {
+  --bh-scale: 1;
+  --bh-radius: 1.25rem;
+  --bh-tap: 3rem; /* minimum interactive target */
+  /* Live height of the fixed site header, published by SiteHeader.
+     Anything that sticks below the header must use this, not a
+     hard-coded number — the bar grows with the Easy View text scale. */
+  --bh-header: 4.5rem;
+  font-size: calc(16px * var(--bh-scale));
+}
+
+:root[data-simple='true'] {
+  --bh-scale: 1.2;
+  --bh-tap: 3.75rem;
+}
+
+/* Easy View scales the type 20% but media queries always resolve `rem`
+   against the initial 16px, so the breakpoints do not move with it. The
+   centred nav therefore still overflowed into the utilities at `xl`;
+   below `2xl` it gives way to the menu button instead. */
+@media (max-width: 1535px) {
+  :root[data-simple='true'] [data-main-nav] {
+    display: none;
+  }
+
+  :root[data-simple='true'] [data-nav-toggle] {
+    display: inline-flex;
+  }
+
+  /* The sheet carries the same `xl:hidden` as the button, so without
+     this the menu opened onto nothing above 1280px in Easy View. */
+  :root[data-simple='true'] [data-nav-sheet] {
+    display: block;
+  }
+}
+
+:root[data-simple='true'] .decorative {
+  display: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-cream);
+  color: var(--color-olive);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-forest);
+}
+
+/* Visible, generous focus ring — never removed, only restyled. */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-forest);
+  outline-offset: 3px;
+  border-radius: 0.5rem;
+}
+
+:root[data-simple='true'] :where(a, button, input, textarea, select):focus-visible {
+  outline-width: 5px;
+}
+
+/* A field that is more than its input: a symbol, the input, sometimes a
+   trailing button. The ring belongs to the whole field, not to the input
+   inside it — on the password field the input's own outline stopped dead
+   before "Show" and cut the box in half. Same colour, width and offset
+   as the rule above, just drawn around the shell. */
+.field-shell:focus-within {
+  outline: 3px solid var(--color-forest);
+  outline-offset: 3px;
+}
+
+.field-shell :where(input, textarea):focus-visible {
+  outline: none;
+}
+
+/* A trailing button still needs its own indicator — the field ring is
+   already lit, so it says nothing about where focus landed. Drawn
+   inset, or it overshoots the field edge and the two rings collide. */
+.field-shell button:focus-visible {
+  outline: 2px solid var(--color-forest);
+  outline-offset: -3px;
+  border-radius: 0.85rem;
+}
+
+:root[data-simple='true'] .field-shell button:focus-visible {
+  outline-width: 3px;
+}
+
+:root[data-simple='true'] .field-shell:focus-within {
+  outline-width: 5px;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -6rem;
+  z-index: 100;
+  background: var(--color-forest);
+  color: var(--color-cream);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: top 0.2s var(--ease-soft);
+}
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* ------------------------------------------------------------
+   Motion primitives
+   ------------------------------------------------------------ */
+@keyframes bh-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.75rem, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bh-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bh-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.75rem);
+  }
+}
+
+@keyframes bh-pulse-ring {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+@keyframes bh-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Reveal-on-scroll: hidden until the observer adds .is-in.
+   Guarded by .js so no-JS users never lose content. */
+.js .reveal {
+  opacity: 0;
+}
+.js .reveal.is-in {
+  animation: bh-rise 0.9s var(--ease-out-expo) forwards;
+}
+
+.float {
+  animation: bh-float 6s ease-in-out infinite;
+}
+
+/* Entrance for content that is above the fold on load (no observer).
+   Under reduced-motion the global duration override lands it at its
+   final state immediately, so nothing is ever left invisible. */
+.rise-in {
+  opacity: 0;
+  animation: bh-rise 0.85s var(--ease-out-expo) forwards;
+}
+
+/* ---------- Masked line reveal ----------
+   Each line sits in its own clipped box and rises into it. The padding
+   /negative-margin pair gives descenders (g, y, p) room so the mask
+   doesn't shave them off, without adding visible space between lines. */
+@keyframes bh-line-up {
+  from {
+    transform: translate3d(0, 115%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+
+.line-mask > span {
+  display: block;
+  transform: translate3d(0, 115%, 0);
+  animation: bh-line-up 1.05s var(--ease-out-expo) forwards;
+}
+
+/* ---------- Scroll-driven word reveal ----------
+   Each word carries its index in `--i` and reads the hero's `--quote`
+   progress, so the line assembles left to right as the photograph mends
+   rather than fading in as one block.
+
+   `--w` is this word's own 0–1 progress. Unregistered custom properties
+   substitute as tokens, so it can be reused in both opacity and the
+   transform below and still compute correctly in each. */
+.quote-word {
+  --w: clamp(0, calc((var(--quote, 1) - var(--i) * 0.031) * 3.6), 1);
+  display: inline-block;
+  opacity: var(--w);
+  transform: translate3d(0, calc((1 - var(--w)) * 0.4em), 0);
+
+  /* Marker highlight, matching ::selection exactly. The gap between
+     words is padding rather than margin so neighbouring highlights meet
+     and read as one continuous stroke instead of separate chips. */
+  background: var(--color-gold);
+  color: var(--color-forest);
+  /* Hugs the letterforms: the looser padding made it read as a slab
+     rather than a marker stroke. The trailing space is trimmed too, so
+     the highlight overhangs less at the end of a wrapped line. */
+  padding: 0.02em 0 0.06em;
+  padding-right: 0.2em;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+/* First word on each line still needs a little breathing room at the
+   left edge of the stroke. */
+.quote-word:first-child {
+  padding-left: 0.12em;
+}
+
+/* Nothing to assemble when the whole scene is already at rest. */
+@media (prefers-reduced-motion: reduce) {
+  .quote-word {
+    --w: 1;
+  }
+}
+
+/* Hairline that draws itself outward from the text it flanks. */
+@keyframes bh-rule {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.rule-in {
+  transform: scaleX(0);
+  animation: bh-rule 0.9s var(--ease-out-expo) forwards;
+}
+
+/* Formerly an animated gradient sweep. A looping shimmer on a headline
+   is the single loudest "template" tell there is, and on a charity page
+   about loneliness it read as a sales banner. Now a still, slightly
+   graded brass — the colour does the emphasis, not the movement.
+
+   Two variants, because a brass that sings on near-black disappears on
+   white: the display stops measure 3.75 / 2.57 / 1.82 against white, so
+   the tail of a heading using them was effectively unreadable. Use
+   `.brass-on-dark` over the night sections, `.brass-on-light` on the
+   white ground. */
+.brass-on-light {
+  background: linear-gradient(
+    100deg,
+    var(--color-gold-ink) 0%,
+    var(--color-gold-deep) 55%,
+    var(--color-gold-ink) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.shimmer-text,
+.brass-on-dark {
+  background: linear-gradient(
+    100deg,
+    var(--color-gold-deep) 0%,
+    var(--color-gold) 45%,
+    var(--color-gold-soft) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.marquee-track {
+  animation: bh-marquee 40s linear infinite;
+}
+
+/* ------------------------------------------------------------
+   Surfaces
+   ------------------------------------------------------------ */
+.card {
+  background: color-mix(in srgb, var(--color-parchment) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-sage) 26%, transparent);
+  border-radius: var(--bh-radius);
+  backdrop-filter: blur(14px);
+}
+
+.card-solid {
+  background: var(--color-parchment);
+  border: 1px solid color-mix(in srgb, var(--color-sage) 30%, transparent);
+  border-radius: var(--bh-radius);
+}
+
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Hide scrollbar but keep scrolling (chat rails) */
+.no-bar {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-sage) 50%, transparent) transparent;
+}
+.no-bar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.no-bar::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-sage) 45%, transparent);
+  border-radius: 999px;
+}
+
+/* ------------------------------------------------------------
+   Respect the OS. Non-negotiable for our audience.
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .js .reveal {
+    opacity: 1;
+  }
+}

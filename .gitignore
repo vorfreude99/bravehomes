@@ -1,0 +1,17 @@
+node_modules/
+.next/
+out/
+build/
+.DS_Store
+*.pem
+npm-debug.log*
+.env*.local
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+.cache/
+
+# The discarded Vite site. Kept on disk for reference, out of the repo:
+# it is dead code, its dist bundle is large, and both the source and the
+# bundle have the Supabase project URL and anon key hardcoded.
+legacy/

@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m pip install matplotlib numpy --quiet)",
+      "Bash(py -m pip install matplotlib numpy --quiet)",
+      "Bash(python -c \"import matplotlib; print\\('ok', matplotlib.__version__\\)\")",
+      "Bash(py -c \"import matplotlib; print\\('ok', matplotlib.__version__\\)\")",
+      "Bash(start \"\" \"roof_top_view.png\")",
+      "Bash(powershell -c \"Invoke-Item 'C:\\\\Users\\\\rithi\\\\Desktop\\\\roof_top_view.png'\")",
+      "Bash(curl -s -o /dev/null -w \"root:%{http_code} bg:%{http_code}\\\\n\" http://localhost:5173/ \"http://localhost:5173/loginbg.jpg\")",
+      "Bash(python -c ' *)",
+      "Bash(py -c ' *)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\rithi\\Desktop"
+    ]
+  }
+}
