@@ -90,18 +90,19 @@ export function HowItWorks() {
       const last = nodes[nodes.length - 1];
       if (head && last) {
         const base = headerHeight() + 8;
-        const travel = base + head.offsetHeight;
 
-        // The release starts as the final step enters the lower quarter
-        // of the screen and finishes over the next `travel` pixels, so
-        // the title is gone by the time that step is the one you are
-        // reading. Waiting until it physically touched the masthead left
-        // the title still half on screen at step four.
+        // The release starts as the final step enters the lower part of
+        // the screen, then tracks scroll one-for-one with no ceiling.
+        //
+        // It used to stop at the masthead's own height, which looked
+        // right until you kept scrolling: the title was not travelling
+        // away, it was pinned at a fixed negative offset just off the
+        // top, and stayed stuck there for the rest of the section. Any
+        // device whose header measured taller than that offset showed it
+        // hanging on. Unbounded, it leaves for good — and coming back up
+        // the same sum re-sticks it exactly where it was.
         const start = window.innerHeight * 0.7;
-        const push = Math.min(
-          travel,
-          Math.max(0, start - last.getBoundingClientRect().top),
-        );
+        const push = Math.max(0, start - last.getBoundingClientRect().top);
         section.style.setProperty('--how-top', `${Math.round(base - push)}px`);
       }
 
