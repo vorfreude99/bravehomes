@@ -63,7 +63,17 @@
      Anything that sticks below the header must use this, not a
      hard-coded number — the bar grows with the Easy View text scale. */
   --bh-header: 4.5rem;
+  /* The hero panels are pushed apart in `vw`, which is generous on a
+     desktop and enormous on a phone — 34vw each side of a 390px screen
+     is a 265px void with the faces shoved off both edges. */
+  --bh-gap-k: 1;
   font-size: calc(16px * var(--bh-scale));
+}
+
+@media (max-width: 640px) {
+  :root {
+    --bh-gap-k: 0.45;
+  }
 }
 
 :root[data-simple='true'] {

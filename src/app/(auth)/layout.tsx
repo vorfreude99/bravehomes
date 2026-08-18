@@ -14,9 +14,12 @@ import { brand } from '@/lib/content';
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-svh lg:h-svh lg:overflow-hidden">
-      <div className="h-full w-full">
-        <div className="grid h-full lg:grid-cols-[0.92fr_1.08fr]">
+    <div className="flex min-h-svh flex-col lg:h-svh lg:overflow-hidden">
+      {/* `h-full` against a `min-h` parent has no definite height to
+          resolve against, so the form column only grew to its content
+          and left a white strip under it on phones. Flex stretches. */}
+      <div className="flex w-full flex-1 flex-col">
+        <div className="grid flex-1 lg:grid-cols-[0.92fr_1.08fr]">
           {/* ------------------------------ Form side ------------------------------ */}
           <div
             className="relative flex flex-col p-6 sm:p-10 lg:p-14 xl:p-16"

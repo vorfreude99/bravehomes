@@ -15,3 +15,5 @@ next-env.d.ts
 # it is dead code, its dist bundle is large, and both the source and the
 # bundle have the Supabase project URL and anon key hardcoded.
 legacy/
+
+.vercel

@@ -203,7 +203,7 @@ export function SplitHero() {
             className="relative h-full w-1/2 overflow-hidden will-change-transform"
             style={{
               transform:
-                'translate3d(calc(var(--gap) * -1vw), calc(var(--drift) * 1vh), 0)',
+                'translate3d(calc(var(--gap) * var(--bh-gap-k) * -1vw), calc(var(--drift) * 1vh), 0)',
             }}
           >
             <div className="absolute inset-y-0 left-0 w-[200%]">
@@ -231,7 +231,7 @@ export function SplitHero() {
             className="relative h-full w-1/2 overflow-hidden will-change-transform"
             style={{
               transform:
-                'translate3d(calc(var(--gap) * 1vw), calc(var(--drift) * -1vh), 0)',
+                'translate3d(calc(var(--gap) * var(--bh-gap-k) * 1vw), calc(var(--drift) * -1vh), 0)',
             }}
           >
             <div className="absolute inset-y-0 right-0 w-[200%]">
