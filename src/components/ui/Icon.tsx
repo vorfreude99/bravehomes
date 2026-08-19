@@ -11,6 +11,7 @@ export type IconName =
   | 'mic'
   | 'video'
   | 'check'
+  | 'grid'
   | 'arrow-right';
 
 /**
@@ -79,6 +80,14 @@ const PATHS: Record<IconName, React.ReactNode> = {
     <>
       <rect x="9.2" y="3.2" width="5.6" height="10.4" rx="2.8" />
       <path d="M5.6 11.6a6.4 6.4 0 0 0 12.8 0M12 18v2.8" />
+    </>
+  ),
+  grid: (
+    <>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
     </>
   ),
   video: (

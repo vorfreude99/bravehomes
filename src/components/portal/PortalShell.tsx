@@ -25,6 +25,7 @@ export function useSessionUser(): SessionUser {
 
 /** The five tabs from the product design, in the same order. */
 const TABS: { href: string; icon: IconName; label: string }[] = [
+  { href: '/portal', icon: 'grid', label: 'Dashboard' },
   { href: '/portal/chat', icon: 'chat', label: 'Chat' },
   { href: '/portal/find', icon: 'search', label: 'Find' },
   { href: '/portal/homes', icon: 'home', label: 'Homes' },
@@ -33,6 +34,7 @@ const TABS: { href: string; icon: IconName; label: string }[] = [
 ];
 
 function isActive(pathname: string, href: string) {
+  if (href === '/portal') return pathname === '/portal';
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -123,7 +125,7 @@ export function PortalShell({
             {/* Mobile tab bar — the pills do not fit a phone. */}
             <nav
               aria-label="Portal"
-              className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#1a1a1a]/10 bg-[#f5f3ef]/95 px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden"
+              className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-[#1a1a1a]/10 bg-[#f5f3ef]/95 px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden"
             >
               {TABS.map((tab) => {
                 const active = isActive(pathname, tab.href);
@@ -132,11 +134,11 @@ export function PortalShell({
                     key={tab.href}
                     href={tab.href}
                     aria-current={active ? 'page' : undefined}
-                    className="flex min-h-[var(--bh-tap)] flex-col items-center justify-center gap-0.5 rounded-2xl"
+                    className="flex min-h-[var(--bh-tap)] flex-col items-center justify-center gap-0.5 rounded-2xl px-0.5"
                   >
                     <Icon name={tab.icon} size={22} />
                     <span
-                      className={`text-[0.7rem] font-bold ${
+                      className={`text-[0.62rem] font-bold ${
                         active ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]/55'
                       }`}
                     >
