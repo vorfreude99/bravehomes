@@ -11,10 +11,13 @@ import {
   listMembers,
   listMessages,
   sendMessage,
+  sendVoiceMessage,
   subscribeToMessages,
+  voiceIsAvailable,
   type Member,
   type Message,
 } from '@/lib/db';
+import { VoicePlayer, VoiceRecorder } from './Voice';
 
 function timeOf(iso: string) {
   const d = new Date(iso);
@@ -28,6 +31,15 @@ function timeOf(iso: string) {
 export function ChatClient() {
   const me = useSessionUser();
   const params = useSearchParams();
+
+  /**
+   * The recorder only appears once the migration has been run. Showing a
+   * microphone that always errors is worse than not showing one.
+   */
+  const [voiceReady, setVoiceReady] = useState(false);
+  useEffect(() => {
+    void voiceIsAvailable().then(setVoiceReady);
+  }, []);
   const initialTo = params.get('to');
 
   const [members, setMembers] = useState<Member[]>([]);
@@ -109,6 +121,31 @@ export function ChatClient() {
 
     setDraft('');
     // Realtime echoes the row back; refetch keeps us right if it doesn't.
+    const { messages: fresh } = await listMessages(me.id);
+    setMessages(fresh);
+  }
+
+  async function onVoice(blob: Blob, durationMs: number) {
+    if (!activeId || sending) return;
+
+    setSending(true);
+    const result = await sendVoiceMessage(me.id, activeId, blob, durationMs);
+    setSending(false);
+
+    if (!result.ok) {
+      // Say which piece of setup is missing rather than "try again",
+      // which would be a lie when the bucket simply is not there.
+      setError(
+        result.reason === 'no-bucket'
+          ? 'Voice messages need the storage bucket from 0001_voice_messages.sql.'
+          : result.reason === 'no-column'
+            ? 'Voice messages need 0001_voice_messages.sql to be run first.'
+            : 'That voice message did not send. Please try again.',
+      );
+      return;
+    }
+
+    setError(null);
     const { messages: fresh } = await listMessages(me.id);
     setMessages(fresh);
   }
@@ -237,15 +274,23 @@ export function ChatClient() {
                 return (
                   <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
                     <div className="max-w-[min(34rem,80%)]">
-                      <div
-                        className={`rounded-3xl px-4 py-3 text-base leading-relaxed ${
-                          mine
-                            ? 'rounded-br-lg bg-forest text-cream'
-                            : 'rounded-bl-lg bg-sage-mist text-forest'
-                        }`}
-                      >
-                        {m.body}
-                      </div>
+                      {m.kind === 'voice' && m.audio_path ? (
+                        <VoicePlayer
+                          path={m.audio_path}
+                          durationMs={m.duration_ms}
+                          mine={mine}
+                        />
+                      ) : (
+                        <div
+                          className={`rounded-3xl px-4 py-3 text-base leading-relaxed ${
+                            mine
+                              ? 'rounded-br-lg bg-forest text-cream'
+                              : 'rounded-bl-lg bg-sage-mist text-forest'
+                          }`}
+                        >
+                          {m.body}
+                        </div>
+                      )}
                       <p
                         className={`mt-1 text-xs text-ink-muted ${
                           mine ? 'text-right' : ''
@@ -267,6 +312,9 @@ export function ChatClient() {
 
             <div className="border-t border-sage/25 px-5 py-4">
               <div className="flex items-end gap-2">
+                {voiceReady && (
+                  <VoiceRecorder onRecorded={(b, ms) => void onVoice(b, ms)} disabled={sending} />
+                )}
                 <label className="flex-1">
                   <span className="sr-only">Write a message</span>
                   <textarea
@@ -293,7 +341,9 @@ export function ChatClient() {
                 </Button>
               </div>
               <p className="mt-2 text-xs text-ink-muted">
-                Voice and video messages are coming soon. Press Enter to send.
+                {voiceReady
+                  ? 'Press Enter to send, or use the microphone to record.'
+                  : 'Video calls are coming soon. Press Enter to send.'}
               </p>
             </div>
           </>

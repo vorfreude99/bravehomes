@@ -21,7 +21,17 @@ export type Message = {
   recipient: string;
   body: string;
   created_at: string;
+  /** 'text' unless the migration has been run and this is a voice note. */
+  kind?: 'text' | 'voice';
+  /** Path inside the private `voice-messages` bucket. */
+  audio_path?: string | null;
+  duration_ms?: number | null;
 };
+
+/** Mirrors `DonationResult`: the UI can say what is missing, not just fail. */
+export type SendResult =
+  | { ok: true }
+  | { ok: false; reason: 'no-column' | 'no-bucket' | 'error'; message: string };
 
 export type Thread = {
   otherId: string;
@@ -75,11 +85,85 @@ export async function listMessages(userId: string) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('messages')
-    .select('id, sender, recipient, body, created_at')
+    .select('*')
     .or(`sender.eq.${userId},recipient.eq.${userId}`)
     .order('created_at', { ascending: true });
 
   return { messages: (data ?? []) as Message[], error };
+}
+
+/* ------------------------------- voice --------------------------------- */
+
+/** True once `0001_voice_messages.sql` has been run. */
+export async function voiceIsAvailable(): Promise<boolean> {
+  const supabase = createClient();
+  const { error } = await supabase.from('messages').select('kind').limit(1);
+  return !error;
+}
+
+/**
+ * Uploads the recording, then writes the row that points at it.
+ *
+ * The file goes under `<sender>/`, which is what the storage policy
+ * checks — the first folder segment has to be the uploader's own id.
+ */
+export async function sendVoiceMessage(
+  sender: string,
+  recipient: string,
+  blob: Blob,
+  durationMs: number,
+): Promise<SendResult> {
+  const supabase = createClient();
+  const path = `${sender}/${crypto.randomUUID()}.webm`;
+
+  const up = await supabase.storage
+    .from('voice-messages')
+    .upload(path, blob, { contentType: blob.type || 'audio/webm' });
+
+  if (up.error) {
+    const missing = /bucket not found/i.test(up.error.message);
+    return {
+      ok: false,
+      reason: missing ? 'no-bucket' : 'error',
+      message: up.error.message,
+    };
+  }
+
+  const seconds = Math.max(1, Math.round(durationMs / 1000));
+  const { error } = await supabase.from('messages').insert({
+    sender,
+    recipient,
+    // `body` is also the thread preview, so it has to read as something.
+    body: `Voice message · ${seconds}s`,
+    kind: 'voice',
+    audio_path: path,
+    duration_ms: durationMs,
+  });
+
+  if (error) {
+    // Row failed, so the file is orphaned — take it back out.
+    await supabase.storage.from('voice-messages').remove([path]);
+    const missing = error.code === '42703' || /column .* does not exist/i.test(error.message);
+    return {
+      ok: false,
+      reason: missing ? 'no-column' : 'error',
+      message: error.message,
+    };
+  }
+
+  return { ok: true };
+}
+
+/**
+ * A short-lived URL for one recording. The bucket is private, so the
+ * file cannot simply be linked.
+ */
+export async function voiceUrl(path: string): Promise<string | null> {
+  const supabase = createClient();
+  const { data } = await supabase.storage
+    .from('voice-messages')
+    .createSignedUrl(path, 60 * 60);
+  return data?.signedUrl ?? null;
 }
 
 export async function sendMessage(sender: string, recipient: string, body: string) {
