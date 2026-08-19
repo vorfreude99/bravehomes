@@ -160,16 +160,16 @@ export function ChatClient() {
   }
 
   return (
-    <div className="grid h-[calc(100svh-8.5rem)] lg:h-[100svh] lg:grid-cols-[20rem_1fr]">
+    <div className="grid h-[calc(100svh-9.5rem)] gap-4 px-5 pb-6 sm:px-8 lg:h-[calc(100svh-7rem)] lg:grid-cols-[21rem_1fr]">
       {/* ------------------------------ Threads ------------------------------ */}
       <aside
-        className={`flex min-h-0 flex-col border-r border-sage/25 ${
+        className={`min-h-0 flex-col overflow-hidden rounded-[1.5rem] bg-white/75 ${
           active ? 'hidden lg:flex' : 'flex'
         }`}
       >
-        <div className="border-b border-sage/25 px-5 py-5">
-          <h1 className="font-serif text-2xl font-medium text-forest">Chat</h1>
-          <p className="mt-1 text-sm text-ink-muted">
+        <div className="border-b border-[#1a1a1a]/10 px-5 py-5">
+          <h1 className="text-xl font-semibold text-[#1a1a1a]">Chat</h1>
+          <p className="mt-1 text-sm text-[#1a1a1a]/60">
             {threads.length
               ? `${threads.length} ${threads.length === 1 ? 'conversation' : 'conversations'}`
               : 'No conversations yet'}
@@ -177,16 +177,16 @@ export function ChatClient() {
         </div>
 
         <div className="no-bar min-h-0 flex-1 overflow-y-auto p-3">
-          {loading && <p className="px-2 py-4 text-ink-muted">Loading…</p>}
+          {loading && <p className="px-2 py-4 text-[#1a1a1a]/60">Loading…</p>}
 
           {!loading && threads.length === 0 && (
             <div className="px-2 py-6">
-              <p className="text-olive">
+              <p className="text-[#1a1a1a]/70">
                 Your conversations will appear here. Find someone to talk to first.
               </p>
               <Link
                 href="/portal/find"
-                className="mt-4 inline-flex min-h-[var(--bh-tap)] items-center rounded-full bg-forest px-6 font-semibold text-cream"
+                className="mt-4 inline-flex min-h-[var(--bh-tap)] items-center rounded-full bg-[#1a1a1a] px-6 font-semibold text-white"
               >
                 Find people
               </Link>
@@ -203,22 +203,22 @@ export function ChatClient() {
                     onClick={() => setActiveId(thread.otherId)}
                     aria-current={selected ? 'true' : undefined}
                     className={`flex w-full min-h-[var(--bh-tap)] items-center gap-3 rounded-2xl px-3 py-3 text-left transition ${
-                      selected ? 'bg-sage-mist/70' : 'hover:bg-sage-mist/40'
+                      selected ? 'bg-[#1a1a1a]/[0.07]/70' : 'hover:bg-[#1a1a1a]/[0.04]'
                     }`}
                   >
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sage-mist text-lg font-bold text-forest">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1a1a1a]/[0.07] text-lg font-bold text-[#1a1a1a]">
                       {thread.member.name.charAt(0).toUpperCase()}
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
-                        <span className="truncate font-semibold text-forest">
+                        <span className="truncate font-semibold text-[#1a1a1a]">
                           {thread.member.name}
                         </span>
-                        <span className="shrink-0 text-xs text-ink-muted">
+                        <span className="shrink-0 text-xs text-[#1a1a1a]/60">
                           {timeOf(thread.created_at)}
                         </span>
                       </span>
-                      <span className="mt-0.5 block truncate text-sm text-ink-muted">
+                      <span className="mt-0.5 block truncate text-sm text-[#1a1a1a]/60">
                         {thread.last}
                       </span>
                     </span>
@@ -232,7 +232,9 @@ export function ChatClient() {
 
       {/* --------------------------- Conversation --------------------------- */}
       <section
-        className={`flex min-h-0 flex-col ${active ? 'flex' : 'hidden lg:flex'}`}
+        className={`min-h-0 flex-col overflow-hidden rounded-[1.5rem] bg-white/75 ${
+          active ? 'flex' : 'hidden lg:flex'
+        }`}
         aria-label="Conversation"
       >
         {!active ? (
@@ -241,13 +243,13 @@ export function ChatClient() {
              offers the next step instead, with real people in it. */
           <div className="flex flex-1 items-center justify-center p-8">
             <div className="w-full max-w-md text-center">
-              <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sage-mist text-forest">
+              <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#1a1a1a]/[0.07] text-[#1a1a1a]">
                 <Icon name="chat" size={28} />
               </span>
-              <h2 className="mt-5 font-serif text-2xl font-medium text-forest">
+              <h2 className="mt-5 text-xl font-semibold text-[#1a1a1a]">
                 {threads.length ? 'Pick up a conversation' : 'Start your first conversation'}
               </h2>
-              <p className="mx-auto mt-2 max-w-sm text-olive">
+              <p className="mx-auto mt-2 max-w-sm text-[#1a1a1a]/70">
                 {threads.length
                   ? 'Choose someone on the left, or meet somebody new.'
                   : 'Everyone here joined hoping somebody would say hello. You can be that somebody.'}
@@ -260,21 +262,21 @@ export function ChatClient() {
                       <button
                         type="button"
                         onClick={() => setActiveId(m.id)}
-                        className="flex w-full items-center gap-3 rounded-2xl border border-sage/25 bg-parchment p-3 text-left transition-colors hover:border-sage hover:bg-sage-mist/40"
+                        className="flex w-full items-center gap-3 rounded-2xl border border-[#1a1a1a]/10 bg-white p-3 text-left transition-colors hover:border-sage hover:bg-[#1a1a1a]/[0.04]"
                       >
-                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sage-mist font-bold text-forest">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1a1a1a]/[0.07] font-bold text-[#1a1a1a]">
                           {m.name.charAt(0).toUpperCase()}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate font-semibold text-forest">
+                          <span className="block truncate font-semibold text-[#1a1a1a]">
                             {m.name}
                             {m.age ? `, ${m.age}` : ''}
                           </span>
                           {m.city && (
-                            <span className="block truncate text-sm text-olive">{m.city}</span>
+                            <span className="block truncate text-sm text-[#1a1a1a]/70">{m.city}</span>
                           )}
                         </span>
-                        <span className="shrink-0 text-sm font-semibold text-forest">
+                        <span className="shrink-0 text-sm font-semibold text-[#1a1a1a]">
                           Say hello
                         </span>
                       </button>
@@ -285,7 +287,7 @@ export function ChatClient() {
 
               <Link
                 href="/portal/find"
-                className="mt-6 inline-flex min-h-[var(--bh-tap)] items-center font-semibold text-forest underline underline-offset-4"
+                className="mt-6 inline-flex min-h-[var(--bh-tap)] items-center font-semibold text-[#1a1a1a] underline underline-offset-4"
               >
                 See everyone
               </Link>
@@ -293,26 +295,26 @@ export function ChatClient() {
           </div>
         ) : (
           <>
-            <header className="flex items-center gap-3 border-b border-sage/25 px-5 py-4">
+            <header className="flex items-center gap-3 border-b border-[#1a1a1a]/10 px-5 py-4">
               <button
                 type="button"
                 onClick={() => setActiveId(null)}
-                className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-sage-mist/60 lg:hidden"
+                className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-[#1a1a1a]/[0.05] lg:hidden"
               >
                 <span className="sr-only">Back to conversations</span>
                 <span aria-hidden="true">←</span>
               </button>
 
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-sage-mist text-lg font-bold text-forest">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1a1a1a]/[0.07] text-lg font-bold text-[#1a1a1a]">
                 {active.name.charAt(0).toUpperCase()}
               </span>
               <span className="min-w-0">
-                <span className="block truncate font-bold text-forest">
+                <span className="block truncate font-bold text-[#1a1a1a]">
                   {active.name}
                   {active.age ? `, ${active.age}` : ''}
                   {active.city ? ` — ${active.city}` : ''}
                 </span>
-                <span className="flex items-center gap-1.5 text-sm text-sage-ink">
+                <span className="flex items-center gap-1.5 text-sm text-[#1a1a1a]/60">
                   <span className="h-2 w-2 rounded-full bg-sage" />
                   Active now
                 </span>
@@ -324,7 +326,7 @@ export function ChatClient() {
                   onClick={() => calls.call(active.id, active.name)}
                   disabled={calls.busy}
                   aria-label={`Start a video call with ${active.name}`}
-                  className="ml-auto flex h-[var(--bh-tap)] w-[var(--bh-tap)] shrink-0 items-center justify-center rounded-full border-2 border-sage/40 text-forest transition-colors hover:border-forest hover:bg-sage-mist/60 disabled:opacity-40"
+                  className="ml-auto flex h-[var(--bh-tap)] w-[var(--bh-tap)] shrink-0 items-center justify-center rounded-full border-2 border-[#1a1a1a]/15 text-[#1a1a1a] transition-colors hover:border-[#1a1a1a] hover:bg-[#1a1a1a]/[0.05] disabled:opacity-40"
                 >
                   <Icon name="video" size={22} />
                 </button>
@@ -333,7 +335,7 @@ export function ChatClient() {
 
             <div ref={scroller} className="no-bar min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-6">
               {conversation.length === 0 && (
-                <p className="py-10 text-center text-ink-muted">
+                <p className="py-10 text-center text-[#1a1a1a]/60">
                   Say hello. A first message is always the hardest one.
                 </p>
               )}
@@ -353,15 +355,15 @@ export function ChatClient() {
                         <div
                           className={`rounded-3xl px-4 py-3 text-base leading-relaxed ${
                             mine
-                              ? 'rounded-br-lg bg-forest text-cream'
-                              : 'rounded-bl-lg bg-sage-mist text-forest'
+                              ? 'rounded-br-lg bg-[#1a1a1a] text-white'
+                              : 'rounded-bl-lg bg-[#1a1a1a]/[0.06] text-[#1a1a1a]'
                           }`}
                         >
                           {m.body}
                         </div>
                       )}
                       <p
-                        className={`mt-1 text-xs text-ink-muted ${
+                        className={`mt-1 text-xs text-[#1a1a1a]/60 ${
                           mine ? 'text-right' : ''
                         }`}
                       >
@@ -379,7 +381,7 @@ export function ChatClient() {
               </div>
             )}
 
-            <div className="border-t border-sage/25 px-5 py-4">
+            <div className="border-t border-[#1a1a1a]/10 px-5 py-4">
               <div className="flex items-end gap-2">
                 {voiceReady && (
                   <VoiceRecorder onRecorded={(b, ms) => void onVoice(b, ms)} disabled={sending} />
@@ -398,7 +400,7 @@ export function ChatClient() {
                     }}
                     rows={1}
                     placeholder="Write a message…"
-                    className="min-h-[var(--bh-tap)] w-full resize-none rounded-3xl border-2 border-sage/30 bg-parchment px-5 py-3.5 text-base text-forest outline-none focus:border-sage"
+                    className="min-h-[var(--bh-tap)] w-full resize-none rounded-3xl border-2 border-[#1a1a1a]/15 bg-white px-5 py-3.5 text-base text-[#1a1a1a] outline-none focus:border-[#1a1a1a]/40"
                   />
                 </label>
                 <Button
@@ -409,7 +411,7 @@ export function ChatClient() {
                   {sending ? '…' : 'Send'}
                 </Button>
               </div>
-              <p className="mt-2 text-xs text-ink-muted">
+              <p className="mt-2 text-xs text-[#1a1a1a]/60">
                 {voiceReady
                   ? 'Press Enter to send, the microphone to record, or the camera to call.'
                   : 'Press Enter to send.'}
