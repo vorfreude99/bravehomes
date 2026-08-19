@@ -18,6 +18,8 @@ import {
   type Message,
 } from '@/lib/db';
 import { VoicePlayer, VoiceRecorder } from './Voice';
+import { useCalls } from './CallProvider';
+import { Icon } from '@/components/ui/Icon';
 
 function timeOf(iso: string) {
   const d = new Date(iso);
@@ -36,6 +38,7 @@ export function ChatClient() {
    * The recorder only appears once the migration has been run. Showing a
    * microphone that always errors is worse than not showing one.
    */
+  const calls = useCalls();
   const [voiceReady, setVoiceReady] = useState(false);
   useEffect(() => {
     void voiceIsAvailable().then(setVoiceReady);
@@ -255,11 +258,23 @@ export function ChatClient() {
                   {active.age ? `, ${active.age}` : ''}
                   {active.city ? ` — ${active.city}` : ''}
                 </span>
-                <span className="flex items-center gap-1.5 text-sm text-sage">
+                <span className="flex items-center gap-1.5 text-sm text-sage-ink">
                   <span className="h-2 w-2 rounded-full bg-sage" />
                   Active now
                 </span>
               </span>
+
+              {calls && (
+                <button
+                  type="button"
+                  onClick={() => calls.call(active.id, active.name)}
+                  disabled={calls.busy}
+                  aria-label={`Start a video call with ${active.name}`}
+                  className="ml-auto flex h-[var(--bh-tap)] w-[var(--bh-tap)] shrink-0 items-center justify-center rounded-full border-2 border-sage/40 text-forest transition-colors hover:border-forest hover:bg-sage-mist/60 disabled:opacity-40"
+                >
+                  <Icon name="video" size={22} />
+                </button>
+              )}
             </header>
 
             <div ref={scroller} className="no-bar min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-6">
@@ -342,8 +357,8 @@ export function ChatClient() {
               </div>
               <p className="mt-2 text-xs text-ink-muted">
                 {voiceReady
-                  ? 'Press Enter to send, or use the microphone to record.'
-                  : 'Video calls are coming soon. Press Enter to send.'}
+                  ? 'Press Enter to send, the microphone to record, or the camera to call.'
+                  : 'Press Enter to send.'}
               </p>
             </div>
           </>

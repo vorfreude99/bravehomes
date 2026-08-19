@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, type ReactNode } from 'react';
+import { CallProvider } from './CallProvider';
 import { BrandLock } from '@/components/ui/Brand';
 import { SimpleModeToggle } from '@/components/SettingsProvider';
 import { createClient } from '@/lib/supabase/client';
@@ -53,6 +54,9 @@ export function PortalShell({
 
   return (
     <UserContext.Provider value={user}>
+      {/* Wrapping the whole portal, not just chat: a call has to be
+          answerable wherever the person happens to be. */}
+      <CallProvider meId={user.id} meName={user.name}>
       <div className="min-h-[100svh] lg:grid lg:grid-cols-[17rem_1fr]">
         {/* --------------------------- Desktop rail --------------------------- */}
         <aside className="sticky top-0 hidden h-[100svh] flex-col border-r border-sage/25 bg-cream-deep/30 p-6 lg:flex">
@@ -141,6 +145,7 @@ export function PortalShell({
           </nav>
         </div>
       </div>
+      </CallProvider>
     </UserContext.Provider>
   );
 }
