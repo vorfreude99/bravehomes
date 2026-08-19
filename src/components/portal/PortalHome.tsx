@@ -4,35 +4,87 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useSessionUser } from './PortalShell';
 import { LinkButton } from '@/components/ui/Button';
-import { listMembers, listMessages, type Member } from '@/lib/db';
-import { BUILD_STAGES, currency, projects, steps } from '@/lib/content';
-import { Icon } from '@/components/ui/Icon';
+import { getProfile, listMembers, listMessages, type Member, type Message } from '@/lib/db';
+import { BUILD_STAGES, currency, projects } from '@/lib/content';
+import { Icon, type IconName } from '@/components/ui/Icon';
 
 const totalRaised = projects.reduce((sum, p) => sum + p.raised, 0);
 const totalGoal = projects.reduce((sum, p) => sum + p.goal, 0);
+const totalPct = Math.round((totalRaised / totalGoal) * 100);
+
+/** Shared tile shell, so every panel sits on the same rounded ground. */
+function Tile({
+  className = '',
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={`rounded-[1.5rem] border border-sage/25 bg-parchment p-6 ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+/**
+ * A ring, drawn rather than filled: two circles and a dash offset. No
+ * chart library for one number — it would be more bytes than the whole
+ * dashboard.
+ */
+function Ring({ pct, label, sub }: { pct: number; label: string; sub: string }) {
+  const r = 54;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="relative flex items-center justify-center">
+      <svg width="140" height="140" viewBox="0 0 140 140" aria-hidden="true">
+        <circle cx="70" cy="70" r={r} fill="none" stroke="currentColor" strokeWidth="12" className="text-sage/25" />
+        <circle
+          cx="70"
+          cy="70"
+          r={r}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="12"
+          strokeLinecap="round"
+          className="text-gold"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - pct / 100)}
+          transform="rotate(-90 70 70)"
+        />
+      </svg>
+      <span className="absolute text-center">
+        <span className="block font-serif text-3xl font-medium text-forest">{label}</span>
+        <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-sage-ink">
+          {sub}
+        </span>
+      </span>
+    </div>
+  );
+}
 
 export function PortalHome() {
   const me = useSessionUser();
   const [people, setPeople] = useState<Member[]>([]);
-  const [wroteToMe, setWroteToMe] = useState(0);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [profile, setProfile] = useState<Member | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let alive = true;
 
     void (async () => {
-      const [{ members }, { messages }] = await Promise.all([
+      const [{ members }, { messages: msgs }, mine] = await Promise.all([
         listMembers(me.id),
         listMessages(me.id),
+        getProfile(me.id),
       ]);
       if (!alive) return;
-
-      setPeople(members.slice(0, 6));
-      // How many people have written to you at all — a gentle nudge, not
-      // a fake unread badge we cannot actually track yet.
-      setWroteToMe(
-        new Set(messages.filter((m) => m.recipient === me.id).map((m) => m.sender)).size,
-      );
+      setPeople(members);
+      setMessages(msgs);
+      setProfile(mine);
       setLoaded(true);
     })();
 
@@ -45,201 +97,228 @@ export function PortalHome() {
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   const firstName = me.name.split(' ')[0];
 
-  return (
-    <div className="px-5 pb-14 pt-8 sm:px-8">
-      {/* ------------------------------ Welcome ------------------------------
-          One panel with one job, rather than three identical cards each
-          asking for equal attention. The product's whole purpose is to
-          get somebody talking, so that is the button. */}
-      <section className="relative overflow-hidden rounded-[var(--bh-radius)] border border-sage/30 bg-sage-mist px-6 py-8 sm:px-10 sm:py-10">
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 90% at 88% 10%, rgba(201,154,63,0.22) 0%, rgba(237,241,232,0) 62%)',
-          }}
-          aria-hidden="true"
-        />
+  const conversations = new Set(
+    messages.map((m) => (m.sender === me.id ? m.recipient : m.sender)),
+  ).size;
+  const sent = messages.filter((m) => m.sender === me.id).length;
+  const wroteToMe = new Set(
+    messages.filter((m) => m.recipient === me.id).map((m) => m.sender),
+  ).size;
 
-        <div className="relative max-w-2xl">
+  /**
+   * A real checklist, not a decorative one: every line is read from the
+   * account, so it cannot claim progress that has not happened.
+   */
+  const checklist: { label: string; done: boolean; href: string; icon: IconName }[] = [
+    { label: 'Create your profile', done: Boolean(profile), href: '/portal/profile', icon: 'profile' },
+    { label: 'Say where you live', done: Boolean(profile?.city), href: '/portal/profile', icon: 'home' },
+    { label: 'Write a line about yourself', done: Boolean(profile?.bio), href: '/portal/profile', icon: 'chat' },
+    { label: 'Send a first message', done: sent > 0, href: '/portal/find', icon: 'mail' },
+  ];
+  const doneCount = checklist.filter((c) => c.done).length;
+
+  return (
+    <div className="px-5 pb-14 pt-7 sm:px-8">
+      {/* ------------------------------ Welcome ------------------------------ */}
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
             {greeting}
           </p>
-          <h1 className="mt-3 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
-            {firstName}.
+          <h1 className="mt-2 font-serif text-4xl font-medium leading-none text-forest sm:text-5xl">
+            Welcome in, {firstName}
           </h1>
-          <p className="mt-4 text-lg leading-relaxed text-olive">
-            {wroteToMe
-              ? `${wroteToMe} ${wroteToMe === 1 ? 'person has' : 'people have'} written to you. They are waiting on a reply.`
-              : 'Somebody out there would be glad to hear from you today. It only takes one message to start.'}
-          </p>
-
-          <div className="mt-7 flex flex-wrap gap-3">
-            {wroteToMe ? (
-              <>
-                <LinkButton href="/portal/chat" variant="primary" size="lg">
-                  Read your messages
-                </LinkButton>
-                <LinkButton href="/portal/find" variant="secondary" size="lg">
-                  Meet someone new
-                </LinkButton>
-              </>
-            ) : (
-              <>
-                <LinkButton href="/portal/find" variant="primary" size="lg">
-                  Find someone to talk to
-                </LinkButton>
-                <LinkButton href="/portal/chat" variant="secondary" size="lg">
-                  Open your chats
-                </LinkButton>
-              </>
-            )}
-          </div>
         </div>
-      </section>
+        <LinkButton href="/portal/find" variant="primary">
+          Find someone
+        </LinkButton>
+      </div>
 
-      {/* ------------------------------- People ------------------------------ */}
-      <section aria-labelledby="people" className="mt-14">
-        <div className="flex items-end justify-between gap-4 border-b border-sage/25 pb-3">
-          <h2 id="people" className="font-serif text-2xl font-medium text-forest">
-            People to meet
-          </h2>
-          <Link
-            href="/portal/find"
-            className="inline-flex min-h-[var(--bh-tap)] items-center font-semibold text-forest underline underline-offset-4"
-          >
-            See everyone
-          </Link>
-        </div>
+      {/* Headline figures. Every one is counted from the database, so an
+          empty account honestly reads zero rather than showing a demo. */}
+      <div className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {[
+          { n: people.length, label: 'people here', icon: 'profile' as IconName },
+          { n: conversations, label: 'conversations', icon: 'chat' as IconName },
+          { n: wroteToMe, label: 'waiting on you', icon: 'mail' as IconName },
+          { n: projects.length, label: 'homes under way', icon: 'home' as IconName },
+        ].map((s) => (
+          <Tile key={s.label} className="!p-5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sage-mist text-forest">
+              <Icon name={s.icon} size={18} />
+            </span>
+            <p className="mt-3 font-serif text-4xl font-medium leading-none text-forest">
+              {loaded ? s.n : '—'}
+            </p>
+            <p className="mt-1 text-sm text-olive">{s.label}</p>
+          </Tile>
+        ))}
+      </div>
 
-        {!loaded ? (
-          <p className="mt-6 text-olive">Looking for people…</p>
-        ) : people.length === 0 ? (
-          <div className="mt-6 rounded-[var(--bh-radius)] border border-dashed border-sage/40 p-8 text-center">
-            <p className="font-serif text-xl text-forest">You are the first one here.</p>
-            <p className="mx-auto mt-2 max-w-md text-olive">
-              Nobody else has joined yet. Invite someone you care about and your
-              first conversation is waiting.
+      {/* -------------------------------- Bento ------------------------------ */}
+      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+        {/* You */}
+        <Tile className="flex flex-col justify-between bg-gradient-to-br from-sage-mist to-parchment">
+          <div>
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-forest text-2xl font-bold text-cream">
+              {firstName.charAt(0).toUpperCase()}
+            </span>
+            <h2 className="mt-4 font-serif text-2xl font-medium text-forest">
+              {profile?.name ?? me.name}
+            </h2>
+            <p className="text-olive">
+              {profile?.city || 'Add your city so people nearby can find you'}
             </p>
           </div>
-        ) : (
-          /* Rows, not a card grid. One member in a four-column grid left a
-             lonely box beside three empty columns; a list reads the same
-             with one person or twenty. */
-          <ul className="mt-2 divide-y divide-sage/20">
-            {people.map((p) => (
-              <li key={p.id} className="flex items-center gap-4 py-4">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-sage-mist text-lg font-bold text-forest">
-                  {p.name.charAt(0).toUpperCase()}
-                </span>
+          <Link
+            href="/portal/profile"
+            className="mt-6 inline-flex min-h-[var(--bh-tap)] items-center justify-center rounded-full border-2 border-forest/20 px-5 font-semibold text-forest transition-colors hover:border-forest hover:bg-cream"
+          >
+            Edit your profile
+          </Link>
+        </Tile>
 
-                <span className="min-w-0 flex-1">
-                  <span className="block font-semibold text-forest">
-                    {p.name}
-                    {p.age ? `, ${p.age}` : ''}
-                    {p.city ? <span className="font-normal text-olive"> · {p.city}</span> : null}
-                  </span>
-                  {p.bio && (
-                    <span className="mt-0.5 block truncate text-sm text-olive">{p.bio}</span>
-                  )}
-                </span>
+        {/* Giving */}
+        <Tile className="flex flex-col items-center justify-center text-center">
+          <h2 className="self-start font-serif text-xl font-medium text-forest">
+            The build so far
+          </h2>
+          <div className="my-3">
+            <Ring pct={totalPct} label={`${totalPct}%`} sub="funded" />
+          </div>
+          <p className="text-olive">
+            <span className="font-semibold text-forest">{currency.format(totalRaised)}</span> of{' '}
+            {currency.format(totalGoal)}
+          </p>
+          <LinkButton href="/portal/donate" variant="gold" className="mt-4 w-full">
+            Lay a brick
+          </LinkButton>
+        </Tile>
 
+        {/* Getting started — the dark tile from the reference, earning its
+            weight by carrying the one thing that changes per person. */}
+        <Tile className="!border-forest-deep !bg-forest-deep">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-serif text-xl font-medium text-cream">Getting started</h2>
+            <span className="font-serif text-2xl text-gold">
+              {doneCount}/{checklist.length}
+            </span>
+          </div>
+
+          <ul className="mt-5 space-y-2.5">
+            {checklist.map((c) => (
+              <li key={c.label}>
                 <Link
-                  href={`/portal/chat?to=${p.id}`}
-                  className="inline-flex min-h-[var(--bh-tap)] shrink-0 items-center rounded-full border-2 border-sage/40 px-5 font-semibold text-forest transition-colors hover:border-forest hover:bg-sage-mist/60"
+                  href={c.href}
+                  className="flex items-center gap-3 rounded-2xl px-3 py-2.5 transition-colors hover:bg-cream/10"
                 >
-                  Say hello
+                  <span
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                      c.done ? 'bg-gold text-forest-deep' : 'bg-cream/10 text-sage-soft'
+                    }`}
+                    aria-hidden="true"
+                  >
+                    <Icon name={c.done ? 'check' : c.icon} size={17} />
+                  </span>
+                  <span
+                    className={`text-sm ${
+                      c.done ? 'text-sage-soft line-through' : 'font-semibold text-cream'
+                    }`}
+                  >
+                    {c.label}
+                  </span>
                 </Link>
               </li>
             ))}
           </ul>
-        )}
-      </section>
+        </Tile>
 
-      {/* ------------------------------- Builds ------------------------------
-          The same register the public site uses, rather than three cards
-          with percentage badges — that pattern was replaced out there for
-          reading as a generic dashboard, and it would read the same here. */}
-      <section aria-labelledby="builds" className="mt-14">
-        <div className="flex items-end justify-between gap-4 border-b border-sage/25 pb-3">
-          <h2 id="builds" className="font-serif text-2xl font-medium text-forest">
-            What your giving is building
-          </h2>
-          <Link
-            href="/portal/homes"
-            className="inline-flex min-h-[var(--bh-tap)] items-center font-semibold text-forest underline underline-offset-4"
-          >
-            All homes
-          </Link>
-        </div>
+        {/* People — spans two columns so a single member still fills a row */}
+        <Tile className="lg:col-span-2">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="font-serif text-xl font-medium text-forest">People to meet</h2>
+            <Link
+              href="/portal/find"
+              className="text-sm font-semibold text-forest underline underline-offset-4"
+            >
+              See everyone
+            </Link>
+          </div>
 
-        <p className="mt-4 text-olive">
-          <span className="font-serif text-2xl font-medium text-forest">
-            {currency.format(totalRaised)}
-          </span>{' '}
-          raised of {currency.format(totalGoal)} across {projects.length} builds.
-        </p>
-
-        <ul className="mt-4 divide-y divide-sage/20">
-          {projects.map((project) => {
-            const pct = Math.min(100, Math.round((project.raised / project.goal) * 100));
-            return (
-              <li key={project.id} className="py-4">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-                  <span className="font-semibold text-forest">{project.name}</span>
-                  <span className="text-sm text-olive">
-                    <span className="font-semibold text-gold-ink">
-                      {currency.format(project.raised)}
-                    </span>{' '}
-                    of {currency.format(project.goal)}
+          {!loaded ? (
+            <p className="mt-5 text-olive">Looking for people…</p>
+          ) : people.length === 0 ? (
+            <p className="mt-5 text-olive">
+              You are the first one here. Invite someone you care about and your
+              first conversation is waiting.
+            </p>
+          ) : (
+            <ul className="mt-2 divide-y divide-sage/20">
+              {people.slice(0, 4).map((p) => (
+                <li key={p.id} className="flex items-center gap-4 py-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sage-mist font-bold text-forest">
+                    {p.name.charAt(0).toUpperCase()}
                   </span>
-                </div>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold text-forest">
+                      {p.name}
+                      {p.age ? `, ${p.age}` : ''}
+                    </span>
+                    {p.city && <span className="block text-sm text-olive">{p.city}</span>}
+                  </span>
+                  <Link
+                    href={`/portal/chat?to=${p.id}`}
+                    className="inline-flex min-h-[var(--bh-tap)] shrink-0 items-center rounded-full bg-forest px-5 text-sm font-semibold text-cream"
+                  >
+                    Say hello
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Tile>
 
-                <div className="mt-2 flex items-center gap-3">
-                  <span
-                    className="h-px flex-1 bg-forest/12"
+        {/* Builds */}
+        <Tile>
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="font-serif text-xl font-medium text-forest">The homes</h2>
+            <Link
+              href="/portal/homes"
+              className="text-sm font-semibold text-forest underline underline-offset-4"
+            >
+              All
+            </Link>
+          </div>
+
+          <ul className="mt-4 space-y-4">
+            {projects.map((project) => {
+              const pct = Math.min(100, Math.round((project.raised / project.goal) * 100));
+              return (
+                <li key={project.id}>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="truncate text-sm font-semibold text-forest">
+                      {project.name}
+                    </span>
+                    <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-sage-ink">
+                      {BUILD_STAGES[project.stage]}
+                    </span>
+                  </div>
+                  <div
+                    className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-sage/25"
                     role="progressbar"
                     aria-valuenow={pct}
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-label={`${project.name} funding progress`}
                   >
-                    <span className="block h-px bg-gold" style={{ width: `${pct}%` }} />
-                  </span>
-                  <span className="text-xs font-bold uppercase tracking-[0.14em] text-sage-ink">
-                    {BUILD_STAGES[project.stage]}
-                  </span>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-
-      {/* ------------------------------ New here ----------------------------- */}
-      <section aria-labelledby="how" className="mt-14">
-        <h2
-          id="how"
-          className="border-b border-sage/25 pb-3 font-serif text-2xl font-medium text-forest"
-        >
-          New here? It’s just four steps.
-        </h2>
-        <ol className="mt-2 divide-y divide-sage/20">
-          {steps.map((s, i) => (
-            <li key={s.id} className="flex gap-4 py-4">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sage-mist text-forest">
-                <Icon name={s.icon} size={20} />
-              </span>
-              <span>
-                <span className="block font-semibold text-forest">
-                  {i + 1}. {s.title}
-                </span>
-                <span className="text-sm leading-relaxed text-olive">{s.body}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-      </section>
+                    <div className="h-full rounded-full bg-gold" style={{ width: `${pct}%` }} />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </Tile>
+      </div>
     </div>
   );
 }
