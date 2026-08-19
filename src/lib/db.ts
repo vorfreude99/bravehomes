@@ -57,7 +57,7 @@ export async function listMembers(excludeId?: string) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, email, full_name, age, city, bio, interests, updated_at')
+    .select('id, email, full_name, age, city, bio, interests, avatar_url, updated_at')
     .order('updated_at', { ascending: false });
 
   if (error) return { members: [] as Member[], error };

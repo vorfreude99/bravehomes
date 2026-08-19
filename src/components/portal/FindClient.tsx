@@ -143,7 +143,7 @@ export function FindClient() {
             point at them, and the one you are looking at comes to life.
             It also solves the thin-data problem — a face fills the card,
             so nothing is asked of a bio nobody has written. */}
-        <ul className="no-bar -mx-5 mt-2 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-4 sm:-mx-8 sm:px-8">
+        <ul className="no-bar tilt-row -mx-5 mt-2 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-10 pt-6 sm:-mx-8 sm:px-8">
           {results.map((m) => {
             const tint = [...m.id].reduce((n, c) => n + c.charCodeAt(0), 0) % 4;
             const ground = [
@@ -157,7 +157,7 @@ export function FindClient() {
               <li key={m.id} className="shrink-0 snap-start">
                 <Link
                   href={`/portal/chat?to=${m.id}`}
-                  className="group relative block h-[21rem] w-[15rem] overflow-hidden rounded-[1.5rem] outline-none ring-[#1a1a1a] transition-transform duration-500 hover:-translate-y-1.5 focus-visible:ring-2"
+                  className="tilt-card group relative block h-[21rem] w-[15rem] overflow-hidden rounded-[1.5rem] outline-none ring-[#1a1a1a] focus-visible:ring-2"
                   style={{ background: ground }}
                 >
                   {m.avatar_url ? (
