@@ -61,12 +61,12 @@ export function PortalShell({
             navigation as pills along its top — the reference layout,
             rather than a rail down the side. The ground is deliberately
             not a brand colour: it is there to make the card lift. */}
-        <div className="min-h-svh bg-[#f7f4ec]">
+        <div className="min-h-svh bg-[#9aa3ad] p-0 sm:p-5 lg:p-7">
           <div
-            className="relative min-h-svh w-full overflow-hidden"
+            className="relative mx-auto min-h-svh w-full max-w-[95rem] overflow-hidden sm:min-h-0 sm:rounded-[2.25rem] sm:shadow-[0_50px_100px_-30px_rgba(24,28,34,0.6)]"
             style={{
               background:
-                'radial-gradient(ellipse 62% 55% at 92% 2%, rgba(201,154,63,0.20) 0%, rgba(201,154,63,0) 58%), radial-gradient(ellipse 55% 45% at 2% 98%, rgba(127,144,104,0.18) 0%, rgba(127,144,104,0) 58%), #f7f4ec',
+                'radial-gradient(ellipse 55% 50% at 95% 0%, #f7dd7a 0%, rgba(247,221,122,0) 55%), radial-gradient(ellipse 50% 45% at 3% 100%, #f6de84 0%, rgba(246,222,132,0) 55%), #f5f3ef',
             }}
           >
             {/* ---------------------------- Top bar ---------------------------- */}
@@ -74,14 +74,14 @@ export function PortalShell({
               <Link
                 href="/portal"
                 aria-label="Brave Homes — home"
-                className="inline-flex min-h-[var(--bh-tap)] items-center rounded-full border border-[#1e2617]/15 px-5"
+                className="inline-flex min-h-[var(--bh-tap)] items-center rounded-full border border-[#1a1a1a]/15 px-5"
               >
                 <Wordmark className="text-lg" />
               </Link>
 
               <nav
                 aria-label="Portal"
-                className="mx-auto hidden items-center gap-1 rounded-full bg-[#1e2617]/[0.04] p-1 lg:flex"
+                className="mx-auto hidden items-center gap-1 rounded-full bg-[#1a1a1a]/[0.04] p-1 lg:flex"
               >
                 {TABS.map((tab) => {
                   const active = isActive(pathname, tab.href);
@@ -92,8 +92,8 @@ export function PortalShell({
                       aria-current={active ? 'page' : undefined}
                       className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
                         active
-                          ? 'bg-[#1e2617] text-[#f7f4ec]'
-                          : 'text-[#1e2617]/70 hover:text-[#1e2617]'
+                          ? 'bg-[#1a1a1a] text-[#f5f3ef]'
+                          : 'text-[#1a1a1a]/70 hover:text-[#1a1a1a]'
                       }`}
                     >
                       {tab.label}
@@ -103,13 +103,13 @@ export function PortalShell({
               </nav>
 
               <div className="ml-auto flex items-center gap-2 lg:ml-0">
-                <SimpleModeToggle className="!border-[#1e2617]/15 !bg-transparent !shadow-none" />
+                <SimpleModeToggle className="!border-[#1a1a1a]/15 !bg-transparent !shadow-none" />
                 <button
                   type="button"
                   onClick={signOut}
                   aria-label="Sign out"
                   title="Sign out"
-                  className="flex h-[var(--bh-tap)] w-[var(--bh-tap)] items-center justify-center rounded-full border border-[#1e2617]/15 font-bold text-[#1e2617] transition-colors hover:bg-[#1e2617] hover:text-[#f7f4ec]"
+                  className="flex h-[var(--bh-tap)] w-[var(--bh-tap)] items-center justify-center rounded-full border border-[#1a1a1a]/15 font-bold text-[#1a1a1a] transition-colors hover:bg-[#1a1a1a] hover:text-[#f5f3ef]"
                 >
                   {user.name.charAt(0).toUpperCase()}
                 </button>
@@ -123,7 +123,7 @@ export function PortalShell({
             {/* Mobile tab bar — the pills do not fit a phone. */}
             <nav
               aria-label="Portal"
-              className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#1e2617]/10 bg-[#f7f4ec]/95 px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden"
+              className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[#1a1a1a]/10 bg-[#f5f3ef]/95 px-1 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl lg:hidden"
             >
               {TABS.map((tab) => {
                 const active = isActive(pathname, tab.href);
@@ -137,7 +137,7 @@ export function PortalShell({
                     <Icon name={tab.icon} size={22} />
                     <span
                       className={`text-[0.7rem] font-bold ${
-                        active ? 'text-[#1e2617]' : 'text-[#1e2617]/55'
+                        active ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]/55'
                       }`}
                     >
                       {tab.label}
