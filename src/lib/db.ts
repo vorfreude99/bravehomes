@@ -10,6 +10,8 @@ export type Member = {
   city: string | null;
   bio: string | null;
   interests: string[];
+  /** Public URL of the profile photo. Null until one is uploaded. */
+  avatar_url?: string | null;
   updated_at: string | null;
   /** Derived display name — never empty. */
   name: string;
@@ -90,6 +92,43 @@ export async function listMessages(userId: string) {
     .order('created_at', { ascending: true });
 
   return { messages: (data ?? []) as Message[], error };
+}
+
+/* ------------------------------ avatars -------------------------------- */
+
+/** True once `0003_avatars.sql` has been run. */
+export async function avatarsAvailable(): Promise<boolean> {
+  const supabase = createClient();
+  const { error } = await supabase.from('profiles').select('avatar_url').limit(1);
+  return !error;
+}
+
+/**
+ * Replaces the profile photo and returns its public URL.
+ *
+ * `upsert` on a fixed path per person rather than a new file each time,
+ * so changing your photo does not leave the old one behind for ever.
+ */
+export async function uploadAvatar(userId: string, file: File) {
+  const supabase = createClient();
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = `${userId}/avatar.${ext}`;
+
+  const up = await supabase.storage
+    .from('avatars')
+    .upload(path, file, { upsert: true, contentType: file.type || 'image/jpeg' });
+  if (up.error) return { url: null as string | null, error: up.error.message };
+
+  const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+  // Cache-bust: the path is stable, so browsers would keep the old face.
+  const url = `${data.publicUrl}?v=${Date.now()}`;
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ avatar_url: url, updated_at: new Date().toISOString() })
+    .eq('id', userId);
+
+  return { url, error: error?.message ?? null };
 }
 
 /* ------------------------------- voice --------------------------------- */

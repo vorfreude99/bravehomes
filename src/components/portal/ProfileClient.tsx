@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Field, Input, Notice, Textarea } from '@/components/ui/Field';
 import { SimpleModeToggle } from '@/components/SettingsProvider';
 import { createClient } from '@/lib/supabase/client';
-import { getProfile, upsertProfile } from '@/lib/db';
+import { avatarsAvailable, getProfile, uploadAvatar, upsertProfile } from '@/lib/db';
 
 const SUGGESTED = [
   'Gardening',
@@ -27,6 +27,9 @@ export function ProfileClient() {
   const router = useRouter();
 
   const [fullName, setFullName] = useState(me.name);
+  const [avatar, setAvatar] = useState<string | null>(null);
+  const [avatarsOn, setAvatarsOn] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [age, setAge] = useState('');
   const [city, setCity] = useState('');
   const [bio, setBio] = useState('');
@@ -37,6 +40,18 @@ export function ProfileClient() {
   const [result, setResult] = useState<{ tone: 'success' | 'error'; text: string } | null>(
     null,
   );
+
+  async function onPickPhoto(file: File) {
+    setUploading(true);
+    const { url, error: upError } = await uploadAvatar(me.id, file);
+    setUploading(false);
+    if (upError || !url) {
+      setResult({ tone: 'error', text: 'That photo did not upload. Try a smaller one.' });
+      return;
+    }
+    setResult({ tone: 'success', text: 'Photo saved.' });
+    setAvatar(url);
+  }
 
   useEffect(() => {
     let alive = true;
@@ -51,7 +66,10 @@ export function ProfileClient() {
         setCity(profile.city ?? '');
         setBio(profile.bio ?? '');
         setInterests(profile.interests ?? []);
+        setAvatar(profile.avatar_url ?? null);
       }
+      // Hide the uploader rather than offer one that always errors.
+      setAvatarsOn(await avatarsAvailable());
       setLoading(false);
     })();
 
@@ -105,6 +123,43 @@ export function ProfileClient() {
 
       <div className="grid gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
         <form onSubmit={onSave} className="space-y-6">
+          {/* Photo first: it is the thing that makes a stranger feel like
+              a person, and the one field people most expect to see. */}
+          {avatarsOn && (
+            <div className="flex items-center gap-5">
+              <span className="relative flex h-24 w-24 shrink-0 overflow-hidden rounded-full bg-sage-mist">
+                {avatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatar} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center text-3xl font-bold text-forest">
+                    {(fullName || me.name).charAt(0).toUpperCase()}
+                  </span>
+                )}
+              </span>
+
+              <div>
+                <label className="inline-flex min-h-[var(--bh-tap)] cursor-pointer items-center rounded-full border-2 border-sage/40 px-5 font-semibold text-forest transition-colors hover:border-forest hover:bg-sage-mist/60">
+                  {uploading ? 'Uploading…' : avatar ? 'Change photo' : 'Add a photo'}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    disabled={uploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void onPickPhoto(file);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+                <p className="mt-2 text-sm text-ink-muted">
+                  A face makes it much easier for someone to say hello.
+                </p>
+              </div>
+            </div>
+          )}
+
           <Field label="Your name" htmlFor="fullName">
             <Input
               id="fullName"

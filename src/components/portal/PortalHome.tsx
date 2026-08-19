@@ -162,8 +162,15 @@ export function PortalHome() {
         {/* You */}
         <Tile className="flex flex-col justify-between bg-gradient-to-br from-[#f7efd0] to-white/70">
           <div>
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#1c1c1c] text-2xl font-bold text-[#f4f3ef]">
-              {firstName.charAt(0).toUpperCase()}
+            <span className="flex h-20 w-20 overflow-hidden rounded-full bg-[#1c1c1c]">
+              {profile?.avatar_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#f4f3ef]">
+                  {firstName.charAt(0).toUpperCase()}
+                </span>
+              )}
             </span>
             <h2 className="mt-4 font-serif text-2xl font-medium text-[#1c1c1c]">
               {profile?.name ?? me.name}
