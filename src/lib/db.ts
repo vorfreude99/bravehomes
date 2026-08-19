@@ -123,12 +123,21 @@ export async function uploadAvatar(userId: string, file: File) {
   // Cache-bust: the path is stable, so browsers would keep the old face.
   const url = `${data.publicUrl}?v=${Date.now()}`;
 
-  const { error } = await supabase
+  // `upsert`, not `update`. An update against a missing row matches
+  // nothing and reports no error, so the file uploaded and the URL was
+  // quietly dropped — which is exactly what happened to accounts made
+  // before the schema existed.
+  const { data: rows, error } = await supabase
     .from('profiles')
-    .update({ avatar_url: url, updated_at: new Date().toISOString() })
-    .eq('id', userId);
+    .upsert({ id: userId, avatar_url: url, updated_at: new Date().toISOString() })
+    .select('id');
 
-  return { url, error: error?.message ?? null };
+  if (error) return { url: null as string | null, error: error.message };
+  if (!rows?.length) {
+    return { url: null as string | null, error: 'Your profile row could not be written.' };
+  }
+
+  return { url, error: null as string | null };
 }
 
 /* ------------------------------- voice --------------------------------- */
