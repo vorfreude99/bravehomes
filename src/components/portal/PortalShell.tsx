@@ -61,9 +61,9 @@ export function PortalShell({
             navigation as pills along its top — the reference layout,
             rather than a rail down the side. The ground is deliberately
             not a brand colour: it is there to make the card lift. */}
-        <div className="min-h-svh bg-[#9aa3ad] p-0 sm:p-5 lg:p-7">
+        <div className="min-h-svh bg-[#f5f3ef]">
           <div
-            className="relative mx-auto min-h-svh w-full max-w-[95rem] overflow-hidden sm:min-h-0 sm:rounded-[2.25rem] sm:shadow-[0_50px_100px_-30px_rgba(24,28,34,0.6)]"
+            className="relative min-h-svh w-full overflow-hidden"
             style={{
               background:
                 'radial-gradient(ellipse 55% 50% at 95% 0%, #f7dd7a 0%, rgba(247,221,122,0) 55%), radial-gradient(ellipse 50% 45% at 3% 100%, #f6de84 0%, rgba(246,222,132,0) 55%), #f5f3ef',
