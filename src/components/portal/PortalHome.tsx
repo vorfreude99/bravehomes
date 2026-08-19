@@ -21,7 +21,9 @@ function Tile({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`rounded-[1.75rem] bg-white/70 p-6 ${className}`}>
+    <div
+      className={`rounded-[1.75rem] bg-white p-6 shadow-[0_1px_2px_rgba(30,38,23,0.04),0_12px_28px_-18px_rgba(30,38,23,0.28)] ${className}`}
+    >
       {children}
     </div>
   );
@@ -38,7 +40,7 @@ function Ring({ pct, label, sub }: { pct: number; label: string; sub: string }) 
   return (
     <div className="relative flex items-center justify-center">
       <svg width="140" height="140" viewBox="0 0 140 140" aria-hidden="true">
-        <circle cx="70" cy="70" r={r} fill="none" stroke="currentColor" strokeWidth="12" className="text-[#1c1c1c]/10" />
+        <circle cx="70" cy="70" r={r} fill="none" stroke="currentColor" strokeWidth="12" className="text-[#1e2617]/10" />
         <circle
           cx="70"
           cy="70"
@@ -47,15 +49,15 @@ function Ring({ pct, label, sub }: { pct: number; label: string; sub: string }) 
           stroke="currentColor"
           strokeWidth="12"
           strokeLinecap="round"
-          className="text-[#f5cf47]"
+          className="text-[#c99a3f]"
           strokeDasharray={c}
           strokeDashoffset={c * (1 - pct / 100)}
           transform="rotate(-90 70 70)"
         />
       </svg>
       <span className="absolute text-center">
-        <span className="block font-serif text-3xl font-medium text-[#1c1c1c]">{label}</span>
-        <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#1c1c1c]/55">
+        <span className="block font-serif text-3xl font-medium text-[#1e2617]">{label}</span>
+        <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#1e2617]/55">
           {sub}
         </span>
       </span>
@@ -120,17 +122,17 @@ export function PortalHome() {
       {/* ------------------------------ Welcome ------------------------------ */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#1c1c1c]/55">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#1e2617]/55">
             {greeting}
           </p>
-          <h1 className="mt-2 font-serif text-4xl font-medium leading-none text-[#1c1c1c] sm:text-5xl">
+          <h1 className="mt-2 font-serif text-4xl font-medium leading-none text-[#1e2617] sm:text-5xl">
             Welcome in, {firstName}
           </h1>
         </div>
         <LinkButton
           href="/portal/find"
           variant="primary"
-          className="!bg-[#1c1c1c] !text-[#f4f3ef] !shadow-none hover:!bg-black"
+          className="!bg-[#1e2617] !text-[#f7f4ec] !shadow-none hover:!bg-black"
         >
           Find someone
         </LinkButton>
@@ -146,13 +148,13 @@ export function PortalHome() {
           { n: projects.length, label: 'homes under way', icon: 'home' as IconName },
         ].map((s) => (
           <Tile key={s.label} className="!p-5">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1c1c1c]/[0.06] text-[#1c1c1c]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1e2617]/[0.06] text-[#1e2617]">
               <Icon name={s.icon} size={18} />
             </span>
-            <p className="mt-3 font-serif text-4xl font-medium leading-none text-[#1c1c1c]">
+            <p className="mt-3 font-serif text-4xl font-medium leading-none text-[#1e2617]">
               {loaded ? s.n : '—'}
             </p>
-            <p className="mt-1 text-sm text-[#1c1c1c]/65">{s.label}</p>
+            <p className="mt-1 text-sm text-[#1e2617]/65">{s.label}</p>
           </Tile>
         ))}
       </div>
@@ -160,28 +162,28 @@ export function PortalHome() {
       {/* -------------------------------- Bento ------------------------------ */}
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
         {/* You */}
-        <Tile className="flex flex-col justify-between bg-gradient-to-br from-[#f7efd0] to-white/70">
+        <Tile className="flex flex-col justify-between bg-gradient-to-br from-[#f0e6cf] to-white/70">
           <div>
-            <span className="flex h-20 w-20 overflow-hidden rounded-full bg-[#1c1c1c]">
+            <span className="flex h-20 w-20 overflow-hidden rounded-full bg-[#1e2617]">
               {profile?.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
               ) : (
-                <span className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#f4f3ef]">
+                <span className="flex h-full w-full items-center justify-center text-2xl font-bold text-[#f7f4ec]">
                   {firstName.charAt(0).toUpperCase()}
                 </span>
               )}
             </span>
-            <h2 className="mt-4 font-serif text-2xl font-medium text-[#1c1c1c]">
+            <h2 className="mt-4 font-serif text-2xl font-medium text-[#1e2617]">
               {profile?.name ?? me.name}
             </h2>
-            <p className="text-[#1c1c1c]/65">
+            <p className="text-[#1e2617]/65">
               {profile?.city || 'Add your city so people nearby can find you'}
             </p>
           </div>
           <Link
             href="/portal/profile"
-            className="mt-6 inline-flex min-h-[var(--bh-tap)] items-center justify-center rounded-full border-2 border-[#1c1c1c]/15 px-5 font-semibold text-[#1c1c1c] transition-colors hover:border-[#1c1c1c] hover:bg-white"
+            className="mt-6 inline-flex min-h-[var(--bh-tap)] items-center justify-center rounded-full border-2 border-[#1e2617]/15 px-5 font-semibold text-[#1e2617] transition-colors hover:border-[#1e2617] hover:bg-white"
           >
             Edit your profile
           </Link>
@@ -189,20 +191,20 @@ export function PortalHome() {
 
         {/* Giving */}
         <Tile className="flex flex-col items-center justify-center text-center">
-          <h2 className="self-start font-serif text-xl font-medium text-[#1c1c1c]">
+          <h2 className="self-start font-serif text-xl font-medium text-[#1e2617]">
             The build so far
           </h2>
           <div className="my-3">
             <Ring pct={totalPct} label={`${totalPct}%`} sub="funded" />
           </div>
-          <p className="text-[#1c1c1c]/65">
-            <span className="font-semibold text-[#1c1c1c]">{currency.format(totalRaised)}</span> of{' '}
+          <p className="text-[#1e2617]/65">
+            <span className="font-semibold text-[#1e2617]">{currency.format(totalRaised)}</span> of{' '}
             {currency.format(totalGoal)}
           </p>
           <LinkButton
             href="/portal/donate"
             variant="gold"
-            className="mt-4 w-full !bg-[#f5cf47] !text-[#1c1c1c] !shadow-none hover:!bg-[#f0c52d]"
+            className="mt-4 w-full !bg-[#c99a3f] !text-[#1e2617] !shadow-none hover:!bg-[#b08529]"
           >
             Lay a brick
           </LinkButton>
@@ -210,10 +212,10 @@ export function PortalHome() {
 
         {/* Getting started — the dark tile from the reference, earning its
             weight by carrying the one thing that changes per person. */}
-        <Tile className="!border-[#1c1c1c] !bg-[#1c1c1c]">
+        <Tile className="!bg-[#1e2617] !shadow-[0_20px_50px_-24px_rgba(30,38,23,0.7)]">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-serif text-xl font-medium text-[#f4f3ef]">Getting started</h2>
-            <span className="font-serif text-2xl text-[#f5cf47]">
+            <h2 className="font-serif text-xl font-medium text-[#f7f4ec]">Getting started</h2>
+            <span className="font-serif text-2xl text-[#c99a3f]">
               {doneCount}/{checklist.length}
             </span>
           </div>
@@ -227,7 +229,7 @@ export function PortalHome() {
                 >
                   <span
                     className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-                      c.done ? 'bg-[#f5cf47] text-[#1c1c1c]-deep' : 'bg-white/10 text-[#f4f3ef]/55'
+                      c.done ? 'bg-[#c99a3f] text-[#1e2617]-deep' : 'bg-white/10 text-[#f7f4ec]/55'
                     }`}
                     aria-hidden="true"
                   >
@@ -235,7 +237,7 @@ export function PortalHome() {
                   </span>
                   <span
                     className={`text-sm ${
-                      c.done ? 'text-[#f4f3ef]/55 line-through' : 'font-semibold text-[#f4f3ef]'
+                      c.done ? 'text-[#f7f4ec]/55 line-through' : 'font-semibold text-[#f7f4ec]'
                     }`}
                   >
                     {c.label}
@@ -249,39 +251,39 @@ export function PortalHome() {
         {/* People — spans two columns so a single member still fills a row */}
         <Tile className="lg:col-span-2">
           <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-serif text-xl font-medium text-[#1c1c1c]">People to meet</h2>
+            <h2 className="font-serif text-xl font-medium text-[#1e2617]">People to meet</h2>
             <Link
               href="/portal/find"
-              className="text-sm font-semibold text-[#1c1c1c] underline underline-offset-4"
+              className="text-sm font-semibold text-[#1e2617] underline underline-offset-4"
             >
               See everyone
             </Link>
           </div>
 
           {!loaded ? (
-            <p className="mt-5 text-[#1c1c1c]/65">Looking for people…</p>
+            <p className="mt-5 text-[#1e2617]/65">Looking for people…</p>
           ) : people.length === 0 ? (
-            <p className="mt-5 text-[#1c1c1c]/65">
+            <p className="mt-5 text-[#1e2617]/65">
               You are the first one here. Invite someone you care about and your
               first conversation is waiting.
             </p>
           ) : (
-            <ul className="mt-2 divide-y divide-[#1c1c1c]/10">
+            <ul className="mt-2 divide-y divide-[#1e2617]/10">
               {people.slice(0, 4).map((p) => (
                 <li key={p.id} className="flex items-center gap-4 py-3">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1c1c1c]/[0.06] font-bold text-[#1c1c1c]">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1e2617]/[0.06] font-bold text-[#1e2617]">
                     {p.name.charAt(0).toUpperCase()}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold text-[#1c1c1c]">
+                    <span className="block truncate font-semibold text-[#1e2617]">
                       {p.name}
                       {p.age ? `, ${p.age}` : ''}
                     </span>
-                    {p.city && <span className="block text-sm text-[#1c1c1c]/65">{p.city}</span>}
+                    {p.city && <span className="block text-sm text-[#1e2617]/65">{p.city}</span>}
                   </span>
                   <Link
                     href={`/portal/chat?to=${p.id}`}
-                    className="inline-flex min-h-[var(--bh-tap)] shrink-0 items-center rounded-full bg-[#1c1c1c] px-5 text-sm font-semibold text-[#f4f3ef]"
+                    className="inline-flex min-h-[var(--bh-tap)] shrink-0 items-center rounded-full bg-[#1e2617] px-5 text-sm font-semibold text-[#f7f4ec]"
                   >
                     Say hello
                   </Link>
@@ -294,10 +296,10 @@ export function PortalHome() {
         {/* Builds */}
         <Tile>
           <div className="flex items-baseline justify-between gap-4">
-            <h2 className="font-serif text-xl font-medium text-[#1c1c1c]">The homes</h2>
+            <h2 className="font-serif text-xl font-medium text-[#1e2617]">The homes</h2>
             <Link
               href="/portal/homes"
-              className="text-sm font-semibold text-[#1c1c1c] underline underline-offset-4"
+              className="text-sm font-semibold text-[#1e2617] underline underline-offset-4"
             >
               All
             </Link>
@@ -309,22 +311,22 @@ export function PortalHome() {
               return (
                 <li key={project.id}>
                   <div className="flex items-baseline justify-between gap-3">
-                    <span className="truncate text-sm font-semibold text-[#1c1c1c]">
+                    <span className="truncate text-sm font-semibold text-[#1e2617]">
                       {project.name}
                     </span>
-                    <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-[#1c1c1c]/55">
+                    <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-[#1e2617]/55">
                       {BUILD_STAGES[project.stage]}
                     </span>
                   </div>
                   <div
-                    className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#1c1c1c]/10"
+                    className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-[#1e2617]/10"
                     role="progressbar"
                     aria-valuenow={pct}
                     aria-valuemin={0}
                     aria-valuemax={100}
                     aria-label={`${project.name} funding progress`}
                   >
-                    <div className="h-full rounded-full bg-[#f5cf47]" style={{ width: `${pct}%` }} />
+                    <div className="h-full rounded-full bg-[#c99a3f]" style={{ width: `${pct}%` }} />
                   </div>
                 </li>
               );
