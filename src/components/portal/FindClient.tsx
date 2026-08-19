@@ -132,40 +132,53 @@ export function FindClient() {
           </div>
         )}
 
-        <ul className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {/* Rows, not a card grid. With one member the grid left a tall
+            lonely box beside two empty columns, and a member with no bio
+            or interests made that box mostly white space. A row reads
+            the same whether there is one person or fifty, and whether
+            they have filled anything in or not. */}
+        <ul className="mt-4 divide-y divide-sage/20">
           {results.map((m) => (
-            <li key={m.id} className="card grain p-6 transition hover:border-sage">
-              <div className="flex items-start gap-4">
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sage-mist text-xl font-bold text-forest">
-                  {m.name.charAt(0).toUpperCase()}
-                </span>
-                <div className="min-w-0">
-                  <h2 className="font-serif text-xl font-medium text-forest">
-                    {m.name}
-                    {m.age ? `, ${m.age}` : ''}
-                  </h2>
-                  {m.city && <p className="text-sm text-ink-muted">{m.city}</p>}
-                </div>
+            <li
+              key={m.id}
+              className="flex flex-wrap items-center gap-x-5 gap-y-4 py-5 sm:flex-nowrap"
+            >
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sage-mist text-xl font-bold text-forest">
+                {m.name.charAt(0).toUpperCase()}
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <h2 className="font-serif text-xl font-medium text-forest">
+                  {m.name}
+                  {m.age ? `, ${m.age}` : ''}
+                  {m.city ? (
+                    <span className="font-sans text-base font-normal text-olive">
+                      {' '}· {m.city}
+                    </span>
+                  ) : null}
+                </h2>
+
+                {m.bio && (
+                  <p className="mt-1 line-clamp-2 leading-relaxed text-olive">{m.bio}</p>
+                )}
+
+                {m.interests?.length > 0 && (
+                  <ul className="mt-2 flex flex-wrap gap-2">
+                    {m.interests.slice(0, 5).map((interest) => (
+                      <li
+                        key={interest}
+                        className="rounded-full bg-cream-deep px-3 py-1 text-sm text-olive"
+                      >
+                        {interest}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-
-              {m.bio && <p className="mt-4 leading-relaxed text-olive">{m.bio}</p>}
-
-              {m.interests?.length > 0 && (
-                <ul className="mt-4 flex flex-wrap gap-2">
-                  {m.interests.slice(0, 5).map((interest) => (
-                    <li
-                      key={interest}
-                      className="rounded-full bg-cream-deep px-3 py-1 text-sm text-olive"
-                    >
-                      {interest}
-                    </li>
-                  ))}
-                </ul>
-              )}
 
               <Link
                 href={`/portal/chat?to=${m.id}`}
-                className="mt-5 inline-flex min-h-[var(--bh-tap)] w-full items-center justify-center rounded-full bg-forest px-6 font-semibold text-cream transition hover:bg-forest-deep"
+                className="inline-flex min-h-[var(--bh-tap)] w-full shrink-0 items-center justify-center rounded-full bg-forest px-6 font-semibold text-cream transition hover:bg-forest-deep sm:w-auto"
               >
                 Start a conversation
               </Link>

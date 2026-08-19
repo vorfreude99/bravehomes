@@ -94,6 +94,12 @@ export function ChatClient() {
     [messages, me.id, membersById],
   );
 
+  /** People you have not written to yet — the ones worth offering. */
+  const suggestions = useMemo(() => {
+    const known = new Set(threads.map((t) => t.otherId));
+    return members.filter((m) => !known.has(m.id)).slice(0, 3);
+  }, [members, threads]);
+
   const active = activeId ? membersById.get(activeId) ?? null : null;
 
   const conversation = useMemo(() => {
@@ -230,11 +236,59 @@ export function ChatClient() {
         aria-label="Conversation"
       >
         {!active ? (
-          <div className="flex flex-1 items-center justify-center p-10 text-center">
-            <div>
-              <p className=" max-w-sm text-lg text-olive">
-                Choose a conversation, or find someone new to talk to.
+          /* Dead space with a dead end in it, before: a full half-screen
+             saying "choose a conversation" to someone who has none. It
+             offers the next step instead, with real people in it. */
+          <div className="flex flex-1 items-center justify-center p-8">
+            <div className="w-full max-w-md text-center">
+              <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sage-mist text-forest">
+                <Icon name="chat" size={28} />
+              </span>
+              <h2 className="mt-5 font-serif text-2xl font-medium text-forest">
+                {threads.length ? 'Pick up a conversation' : 'Start your first conversation'}
+              </h2>
+              <p className="mx-auto mt-2 max-w-sm text-olive">
+                {threads.length
+                  ? 'Choose someone on the left, or meet somebody new.'
+                  : 'Everyone here joined hoping somebody would say hello. You can be that somebody.'}
               </p>
+
+              {suggestions.length > 0 && (
+                <ul className="mt-7 space-y-2 text-left">
+                  {suggestions.map((m) => (
+                    <li key={m.id}>
+                      <button
+                        type="button"
+                        onClick={() => setActiveId(m.id)}
+                        className="flex w-full items-center gap-3 rounded-2xl border border-sage/25 bg-parchment p-3 text-left transition-colors hover:border-sage hover:bg-sage-mist/40"
+                      >
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sage-mist font-bold text-forest">
+                          {m.name.charAt(0).toUpperCase()}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-semibold text-forest">
+                            {m.name}
+                            {m.age ? `, ${m.age}` : ''}
+                          </span>
+                          {m.city && (
+                            <span className="block truncate text-sm text-olive">{m.city}</span>
+                          )}
+                        </span>
+                        <span className="shrink-0 text-sm font-semibold text-forest">
+                          Say hello
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <Link
+                href="/portal/find"
+                className="mt-6 inline-flex min-h-[var(--bh-tap)] items-center font-semibold text-forest underline underline-offset-4"
+              >
+                See everyone
+              </Link>
             </div>
           </div>
         ) : (
