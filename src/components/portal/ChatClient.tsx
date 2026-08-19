@@ -160,7 +160,7 @@ export function ChatClient() {
   }
 
   return (
-    <div className="grid h-[calc(100svh-9.5rem)] gap-4 px-5 pb-6 sm:px-8 lg:h-[calc(100svh-7rem)] lg:grid-cols-[21rem_1fr]">
+    <div className="grid h-[calc(100svh-9.5rem)] gap-4 px-5 sm:px-8 lg:-mb-6 lg:h-[calc(100svh-5.5rem)] lg:grid-cols-[21rem_1fr]">
       {/* ------------------------------ Threads ------------------------------ */}
       <aside
         className={`min-h-0 flex-col overflow-hidden rounded-[1.5rem] bg-white/75 ${
