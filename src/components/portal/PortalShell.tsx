@@ -165,12 +165,12 @@ export function PageHead({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4 border-b border-sage/25 px-5 py-7 sm:px-8">
+    <div className="flex flex-wrap items-end justify-between gap-4 px-5 pb-5 pt-1 sm:px-8">
       <div>
-        <h1 className="font-serif text-3xl font-medium text-forest sm:text-4xl">
+        <h1 className="text-3xl font-medium tracking-tight text-[#1a1a1a] sm:text-4xl">
           {title}
         </h1>
-        {subtitle && <p className="mt-2 max-w-2xl text-olive">{subtitle}</p>}
+        {subtitle && <p className="mt-2 max-w-2xl text-[#1a1a1a]/70">{subtitle}</p>}
       </div>
       {action}
     </div>
