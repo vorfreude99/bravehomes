@@ -57,7 +57,7 @@ function Ring({ pct, label, sub }: { pct: number; label: string; sub: string }) 
       </svg>
       <span className="absolute text-center">
         <span className="block font-serif text-3xl font-medium text-[#1e2617]">{label}</span>
-        <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#1e2617]/55">
+        <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-[#1e2617]/70">
           {sub}
         </span>
       </span>
@@ -122,7 +122,7 @@ export function PortalHome() {
       {/* ------------------------------ Welcome ------------------------------ */}
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#1e2617]/55">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#1e2617]/70">
             {greeting}
           </p>
           <h1 className="mt-2 font-serif text-4xl font-medium leading-none text-[#1e2617] sm:text-5xl">
@@ -314,7 +314,7 @@ export function PortalHome() {
                     <span className="truncate text-sm font-semibold text-[#1e2617]">
                       {project.name}
                     </span>
-                    <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-[#1e2617]/55">
+                    <span className="shrink-0 text-xs font-bold uppercase tracking-[0.12em] text-[#1e2617]/70">
                       {BUILD_STAGES[project.stage]}
                     </span>
                   </div>
