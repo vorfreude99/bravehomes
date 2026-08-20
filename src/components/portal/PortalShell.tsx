@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, type ReactNode } from 'react';
 import { CallProvider } from './CallProvider';
-import { Wordmark } from '@/components/ui/Brand';
 import { SimpleModeToggle } from '@/components/SettingsProvider';
 import { createClient } from '@/lib/supabase/client';
 import { Icon, type IconName } from '@/components/ui/Icon';
@@ -72,18 +71,10 @@ export function PortalShell({
             }}
           >
             {/* ---------------------------- Top bar ---------------------------- */}
-            <header className="flex flex-wrap items-center gap-3 px-5 py-5 sm:px-8">
-              <Link
-                href="/portal"
-                aria-label="Brave Homes — home"
-                className="inline-flex min-h-[var(--bh-tap)] items-center rounded-full border border-[#1a1a1a]/15 px-5"
-              >
-                <Wordmark className="text-lg" />
-              </Link>
-
+            <header className="relative flex flex-wrap items-center gap-3 px-5 py-5 sm:px-8">
               <nav
                 aria-label="Portal"
-                className="mx-auto hidden items-center gap-1 rounded-full bg-[#1a1a1a]/[0.04] p-1 lg:flex"
+                className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 rounded-full bg-[#1a1a1a]/[0.04] p-1 lg:flex"
               >
                 {TABS.map((tab) => {
                   const active = isActive(pathname, tab.href);
@@ -104,7 +95,7 @@ export function PortalShell({
                 })}
               </nav>
 
-              <div className="ml-auto flex items-center gap-2 lg:ml-0">
+              <div className="ml-auto flex items-center gap-2">
                 <SimpleModeToggle className="!border-[#1a1a1a]/15 !bg-transparent !shadow-none" />
                 <button
                   type="button"
