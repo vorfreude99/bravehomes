@@ -21,6 +21,16 @@ import { VoicePlayer, VoiceRecorder } from './Voice';
 import { useCalls } from './CallProvider';
 import { Icon } from '@/components/ui/Icon';
 
+function dayOf(iso: string) {
+  const d = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  if (d.toDateString() === today.toDateString()) return 'Today';
+  if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+}
+
 function timeOf(iso: string) {
   const d = new Date(iso);
   const today = new Date();
@@ -333,17 +343,38 @@ export function ChatClient() {
               )}
             </header>
 
-            <div ref={scroller} className="no-bar min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-6">
+            <div ref={scroller} className="no-bar flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-6">
+              <div className="mt-auto space-y-1.5">
               {conversation.length === 0 && (
                 <p className="py-10 text-center text-[#1a1a1a]/60">
                   Say hello. A first message is always the hardest one.
                 </p>
               )}
 
-              {conversation.map((m) => {
+              {conversation.map((m, i) => {
                 const mine = m.sender === me.id;
+                const prev = conversation[i - 1];
+                const next = conversation[i + 1];
+                // A stamp under every line is noise. One under the last
+                // message of a run says the same thing.
+                const endsRun =
+                  !next ||
+                  next.sender !== m.sender ||
+                  new Date(next.created_at).getTime() - new Date(m.created_at).getTime() >
+                    5 * 60 * 1000;
+                const startsDay =
+                  !prev ||
+                  new Date(prev.created_at).toDateString() !==
+                    new Date(m.created_at).toDateString();
+
                 return (
-                  <div key={m.id} className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
+                  <div key={m.id}>
+                    {startsDay && (
+                      <p className="py-4 text-center text-xs font-semibold uppercase tracking-[0.14em] text-[#1a1a1a]/45">
+                        {dayOf(m.created_at)}
+                      </p>
+                    )}
+                    <div className={`flex ${mine ? 'justify-end' : 'justify-start'}`}>
                     <div className="max-w-[min(34rem,80%)]">
                       {m.kind === 'voice' && m.audio_path ? (
                         <VoicePlayer
@@ -362,17 +393,21 @@ export function ChatClient() {
                           {m.body}
                         </div>
                       )}
-                      <p
-                        className={`mt-1 text-xs text-[#1a1a1a]/60 ${
-                          mine ? 'text-right' : ''
-                        }`}
-                      >
-                        {timeOf(m.created_at)}
-                      </p>
+                      {endsRun && (
+                        <p
+                          className={`mt-1 px-1 text-[0.7rem] text-[#1a1a1a]/50 ${
+                            mine ? 'text-right' : ''
+                          }`}
+                        >
+                          {timeOf(m.created_at)}
+                        </p>
+                      )}
+                    </div>
                     </div>
                   </div>
                 );
               })}
+              </div>
             </div>
 
             {error && (
@@ -406,7 +441,7 @@ export function ChatClient() {
                 <Button
                   onClick={() => void onSend()}
                   disabled={!draft.trim() || sending}
-                  className="px-6"
+                  className="!bg-[#1a1a1a] px-6 !text-white !shadow-none hover:!bg-black"
                 >
                   {sending ? '…' : 'Send'}
                 </Button>
