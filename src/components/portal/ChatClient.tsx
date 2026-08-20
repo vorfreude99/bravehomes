@@ -252,7 +252,7 @@ export function ChatClient() {
              saying "choose a conversation" to someone who has none. It
              offers the next step instead, with real people in it. */
           <div className="flex flex-1 items-center justify-center p-8">
-            <div className="w-full max-w-md text-center">
+            <div className="w-full max-w-2xl text-center">
               <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#1a1a1a]/[0.07] text-[#1a1a1a]">
                 <Icon name="chat" size={28} />
               </span>
@@ -266,33 +266,56 @@ export function ChatClient() {
               </p>
 
               {suggestions.length > 0 && (
-                <ul className="mt-7 space-y-2 text-left">
-                  {suggestions.map((m) => (
-                    <li key={m.id}>
-                      <button
-                        type="button"
-                        onClick={() => setActiveId(m.id)}
-                        className="flex w-full items-center gap-3 rounded-2xl border border-[#1a1a1a]/10 bg-white p-3 text-left transition-colors hover:border-sage hover:bg-[#1a1a1a]/[0.04]"
-                      >
-                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1a1a1a]/[0.07] font-bold text-[#1a1a1a]">
-                          {m.name.charAt(0).toUpperCase()}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate font-semibold text-[#1a1a1a]">
-                            {m.name}
-                            {m.age ? `, ${m.age}` : ''}
+                <>
+                  <p className="mt-8 text-xs font-bold uppercase tracking-[0.16em] text-[#1a1a1a]/50">
+                    Waiting to hear from someone
+                  </p>
+
+                  {/* Faces, not a list of rows. These are the people you
+                      have not written to yet, and a name on its own asks
+                      you to pick a stranger from a list; a face asks you
+                      to say hello to a person. */}
+                  <ul className="mt-3 grid gap-3 sm:grid-cols-3">
+                    {suggestions.map((m) => (
+                      <li key={m.id}>
+                        <button
+                          type="button"
+                          onClick={() => setActiveId(m.id)}
+                          className="group flex w-full flex-col items-center gap-2 rounded-2xl border border-[#1a1a1a]/10 bg-white p-4 text-center transition-all hover:-translate-y-0.5 hover:border-[#1a1a1a]/30 hover:shadow-[0_14px_30px_-20px_rgba(26,26,26,0.5)]"
+                        >
+                          <span className="flex h-14 w-14 shrink-0 overflow-hidden rounded-full bg-[#1a1a1a]/[0.07]">
+                            {m.avatar_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={m.avatar_url}
+                                alt=""
+                                className="h-full w-full object-cover grayscale transition duration-500 group-hover:grayscale-0"
+                              />
+                            ) : (
+                              <span className="flex h-full w-full items-center justify-center text-lg font-bold text-[#1a1a1a]">
+                                {m.name.charAt(0).toUpperCase()}
+                              </span>
+                            )}
                           </span>
-                          {m.city && (
-                            <span className="block truncate text-sm text-[#1a1a1a]/70">{m.city}</span>
-                          )}
-                        </span>
-                        <span className="shrink-0 text-sm font-semibold text-[#1a1a1a]">
-                          Say hello
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+
+                          <span className="w-full min-w-0">
+                            <span className="block truncate text-sm font-semibold text-[#1a1a1a]">
+                              {m.name}
+                              {m.age ? `, ${m.age}` : ''}
+                            </span>
+                            <span className="block truncate text-xs text-[#1a1a1a]/60">
+                              {m.city || 'Somewhere in the UK'}
+                            </span>
+                          </span>
+
+                          <span className="mt-1 w-full rounded-full bg-[#1a1a1a] px-3 py-2 text-xs font-semibold text-white">
+                            Say hello
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
 
               <Link
