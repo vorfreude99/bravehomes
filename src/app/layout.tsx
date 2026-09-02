@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
-import { Newsreader, Public_Sans } from 'next/font/google';
+import { Caveat, Newsreader, Public_Sans } from 'next/font/google';
 import './globals.css';
-import { SettingsProvider } from '@/components/SettingsProvider';
+import { ScrollToTop } from '@/components/site/ScrollToTop';
 
 /**
  * Public Sans for the interface, Newsreader for display.
@@ -30,6 +30,19 @@ const serif = Newsreader({
   axes: ['opsz'],
 });
 
+/**
+ * A real hand, for the one line that should sound like a person said it
+ * rather than a typesetter did. Caveat over a script/cursive face
+ * because it stays legible at speed — open counters, unjoined-enough
+ * strokes — which matters more here than looking precious.
+ */
+const hand = Caveat({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-hand-brand',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://bravehomes.org'),
   title: {
@@ -37,7 +50,7 @@ export const metadata: Metadata = {
     template: '%s · Brave Homes',
   },
   description:
-    'Brave Homes connects generations and builds care homes. Every penny of every donation goes directly to the cause — never to admin.',
+    'Brave Homes connects generations and helps care homes look after the people in them. Every penny of every donation goes to the cause.',
   openGraph: {
     title: 'Brave Homes — Connecting Generations',
     description:
@@ -58,12 +71,20 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-GB" className={`${sans.variable} ${serif.variable}`}>
+    <html lang="en-GB" className={`${sans.variable} ${serif.variable} ${hand.variable}`}>
       <body>
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <SettingsProvider>{children}</SettingsProvider>
+        {/* Every route needs this, not just the marketing pages it was
+            first built for — landing on /signup or /login with the home
+            page's scroll position still in the document was exactly this
+            bug, just on a route this component never covered. One
+            instance here beats one per route group, since that's how the
+            gap opened in the first place: the (auth) layout was simply
+            never given a copy. */}
+        <ScrollToTop />
+        {children}
       </body>
     </html>
   );

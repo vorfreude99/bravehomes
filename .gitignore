@@ -17,3 +17,6 @@ next-env.d.ts
 legacy/
 
 .vercel
+
+# Supabase CLI scratch files
+supabase/.temp/

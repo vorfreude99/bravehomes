@@ -22,8 +22,8 @@ const SIZES: Record<Size, string> = {
 };
 
 /**
- * Every target is at least --bh-tap tall, which Simple Mode grows.
- * That single rule is what makes the product usable at 88.
+ * Every target is at least --bh-tap tall — that single rule is what
+ * makes the product usable at 88.
  */
 const BASE =
   'inline-flex min-h-[var(--bh-tap)] items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55';

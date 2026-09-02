@@ -19,11 +19,16 @@ export function Field({
 }) {
   return (
     <div>
-      <label htmlFor={htmlFor} className="mb-2 block font-semibold text-forest">
+      <label
+        htmlFor={htmlFor}
+        className="mb-2 block font-semibold text-forest [@media(max-height:820px)]:mb-1"
+      >
         {label}
       </label>
       {children}
-      {hint && !error && <p className="mt-1.5 text-sm text-ink-muted">{hint}</p>}
+      {hint && !error && (
+        <p className="mt-1.5 text-sm text-ink-muted [@media(max-height:820px)]:hidden">{hint}</p>
+      )}
       {error && (
         <p className="mt-1.5 text-sm font-semibold text-clay" role="alert">
           {error}
@@ -79,7 +84,7 @@ export function Textarea({
   return <textarea className={`${CONTROL} py-3 ${className}`} rows={4} {...rest} />;
 }
 
-/** Banner for form-level results. `tone` decides colour, not an icon alone. */
+/** Banner for form-level results. */
 export function Notice({
   tone = 'info',
   children,
@@ -93,12 +98,17 @@ export function Notice({
     success: 'border-gold/50 bg-gold-soft/25 text-forest',
   }[tone];
 
+  const icon: IconName = tone === 'error' ? 'alert' : tone === 'success' ? 'check' : 'bell';
+
   return (
     <p
       role={tone === 'error' ? 'alert' : 'status'}
-      className={`rounded-2xl border px-4 py-3 text-sm font-medium ${styles}`}
+      className={`flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-sm font-medium ${
+        tone === 'error' ? 'notice-shake' : 'pop-in'
+      } ${styles}`}
     >
-      {children}
+      <Icon name={icon} size={18} strokeWidth={1.8} className="mt-0.5 shrink-0" />
+      <span>{children}</span>
     </p>
   );
 }

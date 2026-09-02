@@ -7,14 +7,12 @@ import { Icon, type IconName } from '@/components/ui/Icon';
 type Line = {
   from: 'them' | 'me';
   text: string;
-  /** Shown under the bubble as the AI translation note. */
-  original?: string;
 };
 
 const SCRIPT: Line[] = [
-  { from: 'them', text: 'Good morning! The garden is finally in bloom.', original: 'Translated automatically' },
-  { from: 'me', text: 'That sounds lovely. Send me a photo?' },
-  { from: 'them', text: 'Of course. My wife planted these forty years ago.' },
+  { from: 'them', text: 'Good morning! The garden is finally in bloom.' },
+  { from: 'me', text: 'That sounds lovely. What have you got growing?' },
+  { from: 'them', text: 'Roses, mostly. My wife planted them forty years ago.' },
   { from: 'me', text: 'Forty years! Tell me about her.' },
   { from: 'them', text: 'Ah. Get comfortable — this is a long story.' },
 ];
@@ -22,18 +20,19 @@ const SCRIPT: Line[] = [
 const NAV: { icon: IconName; label: string }[] = [
   { icon: 'chat', label: 'Chat' },
   { icon: 'search', label: 'Find' },
-  { icon: 'home', label: 'Homes' },
   { icon: 'heart', label: 'Donate' },
   { icon: 'profile', label: 'Profile' },
 ];
 
 /** Which tab lights up for each step of the story. */
-const TAB_FOR_STEP = [4, 0, 0, 3];
+const TAB_FOR_STEP = [3, 0, 0, 2];
 
-const HEADERS: { icon: IconName; title: string; sub: string }[] = [
+/** No presence claim on the Margaret screens — the mockup doesn't track
+    who's online, so it doesn't say it does. */
+const HEADERS: { icon: IconName; title: string; sub?: string }[] = [
   { icon: 'profile', title: 'Your profile', sub: 'Takes about a minute' },
-  { icon: 'profile', title: 'Margaret, 82 — Manchester', sub: 'Active now' },
-  { icon: 'profile', title: 'Margaret, 82 — Manchester', sub: 'Active now' },
+  { icon: 'profile', title: 'Margaret, 82 — Manchester' },
+  { icon: 'profile', title: 'Margaret, 82 — Manchester' },
   { icon: 'heart', title: 'Donate', sub: '100% to the cause' },
 ];
 
@@ -59,13 +58,9 @@ export function PhoneMock({
     <div className={className} aria-hidden="true">
       <div className="relative mx-auto w-full max-w-[19rem] rounded-[2.6rem] border-[10px] border-forest bg-forest shadow-[0_50px_90px_-40px_rgba(30,38,23,0.75)]">
         <div className="overflow-hidden rounded-[2rem] bg-parchment">
-          {/* Status bar */}
+          {/* Status bar — a clock, nothing claimed. */}
           <div className="flex items-center justify-between px-5 pb-1 pt-3 text-[0.65rem] font-semibold text-olive">
             <span>9:41</span>
-            <span className="flex items-center gap-1">
-              <span className="h-1.5 w-1.5 rounded-full bg-sage" />
-              247 online
-            </span>
           </div>
 
         {/* Screen header */}
@@ -75,12 +70,11 @@ export function PhoneMock({
           </span>
           <span className="leading-tight">
             <span className="block text-sm font-bold text-forest">{header.title}</span>
-            <span className="flex items-center gap-1.5 text-xs text-sage-ink">
-              {step === 1 || step === 2 ? (
-                <span className="h-2 w-2 rounded-full bg-sage" />
-              ) : null}
-              {header.sub}
-            </span>
+            {header.sub && (
+              <span className="flex items-center gap-1.5 text-xs text-sage-ink">
+                {header.sub}
+              </span>
+            )}
           </span>
         </div>
 
@@ -119,7 +113,7 @@ export function PhoneMock({
         </div>
 
         {/* Tab bar — highlights the tab this step belongs to */}
-        <nav className="grid grid-cols-5 border-t border-sage/25 px-1 pb-3 pt-2">
+        <nav className="grid grid-cols-4 border-t border-sage/25 px-1 pb-3 pt-2">
           {NAV.map((item, i) => {
             const on = TAB_FOR_STEP[step] === i;
             return (
@@ -236,13 +230,7 @@ function DonateScreen() {
       </p>
       <p className="mt-3 flex items-center justify-center gap-1 text-[0.65rem] font-semibold text-sage-ink">
         <Icon name="check" size={12} />
-        100% to the cause. Zero admin fees.
-      </p>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-cream-deep">
-        <div className="h-full w-[62%] rounded-full bg-gold" />
-      </div>
-      <p className="mt-1.5 text-center text-[0.6rem] text-ink-muted">
-        Care Home One
+        100% to the cause. Nothing kept back.
       </p>
     </div>
   );
@@ -317,12 +305,6 @@ function ChatScreen({ reduced, active }: { reduced: boolean; active: boolean }) 
       {SCRIPT.slice(0, shown).map((line, i) => (
         <div key={i}>
           <Bubble from={line.from}>{line.text}</Bubble>
-          {line.original && (
-            <p className="mt-1 flex items-center gap-1 text-[0.6rem] font-medium text-ink-muted">
-              <Icon name="globe" size={11} />
-              {line.original}
-            </p>
-          )}
         </div>
       ))}
 

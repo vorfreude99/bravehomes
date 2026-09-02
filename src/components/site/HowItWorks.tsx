@@ -6,15 +6,6 @@ import { Eyebrow } from '@/components/ui/Button';
 import { steps } from '@/lib/content';
 import { Icon } from '@/components/ui/Icon';
 
-/**
- * How far the phone hangs below the stuck masthead. The header's own
- * height is `--bh-header`, published by SiteHeader — it was a hard-coded
- * 72 here, which is right at the default text size and 25px short once
- * Easy View scales the bar to 97px, leaving the heading clipped behind
- * the header.
- */
-const PHONE_DROP = '4.1rem';
-
 /** Reads the live header height for the observer, which needs a number. */
 function headerHeight() {
   const raw = getComputedStyle(document.documentElement).getPropertyValue('--bh-header');
@@ -176,7 +167,7 @@ export function HowItWorks() {
   }, [measure]);
 
   return (
-    <section id="how" ref={wrap} className="relative bg-cream px-5 pb-24 pt-24 sm:px-8 sm:pb-32 sm:pt-28">
+    <section id="how" ref={wrap} className="relative bg-cream px-5 pb-8 pt-24 sm:px-8 sm:pb-32 sm:pt-28">
       {/* No `overflow-hidden` on any ancestor of the sticky elements: an
           overflow ancestor becomes the scroll container and silently stops
           them sticking at all. */}
@@ -189,7 +180,7 @@ export function HowItWorks() {
             title disappearing off the top. */}
         <div
           ref={masthead}
-          className={`sticky z-10 bg-cream transition-[padding] duration-300 ${
+          className={`z-10 bg-cream transition-[padding] duration-300 max-lg:static lg:sticky ${
             stuck ? 'pb-3 pt-1' : 'pb-6'
           }`}
           style={{ top: 'var(--how-top, calc(var(--bh-header) + 0.5rem))' }}
@@ -225,12 +216,24 @@ export function HowItWorks() {
           symbols. Text, voice, or video. Whatever feels comfortable.
         </p>
 
-        <div className="mt-14 grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+        {/* The shared, live-updating phone only works side-by-side: its
+            sticky-while-you-scroll trick depends on sitting in its own
+            column next to the (much taller) steps column, so the two never
+            physically overlap even while sharing the same vertical scroll
+            region. Below `lg` there's no second column to keep them apart,
+            so this whole column is hidden there — each step below carries
+            its own paired screen instead, right next to its own text
+            rather than shared and animated from afar. The `<ol>` itself
+            stays a single instance at every width (not duplicated per
+            breakpoint): it's what the active-step scroll tracking above
+            measures via `items.current`, and a second copy would fight
+            the first over those refs. */}
+        <div className="mt-14 lg:grid lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           {/* Full size, always. The phone is the demonstration — shrinking
               it to fit a layout defeats the point of having it. */}
           <div
-            className="lg:sticky lg:self-start"
-            style={{ top: `calc(var(--bh-header) + ${PHONE_DROP})` }}
+            className="sticky hidden self-start lg:block"
+            style={{ top: 'calc(var(--bh-header) + 4.1rem)' }}
           >
             <PhoneMock className="mx-auto" step={active} />
 
@@ -249,8 +252,11 @@ export function HowItWorks() {
 
           {/* Trailing space so the last step can still reach the middle of
               the viewport — without it the fourth never activates and the
-              phone never shows its screen. */}
-          <ol ref={list} className="relative pb-[22vh]">
+              shared phone never shows its screen. Desktop-only: below
+              `lg` each step already carries its own phone (see below),
+              so nothing depends on step 4 reaching true centre there —
+              it was just ~185px of dead air closing out the section. */}
+          <ol ref={list} className="relative pb-6 lg:pb-[22vh]">
             {/* The rail, and the gold that fills it as you descend. */}
             <span
               className="absolute left-[1.65rem] top-3 bottom-3 w-px bg-sage/25 sm:left-[1.9rem]"
@@ -273,35 +279,60 @@ export function HowItWorks() {
                   ref={(el) => {
                     items.current[i] = el;
                   }}
-                  className="relative flex gap-6 pb-16 last:pb-0 sm:gap-8"
+                  className="relative pb-16 last:pb-0"
                 >
-                  <span
-                    aria-hidden="true"
-                    className={`relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-500 sm:h-16 sm:w-16 ${
-                      on
-                        ? 'scale-110 border-gold bg-gold text-forest-deep shadow-[0_16px_40px_-16px_rgba(169,124,39,0.9)]'
-                        : 'border-sage/30 bg-parchment text-olive'
-                    }`}
-                  >
-                    <Icon name={step.icon} size={on ? 26 : 24} strokeWidth={1.5} />
-                  </span>
-
-                  <div
-                    className="transition-all duration-500"
-                    style={{
-                      opacity: on ? 1 : 0.78,
-                      transform: on ? 'translateX(0)' : 'translateX(-6px)',
-                    }}
-                  >
-                    <span className="text-xs font-bold tracking-[0.22em] text-olive">
-                      STEP {i + 1}
+                  <div className="flex gap-6 sm:gap-8">
+                    <span
+                      aria-hidden="true"
+                      className={`relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-500 sm:h-16 sm:w-16 ${
+                        on
+                          ? 'scale-110 border-gold bg-gold text-forest-deep shadow-[0_16px_40px_-16px_rgba(169,124,39,0.9)]'
+                          : 'border-sage/30 bg-parchment text-olive'
+                      }`}
+                    >
+                      <Icon name={step.icon} size={on ? 26 : 24} strokeWidth={1.5} />
                     </span>
-                    <h3 className="mt-2 font-serif text-2xl font-medium text-forest sm:text-4xl">
-                      {step.title}
-                    </h3>
-                    <p className="mt-3 max-w-xl text-lg leading-relaxed text-olive">
-                      {step.body}
-                    </p>
+
+                    <div
+                      className="transition-all duration-500"
+                      style={{
+                        opacity: on ? 1 : 0.78,
+                        transform: on ? 'translateX(0)' : 'translateX(-6px)',
+                      }}
+                    >
+                      <span className="text-xs font-bold tracking-[0.22em] text-olive">
+                        STEP {i + 1}
+                      </span>
+                      <h3 className="mt-2 font-serif text-2xl font-medium text-forest sm:text-4xl">
+                        {step.title}
+                      </h3>
+                      <p className="mt-3 max-w-xl text-lg leading-relaxed text-olive">
+                        {step.body}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* This step's own screen, paired right beneath it — the
+                      mobile stand-in for the desktop's single shared phone.
+                      Fixed to this step (`step={i}`), not `active`: it
+                      doesn't need scroll-tracking, it's already sitting
+                      next to the text it belongs to.
+
+                      Rendered at 80% and reserved at that scaled footprint,
+                      rather than narrowed with `max-w`: everything inside
+                      is fixed rem sizing, so squeezing only the width would
+                      distort it into a tall, narrow strip instead of a
+                      smaller phone. Scaling the whole box down keeps its
+                      proportions, and reserving exactly its shrunk size
+                      (not its full-size one) is what actually shortens the
+                      page — a `max-w` cap alone leaves the full-height gap
+                      behind, unshrunk. */}
+                  <div className="mt-6 lg:hidden">
+                    <div className="mx-auto w-[15.2rem] aspect-[19/33.97]">
+                      <div className="w-76 origin-top-left scale-[0.8]">
+                        <PhoneMock step={i} />
+                      </div>
+                    </div>
                   </div>
                 </li>
               );

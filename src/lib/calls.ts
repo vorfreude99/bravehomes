@@ -10,14 +10,15 @@ import { createClient } from './supabase/client';
  * messages over the realtime channel the app already uses for chat, so
  * there is no signalling server to run.
  *
- * STUN is Google's public server, which is free. What is missing is
- * TURN: when both people sit behind NAT that blocks a direct connection
- * — common on mobile networks, which matters here because older users
- * are disproportionately on them — the call cannot connect at all. That
- * needs a relay, and a relay costs bandwidth. `ICE_SERVERS` is where a
- * TURN entry goes when that day comes.
+ * STUN alone can't connect two people who are both behind a restrictive
+ * ("symmetric") NAT — common on mobile data, which matters here because
+ * older users are disproportionately on it. `/api/turn` mints short-lived
+ * Cloudflare TURN credentials (a relay, which is why they cost bandwidth
+ * and aren't a static key baked into the bundle) when that's configured;
+ * this falls back to Google's free public STUN otherwise, which still
+ * connects most call pairs.
  */
-const ICE_SERVERS: RTCIceServer[] = [
+const FALLBACK_ICE_SERVERS: RTCIceServer[] = [
   { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
 ];
 
@@ -74,8 +75,57 @@ export async function sendSignal(toUserId: string, signal: Signal) {
   await supabase.removeChannel(channel);
 }
 
-export function createPeer(): RTCPeerConnection {
-  return new RTCPeerConnection({ iceServers: ICE_SERVERS });
+/**
+ * Logs a call that went unanswered.
+ *
+ * Written by the caller, not the person who missed it: if they were
+ * offline, their browser never ran to see the call happen at all, so
+ * the only client guaranteed to witness the outcome is the one that
+ * placed it. Best-effort — a stale schema (0008 not yet run) should
+ * never break the call itself, so failures are swallowed.
+ */
+export async function logCallOutcome(
+  callerId: string,
+  calleeId: string,
+  status: 'missed' | 'declined',
+) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from('calls')
+    .insert({ caller_id: callerId, callee_id: calleeId, status });
+  // Never break the call over this, but a silent failure here means the
+  // whole point of the feature — someone finding out they were called —
+  // just stops working with nothing to notice by. Worth a trace.
+  if (error) console.error('logCallOutcome failed:', error.message);
+}
+
+/**
+ * A fresh set of ICE servers for one call. Fetched per call rather than
+ * cached across them — calls are infrequent enough here that the extra
+ * request is not worth the complexity of tracking credential expiry.
+ *
+ * Bounded to a few seconds: without this, a slow `/api/turn` (which
+ * itself calls out to Cloudflare's analytics API before minting
+ * anything) would leave `call()`/`accept()` hanging indefinitely on
+ * "Ringing…", which — before this — could leave the app's re-entrancy
+ * lock stuck permanently true, silently disabling calling until reload.
+ */
+async function iceServers(): Promise<RTCIceServer[]> {
+  try {
+    const res = await fetch('/api/turn', { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return FALLBACK_ICE_SERVERS;
+    const data = (await res.json()) as {
+      configured: boolean;
+      iceServers: RTCIceServer[] | null;
+    };
+    return data.configured && data.iceServers ? data.iceServers : FALLBACK_ICE_SERVERS;
+  } catch {
+    return FALLBACK_ICE_SERVERS;
+  }
+}
+
+export async function createPeer(): Promise<RTCPeerConnection> {
+  return new RTCPeerConnection({ iceServers: await iceServers() });
 }
 
 /** Camera and microphone. Throws if permission is refused. */

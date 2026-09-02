@@ -94,7 +94,7 @@ export function VoiceRecorder({
 
   if (denied) {
     return (
-      <p className="text-sm text-clay">
+      <p className="text-sm font-semibold text-[#b3402f]">
         No microphone. Check your browser’s permission and try again.
       </p>
     );
@@ -107,7 +107,7 @@ export function VoiceRecorder({
         onClick={() => void start()}
         disabled={disabled}
         aria-label="Record a voice message"
-        className="flex h-[var(--bh-tap)] w-[var(--bh-tap)] shrink-0 items-center justify-center rounded-full border-2 border-sage/40 text-forest transition-colors hover:border-forest hover:bg-sage-mist/60 disabled:opacity-50"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1a1a1a]/[0.05] text-[#1a1a1a] transition-colors hover:bg-[#1a1a1a] hover:text-white disabled:opacity-50"
       >
         <Icon name="mic" size={22} />
       </button>
@@ -115,31 +115,31 @@ export function VoiceRecorder({
   }
 
   return (
-    <div className="flex flex-1 items-center gap-3 rounded-3xl border-2 border-clay/50 bg-clay/5 px-4 py-2">
+    <div className="flex flex-1 items-center gap-3 rounded-3xl bg-[#1a1a1a]/[0.04] px-4 py-2">
       <span className="relative flex h-3 w-3 shrink-0" aria-hidden="true">
         <span
-          className="decorative absolute inline-flex h-full w-full rounded-full bg-clay"
+          className="decorative absolute inline-flex h-full w-full rounded-full bg-[#b3402f]"
           style={{ animation: 'bh-pulse-ring 1.4s ease-out infinite' }}
         />
-        <span className="relative inline-flex h-3 w-3 rounded-full bg-clay" />
+        <span className="relative inline-flex h-3 w-3 rounded-full bg-[#b3402f]" />
       </span>
 
-      <span className="font-semibold tabular-nums text-forest" role="timer">
+      <span className="font-semibold tabular-nums text-[#1a1a1a]" role="timer">
         {clock(elapsed)}
       </span>
-      <span className="flex-1 text-sm text-olive">Recording…</span>
+      <span className="flex-1 text-sm text-[#1a1a1a]/60">Recording…</span>
 
       <button
         type="button"
         onClick={cancel}
-        className="min-h-[var(--bh-tap)] rounded-full px-4 font-semibold text-olive hover:text-forest"
+        className="min-h-[var(--bh-tap)] rounded-full px-4 font-semibold text-[#1a1a1a]/60 hover:text-[#1a1a1a]"
       >
         Cancel
       </button>
       <button
         type="button"
         onClick={finish}
-        className="min-h-[var(--bh-tap)] rounded-full bg-forest px-5 font-semibold text-cream"
+        className="min-h-[var(--bh-tap)] rounded-full bg-[#f5d64e] px-5 font-semibold text-[#1a1a1a] transition-transform hover:scale-[1.03]"
       >
         Send
       </button>
@@ -150,8 +150,20 @@ export function VoiceRecorder({
 /**
  * Playback for one voice note.
  *
- * The URL is signed and short-lived, so it is fetched on first play
- * rather than for every message in the thread at once.
+ * Two things happen the moment this mounts, not on click:
+ *
+ * 1. The signed URL is fetched ahead of time — iOS Safari only allows
+ *    `.play()` when it runs synchronously inside the tap that triggered
+ *    it, and awaiting the URL first was exactly enough to lose that:
+ *    the play call landed a tick late, Safari silently refused it, and
+ *    tapping "play" did nothing.
+ * 2. The file itself is downloaded into a blob and played from an
+ *    object URL, not streamed straight from the signed URL. Safari's
+ *    own `MediaRecorder` output is a fragmented MP4 with the duration
+ *    metadata spread through it rather than sitting up front, and
+ *    Safari can fail to make sense of that while range-requesting it
+ *    over the network — the exact same bytes play back fine once
+ *    they're a local blob it can inspect in full before decoding.
  */
 export function VoicePlayer({
   path,
@@ -162,65 +174,115 @@ export function VoicePlayer({
   durationMs?: number | null;
   mine: boolean;
 }) {
-  const [url, setUrl] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
   const audio = useRef<HTMLAudioElement | null>(null);
+  const objectUrlRef = useRef<string | null>(null);
 
-  const toggle = async () => {
+  useEffect(() => {
+    let alive = true;
+    void voiceUrl(path)
+      .then((src) => (src ? fetch(src) : null))
+      .then((res) => (res?.ok ? res.blob() : null))
+      .then((blob) => {
+        if (alive && blob) objectUrlRef.current = URL.createObjectURL(blob);
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [path]);
+
+  const play = (src: string) => {
+    if (!audio.current) {
+      audio.current = new Audio(src);
+      audio.current.onended = () => setPlaying(false);
+      audio.current.onpause = () => setPlaying(false);
+      audio.current.onplay = () => {
+        setFailed(false);
+        setPlaying(true);
+      };
+      audio.current.onerror = () => {
+        setPlaying(false);
+        setBusy(false);
+        setFailed(true);
+      };
+    }
+    audio.current.play().catch(() => {
+      setPlaying(false);
+      setBusy(false);
+      setFailed(true);
+    });
+  };
+
+  const toggle = () => {
     if (playing) {
       audio.current?.pause();
       return;
     }
 
-    let src = url;
-    if (!src) {
-      setBusy(true);
-      src = await voiceUrl(path);
-      setBusy(false);
-      if (!src) return;
-      setUrl(src);
+    // The common case: the blob was already downloaded, so this runs
+    // `.play()` synchronously in the click itself.
+    if (objectUrlRef.current) {
+      play(objectUrlRef.current);
+      return;
     }
 
-    if (!audio.current) {
-      audio.current = new Audio(src);
-      audio.current.onended = () => setPlaying(false);
-      audio.current.onpause = () => setPlaying(false);
-      audio.current.onplay = () => setPlaying(true);
-    }
-    void audio.current.play();
+    // Prefetch hasn't landed yet — best effort, may still lose the
+    // gesture on iOS, but this is a rare race rather than the norm.
+    setBusy(true);
+    void voiceUrl(path)
+      .then((src) => (src ? fetch(src) : null))
+      .then((res) => (res?.ok ? res.blob() : null))
+      .then((blob) => {
+        setBusy(false);
+        if (!blob) {
+          setFailed(true);
+          return;
+        }
+        objectUrlRef.current = URL.createObjectURL(blob);
+        play(objectUrlRef.current);
+      })
+      .catch(() => {
+        setBusy(false);
+        setFailed(true);
+      });
   };
 
   useEffect(() => {
     return () => {
       audio.current?.pause();
       audio.current = null;
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
     };
   }, []);
 
   return (
     <button
       type="button"
-      onClick={() => void toggle()}
-      aria-label={playing ? 'Pause voice message' : 'Play voice message'}
+      onClick={toggle}
+      aria-label={playing ? 'Stop voice message' : 'Play voice message'}
       className={`flex min-h-[var(--bh-tap)] items-center gap-3 rounded-3xl px-4 py-3 text-left ${
-        mine ? 'rounded-br-lg bg-forest text-cream' : 'rounded-bl-lg bg-sage-mist text-forest'
+        mine
+          ? 'rounded-br-lg bg-[#f5d64e] text-[#1a1a1a]'
+          : 'rounded-bl-lg border border-[#1a1a1a]/[0.06] bg-white text-[#1a1a1a] shadow-[0_1px_2px_rgba(26,26,26,0.05)]'
       }`}
     >
       <span
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
-          mine ? 'bg-cream/20' : 'bg-forest/10'
+          mine ? 'bg-white/55 text-[#1a1a1a]' : 'bg-[#f5d64e] text-[#1a1a1a]'
         }`}
         aria-hidden="true"
       >
-        {busy ? '…' : <Icon name={playing ? 'chat' : 'mic'} size={20} />}
+        {busy ? '…' : <Icon name={playing ? 'pause' : 'play'} size={20} />}
       </span>
       <span>
         <span className="block font-semibold">
-          {playing ? 'Playing…' : 'Voice message'}
+          {failed ? "Couldn't play — tap to retry" : playing ? 'Playing…' : 'Voice message'}
         </span>
         {durationMs ? (
-          <span className={`block text-sm ${mine ? 'text-cream/75' : 'text-olive'}`}>
+          <span className={`block text-sm ${mine ? 'text-[#1a1a1a]/60' : 'text-[#1a1a1a]/60'}`}>
             {clock(durationMs)}
           </span>
         ) : null}

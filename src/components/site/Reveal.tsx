@@ -16,7 +16,9 @@ export function Reveal() {
   useEffect(() => {
     if (reduced) return;
 
-    const lenis = new Lenis({ duration: 1.05, smoothWheel: true });
+    const lenis = new Lenis({ duration: 0.8, smoothWheel: true });
+    // Published so route changes can jump instantly instead of gliding.
+    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
     let raf = 0;
 
     const loop = (time: number) => {
@@ -27,6 +29,7 @@ export function Reveal() {
 
     return () => {
       cancelAnimationFrame(raf);
+      delete (window as unknown as { __lenis?: Lenis }).__lenis;
       lenis.destroy();
     };
   }, [reduced]);

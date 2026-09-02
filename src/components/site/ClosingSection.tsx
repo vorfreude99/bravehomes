@@ -1,7 +1,6 @@
 'use client';
 
 import { ConstellationCanvas } from '@/components/three';
-import { LinkButton } from '@/components/ui/Button';
 import { bridge, manifesto } from '@/lib/content';
 
 /**
@@ -22,7 +21,7 @@ export function ClosingSection() {
       {/* Atmosphere. `mask-image` fades it into the ground on every side,
           so there is no visible canvas edge to give the game away. */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-55"
+        className="pointer-events-none absolute inset-0 opacity-55 max-sm:opacity-25"
         style={{
           maskImage:
             'radial-gradient(ellipse 75% 60% at 50% 42%, #000 0%, rgba(0,0,0,0.5) 55%, transparent 82%)',
@@ -58,27 +57,19 @@ export function ClosingSection() {
               className="flex items-center justify-center gap-3 md:flex-col"
               aria-hidden="true"
             >
-              <span className="h-px w-12 bg-gradient-to-r from-transparent to-gold/70 md:h-12 md:w-px md:bg-gradient-to-b" />
-              <span className="h-2.5 w-2.5 shrink-0 rotate-45 border border-gold/80 bg-night" />
-              <span className="h-px w-12 bg-gradient-to-r from-gold/70 to-transparent md:h-12 md:w-px md:bg-gradient-to-b md:from-gold/70 md:to-transparent" />
+              <span className="bridge-arm bridge-arm--l h-px w-12 bg-gradient-to-r from-transparent to-gold/70 md:h-12 md:w-px md:bg-gradient-to-b" />
+              <span className="bridge-gem h-2.5 w-2.5 shrink-0 border border-gold/80 bg-night" />
+              <span className="bridge-arm bridge-arm--r h-px w-12 bg-gradient-to-r from-gold/70 to-transparent md:h-12 md:w-px md:bg-gradient-to-b md:from-gold/70 md:to-transparent" />
             </div>
 
             <Half label={bridge.right.label} line={bridge.right.line} align="md:text-left" />
           </div>
 
-          <p className="mx-auto mt-14 max-w-2xl text-balance text-center text-lg leading-relaxed text-sage-soft">
+          <p className="bridge-join mx-auto mt-14 max-w-2xl text-balance text-center text-lg leading-relaxed text-sage-soft">
             {bridge.join}
           </p>
         </div>
 
-        <div className="reveal mt-12 flex flex-wrap justify-center gap-3" data-delay="220">
-          <LinkButton href="/signup" variant="gold" size="lg">
-            Start connecting
-          </LinkButton>
-          <LinkButton href="/portal/donate" variant="onDark" size="lg">
-            Give to the build
-          </LinkButton>
-        </div>
       </div>
     </section>
   );

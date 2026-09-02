@@ -4,23 +4,99 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { LinkButton } from '@/components/ui/Button';
 import { useReducedMotion } from '@/lib/hooks';
-import { currency, projects } from '@/lib/content';
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
 
-const totalRaised = projects.reduce((sum, p) => sum + p.raised, 0);
 
-/** Figures for the merged panel. All from the brief — nothing invented. */
+/** Figures for the merged panel. Every one of these is simply true —
+    no invented member counts, no imaginary money. */
 const PROOF = [
-  { value: '247', label: 'people online now' },
-  { value: currency.format(totalRaised), label: 'raised so far' },
-  { value: '100%', label: 'goes to the cause' },
+  { value: 'Free', label: 'to join, always' },
+  { value: '3 ways', label: 'to talk — text · voice · video' },
+  { value: '100%', label: 'of gifts to the cause' },
 ];
 
 /** Maps `p` from the range [a, b] onto 0–1, clamped outside it. */
 function range(p: number, a: number, b: number) {
   return clamp01((p - a) / (b - a));
 }
+
+/**
+ * One small bird, flying left to right above a line of text as it
+ * arrives — the letters seem to fall where it has just passed.
+ *
+ * Position is driven by `--lt`, the line's own 0–1 entrance progress
+ * (set by the caller), so the flight is scroll-linked like the rest of
+ * this hero: scroll back up and the bird retraces its path in reverse.
+ * The wing flap is the one thing on a real clock — wings do not slow
+ * down because the reader scrolled slowly.
+ */
+function LetterBird() {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute -top-3 -translate-y-full sm:-top-4"
+      style={{
+        opacity: 'calc(clamp(0, calc(var(--lt) * 6), 1) * clamp(0, calc((1 - var(--lt)) * 6), 1))',
+        left: 'calc(var(--lt) * 100%)',
+        transform: 'translate(-50%, -100%)',
+      }}
+    >
+      <svg
+        className="bird-flap"
+        width="22"
+        height="16"
+        viewBox="0 0 32 22"
+        fill="none"
+      >
+        <path
+          d="M16 14 C 11 5 4 3 1 5 C 6 7 10 10 13 15 C 8 15 4 17 2 20 C 8 19 12 18 16 20 C 20 18 24 19 30 20 C 28 17 24 15 19 15 C 22 10 26 7 31 5 C 28 3 21 5 16 14Z"
+          fill="var(--color-gold-deep)"
+        />
+      </svg>
+    </span>
+  );
+}
+
+/**
+ * Splits a line into single-letter spans that drop in from above, each
+ * one a beat after the last, riding the same `--lt` progress the bird
+ * flies on — the cascade reads as the bird dropping them in flight.
+ *
+ * The real words still exist for anyone listening rather than looking:
+ * a visually-hidden node carries the line whole, and the animated
+ * letters are hidden from assistive tech so nothing is read out twice
+ * or spelled letter by letter.
+ */
+function DroppedLine({ text }: { text: string }) {
+  const chars = [...text];
+  return (
+    <>
+      <span className="sr-only">{text}</span>
+      <span aria-hidden="true" className="relative inline-block">
+        <LetterBird />
+        {chars.map((ch, j) => {
+          const off = (j / chars.length) * 0.82;
+          const wobble = ((j % 5) - 2) * 7;
+          const t = `clamp(0, calc((var(--lt) - ${off.toFixed(3)}) * 6), 1)`;
+          return (
+            <span
+              key={j}
+              className="inline-block"
+              style={{
+                opacity: t,
+                transform: `translate3d(0, calc((1 - ${t}) * -0.85em), 0) rotate(calc((1 - ${t}) * ${wobble}deg))`,
+              }}
+            >
+              {ch === ' ' ? '\u00A0' : ch}
+            </span>
+          );
+        })}
+      </span>
+    </>
+  );
+}
+
 
 /** The state everything is derived from, at rest before the intro runs. */
 const INITIAL_VARS = {
@@ -117,8 +193,16 @@ export function SplitHero() {
         // over after that, once the picture is already whole. The merged
         // photograph gets its own line — repeating the headline there
         // would waste the one moment the mechanic has been building to.
-        const close = range(p, 0, 0.62);
-        const merged = range(p, 0.64, 0.86);
+        //
+        // The section itself is taller than these fractions alone need
+        // (see the wrapper's h-[320svh]) specifically so that once the
+        // payoff finishes revealing, there is a long flat stretch of
+        // scroll left where nothing changes — time to actually read
+        // "Connecting generations. Helping care homes." before the page
+        // lets go and moves on, rather than snatching it away the moment
+        // it lands.
+        const close = range(p, 0, 0.482);
+        const merged = range(p, 0.498, 0.669);
 
         pointerCurrent += (pointerTarget - pointerCurrent) * 0.06;
 
@@ -129,7 +213,7 @@ export function SplitHero() {
           // Faint while far apart, brightest at the instant they touch,
           // then dissolving as the payoff takes over.
           '--seam': (Math.pow(close, 3) * (1 - merged)).toFixed(4),
-          '--apart': (1 - range(p, 0.34, 0.58)).toFixed(4),
+          '--apart': (1 - range(p, 0.264, 0.451)).toFixed(4),
           '--merged': merged.toFixed(4),
           '--px': pointerCurrent.toFixed(4),
         });
@@ -165,7 +249,7 @@ export function SplitHero() {
   return (
     <section
       ref={wrap}
-      className={`relative bg-cream ${still ? '' : 'h-[240svh]'}`}
+      className={`relative bg-cream ${still ? '' : 'h-[280svh]'}`}
     >
       <div
         ref={stage}
@@ -269,12 +353,18 @@ export function SplitHero() {
         {/* A pool of shade under the words specifically. The full-frame
             gradient has to stay light in the middle so the photograph
             reads, which left the eyebrow and sub-line sitting on the
-            bright window behind them. */}
+            bright window behind them.
+            Sized wide/tall enough to stay under the full text column at
+            any viewport — at narrow (phone) widths the text's rem floor
+            keeps it relatively large against the frame, so a tighter
+            ellipse let its edges spill onto raw, unlit photograph: part
+            of a line reading clean, the rest fighting the image behind
+            it. */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 62% 46% at 50% 47%, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.5) 52%, rgba(255,255,255,0) 76%)',
+              'radial-gradient(ellipse 88% 62% at 50% 47%, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.6) 55%, rgba(255,255,255,0) 82%)',
           }}
           aria-hidden="true"
         />
@@ -311,10 +401,9 @@ export function SplitHero() {
           }
           // Centre within the space *below* the header, not the whole
           // stage. Without this the block is centred against the full
-          // viewport and its top slides under the fixed bar — invisible
-          // at the default text size, but Easy View grows the block ~20%
-          // and the eyebrow disappears behind the header on any short
-          // screen (79px of it at 360x640).
+          // viewport and its top slides under the fixed bar — the
+          // eyebrow disappears behind the header on any short screen
+          // (79px of it at 360x640).
           style={{ paddingTop: `calc(var(--bh-header) + ${still ? '2rem' : '1.75rem'})` }}
         >
           {/* Matches the band (2 × 21vw) on wide screens; on a phone the
@@ -332,7 +421,8 @@ export function SplitHero() {
                   most recognisable template patterns going. A quieter
                   label lets the headline do the work. */}
               <p
-                className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-sage-ink sm:text-xs"
+                className="eyebrow-in text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-sage-ink sm:text-xs"
+                style={{ animationDelay: '350ms' }}
               >
                 Connecting generations
               </p>
@@ -340,26 +430,61 @@ export function SplitHero() {
               {/* Sized in vw, like the band it sits in, so the longest
                   line stays inside the column at every viewport width. */}
               <h1
-                // A high-contrast serif at display size wants a touch of
-                // positive tracking, not negative: tightening it collides
-                // the thin strokes and muddies the counters.
-                className="mt-6 font-serif text-[clamp(2.6rem,5vw,6rem)] font-medium leading-[0.98] tracking-[-0.018em] text-forest [@media(max-height:700px)]:mt-3"
+                // A handwritten face reads as a person having said this,
+                // not a typesetter — the one line on the page that
+                // should sound spoken. It needs real size to carry the
+                // same weight a display serif does at half the height,
+                // and loose, positive tracking: joined-up letterforms
+                // collide under negative tracking the way type never does.
+                className="mt-6 font-hand text-[clamp(3.4rem,7vw,8rem)] font-semibold leading-[0.92] tracking-[0.01em] text-forest [@media(max-height:700px)]:mt-3"
               >
                 <span className="line-mask">
-                  <span style={{ animationDelay: '60ms' }}>Nobody should</span>
+                  <span style={{ animationDelay: '60ms' }}>
+                    {/* The line rises into place, then a nib of gold
+                        sweeps across and writes it — two motions, one
+                        gesture, the way a hand actually lifts a pen and
+                        then sets it down to write. */}
+                    <span className="ink-wipe" style={{ animationDelay: '410ms' }}>
+                      Nobody should
+                    </span>
+                  </span>
                 </span>
                 <span className="line-mask">
-                  <span style={{ animationDelay: '160ms' }}>grow old</span>
+                  <span style={{ animationDelay: '160ms' }}>
+                    <span className="ink-wipe" style={{ animationDelay: '510ms' }}>
+                      grow old
+                    </span>
+                  </span>
                 </span>
                 <span className="line-mask">
                   <span style={{ animationDelay: '260ms' }}>
-                    <em className="brass-on-light">on their own.</em>
+                    <span className="ink-wipe" style={{ animationDelay: '610ms' }}>
+                      <em className="brass-on-light own-line">
+                        on their own.
+                        {/* The underline draws itself, right to the full
+                            stop — a hand finishing the sentence. */}
+                        <svg
+                          className="own-underline"
+                          viewBox="0 0 320 24"
+                          preserveAspectRatio="none"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M8 16 Q 84 7 162 13 T 312 11"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="5.5"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </em>
+                    </span>
                   </span>
                 </span>
               </h1>
 
               <p
-                className="rise-in mx-auto mt-7 max-w-lg text-base leading-relaxed text-olive sm:text-lg [@media(max-height:700px)]:mt-4"
+                className="rise-in mx-auto mt-7 max-w-lg text-base leading-relaxed text-forest/80 sm:text-lg [@media(max-height:700px)]:mt-4"
                 style={{ animationDelay: '620ms' }}
               >
                 Real friendships between real people — and the homes that give
@@ -374,7 +499,7 @@ export function SplitHero() {
                   href="/signup"
                   variant="gold"
                   size="lg"
-                  className="group hover:-translate-y-0.5"
+                  className="group cta-sheen hover:-translate-y-0.5"
                 >
                   Join free — takes a minute
                   <span
@@ -384,15 +509,8 @@ export function SplitHero() {
                     →
                   </span>
                 </LinkButton>
-                <LinkButton
-                  href="/portal/donate"
-                  variant="secondary"
-                  size="lg"
-                  className="hover:-translate-y-0.5"
-                >
-                  Donate
-                </LinkButton>
               </div>
+
             </div>
           </div>
 
@@ -434,24 +552,89 @@ export function SplitHero() {
                   above a line beginning "Connecting generations." — the
                   same words twice in the same breath. */}
               <p className="font-serif text-[clamp(2rem,4.2vw,4.2rem)] font-medium leading-[1.06] tracking-[-0.02em] text-forest [@media(max-height:860px)]:text-[clamp(1.6rem,3.4vw,2.8rem)]">
-                {['Connecting generations.', 'Building homes.', 'Changing lives.'].map(
+                {['Connecting generations.', 'Helping care homes.', 'Changing lives.'].map(
                   (line, i) => (
                     <span
                       key={line}
-                      className="block"
+                      className="relative block"
                       style={
                         still
                           ? undefined
-                          : {
-                              // Each line lands a beat after the one before.
-                              opacity: `clamp(0, calc((var(--merged) - ${i * 0.16}) * 4), 1)`,
-                            }
+                          : ({
+                              '--lt': `clamp(0, calc((var(--merged) - ${i * 0.16}) * 4), 1)`,
+                              // The brass line (i === 2) still needs its own
+                              // fade/rise — DroppedLine supplies that for
+                              // the other two, so only apply it here.
+                              ...(i === 2
+                                ? {
+                                    opacity: `clamp(0, calc((var(--merged) - ${i * 0.16}) * 4), 1)`,
+                                    transform: `translate3d(0, calc((1 - clamp(0, calc((var(--merged) - ${i * 0.16}) * 4), 1)) * 0.55em), 0)`,
+                                  }
+                                : {}),
+                            } as React.CSSProperties)
                       }
                     >
+                      {!still && i === 2 && <LetterBird />}
                       {i === 2 ? (
-                        <em className="brass-on-light not-italic">{line}</em>
-                      ) : (
+                        <em className="own-line brass-on-light brass-live not-italic">
+                          {line}
+                          {/* Act 1 underlined; Act 3 gets a different pen:
+                              the reader's scroll circles the words, the way
+                              a hand rings the line that matters. */}
+                          <svg
+                            className="pointer-events-none absolute -left-[7%] -top-[30%] h-[160%] w-[114%] overflow-visible text-gold-deep"
+                            viewBox="0 0 340 130"
+                            preserveAspectRatio="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M212 14 C 96 2 18 26 16 62 C 14 100 96 122 178 120 C 268 118 326 96 324 60 C 322 30 268 10 196 12"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="4.5"
+                              strokeLinecap="round"
+                              pathLength={100}
+                              style={{
+                                strokeDasharray: 100,
+                                strokeDashoffset: still
+                                  ? 0
+                                  : 'calc((1 - clamp(0, calc((var(--merged) - 0.48) * 2.4), 1)) * 100)',
+                                opacity: 0.85,
+                              }}
+                            />
+                          </svg>
+                          {/* Two pen flicks as the ring closes. */}
+                          <span
+                            className="absolute -right-6 -top-4 h-2 w-2 rotate-45 bg-gold max-sm:hidden"
+                            aria-hidden="true"
+                            style={
+                              still
+                                ? undefined
+                                : {
+                                    opacity: 'clamp(0, calc((var(--merged) - 0.66) * 6), 1)',
+                                    transform:
+                                      'rotate(45deg) scale(clamp(0, calc((var(--merged) - 0.66) * 6), 1))',
+                                  }
+                            }
+                          />
+                          <span
+                            className="absolute -bottom-3 -left-7 h-1.5 w-1.5 rotate-45 bg-gold max-sm:hidden"
+                            aria-hidden="true"
+                            style={
+                              still
+                                ? undefined
+                                : {
+                                    opacity: 'clamp(0, calc((var(--merged) - 0.7) * 6), 1)',
+                                    transform:
+                                      'rotate(45deg) scale(clamp(0, calc((var(--merged) - 0.7) * 6), 1))',
+                                  }
+                            }
+                          />
+                        </em>
+                      ) : still ? (
                         line
+                      ) : (
+                        <DroppedLine text={line} />
                       )}
                     </span>
                   ),
@@ -467,50 +650,83 @@ export function SplitHero() {
                   without it the prose ran straight on from the display type
                   and the block read as one undifferentiated column. */}
               <span
-                className="mx-auto mt-8 block h-px w-16 bg-gold/50 [@media(max-height:860px)]:mt-5"
+                className="mx-auto mt-8 flex items-center justify-center gap-3 [@media(max-height:860px)]:mt-5"
                 style={
                   still
                     ? undefined
                     : {
+                        opacity: 'clamp(0, calc((var(--merged) - 0.44) * 5), 1)',
                         transform:
-                          'scaleX(clamp(0, calc((var(--merged) - 0.44) * 5), 1))',
+                          'scaleX(clamp(0.4, calc(0.4 + (var(--merged) - 0.44) * 3), 1))',
                       }
                 }
                 aria-hidden="true"
-              />
+              >
+                <span className="h-px w-14 bg-gradient-to-r from-transparent to-gold/70" />
+                <span
+                  className="h-2 w-2 shrink-0 border border-gold/80"
+                  style={
+                    still
+                      ? { transform: 'rotate(45deg)' }
+                      : {
+                          transform:
+                            'rotate(calc(45deg + (1 - clamp(0, calc((var(--merged) - 0.44) * 3), 1)) * 180deg))',
+                        }
+                  }
+                />
+                <span className="h-px w-14 bg-gradient-to-l from-transparent to-gold/70" />
+              </span>
 
               <p
                 className="mx-auto mt-7 max-w-xl text-base leading-relaxed text-olive sm:text-lg [@media(max-height:860px)]:mt-4 [@media(max-height:860px)]:text-sm [@media(max-height:860px)]:sm:text-base"
                 style={
                   still
                     ? undefined
-                    : { opacity: 'clamp(0, calc((var(--merged) - 0.5) * 4), 1)' }
+                    : {
+                        opacity: 'clamp(0, calc((var(--merged) - 0.5) * 4), 1)',
+                        transform:
+                          'translate3d(0, calc((1 - clamp(0, calc((var(--merged) - 0.5) * 4), 1)) * 18px), 0)',
+                      }
                 }
               >
                 Somebody your grandmother’s age is waiting for a conversation,
                 and somebody your age is the reason she’ll get one. Free to join,
-                and every penny of every donation goes straight to the cause —
-                not one penny to admin.
+                and every penny of every donation goes straight to the cause.
               </p>
 
               {/* The figures answer the question the picture provokes: is
                   any of this real? */}
               <dl
-                className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center divide-x divide-sage/30 [@media(max-height:860px)]:mt-5"
+                className="mx-auto mt-8 flex max-w-3xl flex-col items-center justify-center gap-4 divide-sage/30 sm:flex-row sm:gap-0 sm:divide-x [@media(max-height:860px)]:mt-5"
                 style={
                   still
                     ? undefined
-                    : { opacity: 'clamp(0, calc((var(--merged) - 0.56) * 4), 1)' }
+                    : {
+                        opacity: 'clamp(0, calc((var(--merged) - 0.56) * 4), 1)',
+                        transform:
+                          'translate3d(0, calc((1 - clamp(0, calc((var(--merged) - 0.56) * 4), 1)) * 16px), 0)',
+                      }
                 }
               >
-                {PROOF.map((stat) => (
-                  <div key={stat.label} className="px-5 text-center sm:px-7">
+                {PROOF.map((stat, i) => (
+                  <div
+                    key={stat.label}
+                    className="px-5 text-center sm:px-7"
+                    style={
+                      still
+                        ? undefined
+                        : {
+                            opacity: `clamp(0, calc((var(--merged) - ${0.56 + i * 0.05}) * 4), 1)`,
+                            transform: `translate3d(0, calc((1 - clamp(0, calc((var(--merged) - ${0.56 + i * 0.05}) * 4), 1)) * 12px), 0)`,
+                          }
+                    }
+                  >
                     <dt className="sr-only">{stat.label}</dt>
                     <dd>
-                      <span className="block font-serif text-2xl font-medium text-forest sm:text-3xl">
+                      <span className="brass-on-light block font-serif text-3xl font-medium sm:text-4xl">
                         {stat.value}
                       </span>
-                      <span className="mt-0.5 block text-xs text-ink-muted sm:text-sm">
+                      <span className="mt-1 block text-[0.65rem] font-bold uppercase tracking-[0.16em] text-olive sm:text-xs">
                         {stat.label}
                       </span>
                     </dd>
@@ -523,30 +739,29 @@ export function SplitHero() {
                 style={
                   still
                     ? undefined
-                    : { opacity: 'clamp(0, calc((var(--merged) - 0.62) * 4), 1)' }
+                    : {
+                        opacity: 'clamp(0, calc((var(--merged) - 0.62) * 4), 1)',
+                        transform:
+                          'translate3d(0, calc((1 - clamp(0, calc((var(--merged) - 0.62) * 4), 1)) * 14px), 0)',
+                      }
                 }
               >
+                {/* The opening screen already asked them to join. By this
+                    point they have read the promise and the stats — ask
+                    the second question instead of the same one twice. */}
                 <LinkButton
-                  href="/signup"
+                  href="/portal/donate"
                   variant="gold"
                   size="lg"
-                  className="group hover:-translate-y-0.5"
+                  className="group cta-sheen hover:-translate-y-0.5"
                 >
-                  Join free
+                  Donate — 100% to the cause
                   <span
                     aria-hidden="true"
                     className="transition-transform duration-300 group-hover:translate-x-1"
                   >
                     →
                   </span>
-                </LinkButton>
-                <LinkButton
-                  href="#homes"
-                  variant="secondary"
-                  size="lg"
-                  className="hover:-translate-y-0.5"
-                >
-                  See the homes
                 </LinkButton>
               </div>
             </div>

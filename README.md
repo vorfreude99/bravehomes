@@ -24,7 +24,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=…
 
 ## What's here
 
-**Public site** — `/`, `/about`, `/privacy`, `/contact`
+**Public site** — `/`, `/about`, `/contact`
 Hero, how-it-works, donate, the homes, and the manifesto, following the brief.
 
 **Portal** — `/portal`, guarded by `src/proxy.ts`
@@ -158,6 +158,4 @@ These need your input rather than more code:
 - **Voice and video messages** are advertised in the brief and surfaced in the
   UI as "coming soon". Text and AI translation display are in place; the
   translation itself is not wired to a provider.
-- **Contact addresses** on `/contact` are placeholders.
-- `/privacy` describes what the code actually does, but should be reviewed by
-  a solicitor before launch.
+- **Contact address** on `/contact` is `support@bravehomes.co.uk`.

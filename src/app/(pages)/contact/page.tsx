@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Eyebrow, LinkButton } from '@/components/ui/Button';
+import { Eyebrow } from '@/components/ui/Button';
 
 export const metadata: Metadata = {
   title: 'Contact',
@@ -18,45 +18,19 @@ export default function ContactPage() {
         how any of this works — write to us and a person will answer.
       </p>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-2">
-        <section className="card-solid p-6">
-          <h2 className="font-serif text-xl font-medium text-forest">General</h2>
-          <p className="mt-2 text-olive">Questions, ideas, or just hello.</p>
-          <a
-            href="mailto:hello@bravehomes.org"
-            className="mt-4 inline-flex min-h-[var(--bh-tap)] items-center font-semibold text-forest underline underline-offset-4"
-          >
-            hello@bravehomes.org
-          </a>
-        </section>
-
-        <section className="card-solid p-6">
-          <h2 className="font-serif text-xl font-medium text-forest">The builds</h2>
-          <p className="mt-2 text-olive">
-            Land, contractors, and progress on the homes.
-          </p>
-          <a
-            href="mailto:build@bravehomes.org"
-            className="mt-4 inline-flex min-h-[var(--bh-tap)] items-center font-semibold text-forest underline underline-offset-4"
-          >
-            build@bravehomes.org
-          </a>
-        </section>
-      </div>
-
-      <div className="mt-10 flex flex-wrap gap-3">
-        <LinkButton href="/signup" size="lg">
-          Join free
-        </LinkButton>
-        <LinkButton href="/portal/donate" variant="gold" size="lg">
-          Donate
-        </LinkButton>
-      </div>
-
-      <p className="mt-12 text-sm text-ink-muted">
-        These addresses are placeholders until the team’s real inboxes are
-        connected.
-      </p>
+      <section className="card-solid mt-10 p-6 sm:max-w-sm">
+        <h2 className="font-serif text-xl font-medium text-forest">Email us</h2>
+        <p className="mt-2 text-olive">
+          Building, giving, joining, or just saying hello — one address, and
+          a person reads every message.
+        </p>
+        <a
+          href="mailto:support@bravehomes.co.uk"
+          className="mt-4 inline-flex min-h-[var(--bh-tap)] items-center font-semibold text-forest underline underline-offset-4"
+        >
+          support@bravehomes.co.uk
+        </a>
+      </section>
     </>
   );
 }

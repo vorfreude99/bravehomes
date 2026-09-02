@@ -244,30 +244,3 @@ export function GlobeFallback() {
   );
 }
 
-export function BrickFallback({ bricks }: { bricks: number }) {
-  const perRow = 9;
-  const rows = Math.ceil(Math.min(bricks, 140) / perRow);
-
-  return (
-    <div className="h-full w-full" aria-hidden="true">
-      <svg viewBox="0 0 360 260" className="h-full w-full" role="presentation">
-        <ellipse cx="180" cy="238" rx="150" ry="18" fill="#7f9068" />
-        {Array.from({ length: rows }).map((_, r) => {
-          const inRow = Math.min(perRow, bricks - r * perRow);
-          const offset = r % 2 === 0 ? 0 : 17;
-          return Array.from({ length: inRow }).map((__, c) => (
-            <rect
-              key={`${r}-${c}`}
-              x={30 + c * 34 + offset}
-              y={228 - (r + 1) * 17}
-              width="31"
-              height="14"
-              rx="2"
-              fill="#c9704f"
-            />
-          ));
-        })}
-      </svg>
-    </div>
-  );
-}

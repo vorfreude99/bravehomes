@@ -60,6 +60,12 @@ export function FindClient() {
     });
   }, [members, query, band]);
 
+  // The drifting arc is a showcase for browsing everyone — once you've
+  // actually narrowed the list down, motion works against you: you're
+  // trying to read a short, specific set of matches, not idly watch faces
+  // drift by. Any active filter drops straight to a plain, still grid.
+  const isFiltered = band !== 'all' || query.trim() !== '';
+
   /**
    * Positions every card on the arc, once per frame.
    *
@@ -77,7 +83,9 @@ export function FindClient() {
 
   useEffect(() => {
     const host = stage.current;
-    if (!host || results.length === 0) return;
+    // The arc itself is `lg:`-only (see below) — no point running the
+    // per-frame loop against a stage that's `display:none` on a phone.
+    if (!host || results.length === 0 || isFiltered || window.innerWidth < 1024) return;
 
     const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const n = results.length;
@@ -100,8 +108,8 @@ export function FindClient() {
         const edge = Math.min(1, (1 - Math.abs(p)) * 4);
 
         el.style.transform =
-          `translate3d(${p * half}px, ${Math.abs(p) * 26}px, ${-Math.abs(p) * 260}px)` +
-          ` rotateY(${-p * 34}deg)`;
+          `translate3d(${p * half}px, ${Math.abs(p) * 46}px, ${-Math.abs(p) * 400}px)` +
+          ` rotateY(${-p * 52}deg)`;
         el.style.opacity = String(edge);
         el.style.zIndex = String(100 - Math.round(Math.abs(p) * 100));
       });
@@ -111,7 +119,7 @@ export function FindClient() {
 
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [results.length]);
+  }, [results.length, isFiltered]);
 
   return (
     <div className="px-5 pb-10 sm:px-8">
@@ -190,7 +198,37 @@ export function FindClient() {
           </div>
         )}
 
-        {/* An arc of faces, drifting slowly left to right.
+        {/* Filtered: a plain, still grid. Once you've narrowed the list
+            down you're reading a short, specific set of matches, not
+            idly watching faces drift by — motion works against that. */}
+        {!loading && isFiltered && results.length > 0 && (
+          <ul className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            {results.map((m) => (
+              <li key={m.id}>
+                <MemberCard member={m} compact />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Unfiltered + phone: a plain swipeable row instead of the arc.
+            The arc's cards are absolutely positioned with a 3D transform
+            sized for a wide desktop stage — pinned to a phone-width
+            viewport they overlapped each other and ran off both edges.
+            This is the same card at a size that actually fits, in a
+            native horizontally-scrolling row a thumb can drag through. */}
+        {!isFiltered && !loading && results.length > 0 && (
+          <ul className="mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 lg:hidden">
+            {results.map((m) => (
+              <li key={m.id} className="w-44 shrink-0 snap-start">
+                <MemberCard member={m} compact />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* Unfiltered + desktop: an arc of faces, drifting slowly left to
+            right.
 
             Each card's depth, lift and turn are all functions of how far
             along the arc it is, so the rank curves away at both ends and
@@ -200,25 +238,17 @@ export function FindClient() {
             It pauses whenever you point at it or tab into it. Asking
             someone to click a moving target would be unkind at the best
             of times, and this is an app for people in their eighties. */}
-        <div
-          ref={stage}
-          className="tilt-row relative mt-2 h-[26rem] overflow-hidden"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-          onFocusCapture={() => setPaused(true)}
-          onBlurCapture={() => setPaused(false)}
-        >
-          <ul className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
-            {results.map((m, i) => {
-              const tint = [...m.id].reduce((n, c) => n + c.charCodeAt(0), 0) % 4;
-              const ground = [
-                'linear-gradient(160deg,#f5d64e 0%,#e7d79a 100%)',
-                'linear-gradient(160deg,#d9dfd4 0%,#f1f0ea 100%)',
-                'linear-gradient(160deg,#e6dcc6 0%,#f6f1e3 100%)',
-                'linear-gradient(160deg,#d6dce4 0%,#eceff2 100%)',
-              ][tint];
-
-              return (
+        {!isFiltered && (
+          <div
+            ref={stage}
+            className="tilt-row relative mt-2 hidden h-[26rem] overflow-hidden lg:block"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            onFocusCapture={() => setPaused(true)}
+            onBlurCapture={() => setPaused(false)}
+          >
+            <ul className="pointer-events-none absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
+              {results.map((m, i) => (
                 <li
                   key={m.id}
                   ref={(el) => {
@@ -226,42 +256,76 @@ export function FindClient() {
                   }}
                   className="absolute left-1/2 top-1/2 -ml-[7.5rem] -mt-[10.5rem] w-[15rem]"
                 >
-                  <Link
-                    href={`/portal/chat?to=${m.id}`}
-                    className="arc-card group relative block h-[21rem] w-[15rem] overflow-hidden rounded-[1.5rem] outline-none ring-[#1a1a1a] focus-visible:ring-2"
-                    style={{ background: ground }}
-                  >
-                    {m.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={m.avatar_url}
-                        alt=""
-                        className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0 group-focus-visible:grayscale-0"
-                      />
-                    ) : (
-                      <span className="flex h-full w-full items-center justify-center text-7xl font-medium text-[#1a1a1a]/35">
-                        {m.name.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-
-                    <span className="absolute inset-x-3 bottom-3 block rounded-2xl bg-white/85 px-4 py-3 backdrop-blur transition-colors duration-500 group-hover:bg-white">
-                      <span className="block truncate text-sm font-semibold text-[#1a1a1a]">
-                        {m.name}
-                        {m.age ? `, ${m.age}` : ''}
-                      </span>
-                      <span className="mt-0.5 block truncate text-xs text-[#1a1a1a]/60">
-                        {m.city || 'Somewhere in the UK'}
-                      </span>
-                      <span className="mt-2 block text-xs font-bold uppercase tracking-[0.14em] text-[#1a1a1a] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
-                        Say hello →
-                      </span>
-                    </span>
-                  </Link>
+                  <MemberCard member={m} className="pointer-events-auto" />
                 </li>
-              );
-            })}
-          </ul>
-        </div>
+              ))}
+            </ul>
+          </div>
+        )}
     </div>
+  );
+}
+
+function cardGround(id: string) {
+  const tint = [...id].reduce((n, c) => n + c.charCodeAt(0), 0) % 4;
+  return [
+    'linear-gradient(160deg,#f5d64e 0%,#e7d79a 100%)',
+    'linear-gradient(160deg,#d9dfd4 0%,#f1f0ea 100%)',
+    'linear-gradient(160deg,#e6dcc6 0%,#f6f1e3 100%)',
+    'linear-gradient(160deg,#d6dce4 0%,#eceff2 100%)',
+  ][tint];
+}
+
+function MemberCard({
+  member: m,
+  className = '',
+  compact = false,
+}: {
+  member: Member;
+  className?: string;
+  compact?: boolean;
+}) {
+  return (
+    <Link
+      href={`/portal/people/${m.id}`}
+      className={`arc-card group relative block w-full overflow-hidden rounded-[1.5rem] outline-none ring-[#1a1a1a] focus-visible:ring-2 ${
+        compact ? 'aspect-4/5 lg:aspect-auto lg:h-[21rem] lg:max-w-[15rem]' : 'h-[21rem] max-w-[15rem]'
+      } ${className}`}
+      style={{ background: cardGround(m.id) }}
+    >
+      {m.avatar_url ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={m.avatar_url} alt="" className="h-full w-full object-cover" />
+      ) : (
+        <span
+          className={`flex h-full w-full items-center justify-center font-medium text-[#1a1a1a]/35 ${
+            compact ? 'text-5xl lg:text-7xl' : 'text-7xl'
+          }`}
+        >
+          {m.name.charAt(0).toUpperCase()}
+        </span>
+      )}
+
+      <span
+        className={`absolute inset-x-2 bottom-2 block rounded-2xl bg-white/85 backdrop-blur transition-colors duration-500 group-hover:bg-white ${
+          compact ? 'px-3 py-2 lg:px-4 lg:py-3' : 'px-4 py-3'
+        }`}
+      >
+        <span className="block truncate text-sm font-semibold text-[#1a1a1a]">
+          {m.name}
+          {m.age ? `, ${m.age}` : ''}
+        </span>
+        <span className="mt-0.5 block truncate text-xs text-[#1a1a1a]/60">
+          {m.city || 'Somewhere in the UK'}
+        </span>
+        <span
+          className={`mt-2 block text-xs font-bold uppercase tracking-[0.14em] text-[#1a1a1a] opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100 ${
+            compact ? 'hidden lg:block' : ''
+          }`}
+        >
+          See their profile →
+        </span>
+      </span>
+    </Link>
   );
 }

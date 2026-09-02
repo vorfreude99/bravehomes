@@ -12,7 +12,11 @@ export type IconName =
   | 'video'
   | 'check'
   | 'grid'
-  | 'arrow-right';
+  | 'bell'
+  | 'arrow-right'
+  | 'alert'
+  | 'play'
+  | 'pause';
 
 /**
  * One consistent set of line icons, drawn rather than borrowed.
@@ -97,7 +101,27 @@ const PATHS: Record<IconName, React.ReactNode> = {
     </>
   ),
   check: <path d="m4.8 12.4 4.8 4.8L19.2 7.2" />,
+  bell: (
+    <>
+      <path d="M12 4.4a4.6 4.6 0 0 0-4.6 4.6v2.7c0 1-.4 1.95-1.1 2.66L5 15.8h14l-1.3-1.44a3.8 3.8 0 0 1-1.1-2.66V9a4.6 4.6 0 0 0-4.6-4.6Z" />
+      <path d="M9.6 18.8a2.4 2.4 0 0 0 4.8 0" />
+    </>
+  ),
   'arrow-right': <path d="M4.8 12h14.4m-5.6-5.6L19.2 12l-5.6 5.6" />,
+  alert: (
+    <>
+      <circle cx="12" cy="12" r="8.4" />
+      <path d="M12 8v5.2" />
+      <circle cx="12" cy="16" r="0.9" fill="currentColor" stroke="none" />
+    </>
+  ),
+  play: <path d="M7.5 5.5 18.5 12 7.5 18.5Z" fill="currentColor" stroke="none" strokeLinejoin="round" />,
+  pause: (
+    <>
+      <rect x="6.8" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none" />
+      <rect x="13.6" y="5" width="3.6" height="14" rx="1" fill="currentColor" stroke="none" />
+    </>
+  ),
 };
 
 export function Icon({

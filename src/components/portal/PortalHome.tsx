@@ -4,18 +4,56 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useSessionUser } from './PortalShell';
 import { getProfile, listMembers, listMessages, type Member, type Message } from '@/lib/db';
-import { BUILD_STAGES, currency, projects } from '@/lib/content';
 import { Icon, type IconName } from '@/components/ui/Icon';
 
 const INK = '#1a1a1a';
 const YELLOW = '#f5d64e';
 
-const totalRaised = projects.reduce((sum, p) => sum + p.raised, 0);
-const totalGoal = projects.reduce((sum, p) => sum + p.goal, 0);
-const totalPct = Math.round((totalRaised / totalGoal) * 100);
 
-function Tile({ className = '', children }: { className?: string; children: React.ReactNode }) {
-  return <div className={`rounded-[1.5rem] bg-white/75 p-5 ${className}`}>{children}</div>;
+/** A number that counts up to its value — the dashboard waking up. */
+function CountUp({ value }: { value: number }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setN(value);
+      return;
+    }
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / 900);
+      setN(Math.round(value * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return <>{n}</>;
+}
+
+function Tile({
+  className = '',
+  delay,
+  children,
+}: {
+  className?: string;
+  delay?: number;
+  children: React.ReactNode;
+}) {
+  return (
+    // `min-w-0`: a grid item's default minimum width is its content's own
+    // (unwrapped) size, not the track's — so a long, un-truncatable-until-
+    // rendered string (a test account's email standing in for a name, say)
+    // could force this tile, and the whole row, wider than the phone
+    // screen. `min-w-0` lets the grid track actually win, which is what
+    // makes `truncate` further down able to do anything at all.
+    <div
+      className={`tile-in tile-hover min-w-0 rounded-[1.5rem] bg-white/75 p-5 ${className}`}
+      style={delay ? { animationDelay: `${delay}ms` } : undefined}
+    >
+      {children}
+    </div>
+  );
 }
 
 /** The small arrow button in the corner of the reference's tiles. */
@@ -26,7 +64,7 @@ function Corner({ href, label }: { href: string; label: string }) {
       aria-label={label}
       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#1a1a1a]/15 text-[#1a1a1a] transition-colors hover:bg-[#1a1a1a] hover:text-white"
     >
-      <span aria-hidden="true" className="text-sm">
+      <span aria-hidden="true" className="corner-nudge text-sm">
         ↗
       </span>
     </Link>
@@ -60,6 +98,16 @@ export function PortalHome() {
   }, [me.id]);
 
   const firstName = me.name.split(' ')[0];
+  const [today, setToday] = useState('');
+  useEffect(() => {
+    setToday(
+      new Date().toLocaleDateString('en-GB', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      }),
+    );
+  }, []);
   const conversations = new Set(
     messages.map((m) => (m.sender === me.id ? m.recipient : m.sender)),
   ).size;
@@ -95,12 +143,17 @@ export function PortalHome() {
       {/* Sans, not the site's serif — the reference sets this in a plain
           grotesque, and the serif was the loudest tell that this was a
           different design wearing its layout. */}
-      <h1 className="text-4xl font-medium tracking-tight text-[#1a1a1a] sm:text-[2.75rem]">
+      <h1 className="rise-in text-4xl font-medium tracking-tight text-[#1a1a1a] sm:text-[2.75rem]">
         Welcome in, {firstName}
       </h1>
+      {today && (
+        <p className="rise-in mt-1.5 text-sm text-[#1a1a1a]/55" style={{ animationDelay: '80ms' }}>
+          {today} — somebody here would love to hear from you.
+        </p>
+      )}
 
       {/* --------------------------- Pills + figures -------------------------- */}
-      <div className="mt-6 flex flex-wrap items-end gap-x-10 gap-y-6">
+      <div className="rise-in mt-6 flex flex-wrap items-end gap-x-10 gap-y-6" style={{ animationDelay: '120ms' }}>
         <div className="flex min-w-0 flex-1 flex-wrap items-end gap-3">
           <div>
             <p className="mb-1.5 text-xs text-[#1a1a1a]/60">Profile</p>
@@ -119,40 +172,17 @@ export function PortalHome() {
             </span>
           </div>
 
-          <div className="min-w-[8rem] flex-1">
-            <p className="mb-1.5 text-xs text-[#1a1a1a]/60">The build</p>
-            {/* Hatched, like the striped bar in the reference. */}
-            <span
-              className="flex h-9 items-center overflow-hidden rounded-full"
-              style={{
-                background:
-                  'repeating-linear-gradient(115deg, rgba(26,26,26,0.14) 0 2px, transparent 2px 9px)',
-              }}
-            >
-              <span
-                className="h-full rounded-full"
-                style={{ width: `${totalPct}%`, background: 'rgba(26,26,26,0.10)' }}
-              />
-            </span>
-          </div>
-
-          <div>
-            <p className="mb-1.5 text-xs text-[#1a1a1a]/60">Funded</p>
-            <span className="flex h-9 items-center rounded-full border border-[#1a1a1a]/25 px-4 text-sm font-semibold text-[#1a1a1a]">
-              {totalPct}%
-            </span>
-          </div>
         </div>
 
         <div className="flex shrink-0 gap-8 sm:gap-12">
           {[
             { n: loaded ? people.length : '—', label: 'People', icon: 'profile' as IconName },
             { n: loaded ? conversations : '—', label: 'Chats', icon: 'chat' as IconName },
-            { n: projects.length, label: 'Homes', icon: 'home' as IconName },
+            { n: loaded ? sent : '—', label: 'Sent', icon: 'mail' as IconName },
           ].map((s) => (
             <div key={s.label}>
               <p className="text-[2.75rem] font-medium leading-none tracking-tight text-[#1a1a1a]">
-                {s.n}
+                {typeof s.n === 'number' ? <CountUp value={s.n} /> : s.n}
               </p>
               <p className="mt-1.5 flex items-center gap-1.5 text-xs text-[#1a1a1a]/70">
                 <Icon name={s.icon} size={13} />
@@ -166,7 +196,10 @@ export function PortalHome() {
       {/* ------------------------------- Row one ----------------------------- */}
       <div className="mt-5 grid gap-4 lg:grid-cols-[1fr_1.1fr_1.1fr_1fr]">
         {/* Photo card */}
-        <div className="relative overflow-hidden rounded-[1.5rem] bg-[#1a1a1a]">
+        <div
+          className="tile-in tile-hover relative min-w-0 overflow-hidden rounded-[1.5rem] bg-[#1a1a1a]"
+          style={{ animationDelay: '200ms' }}
+        >
           {profile?.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -176,7 +209,7 @@ export function PortalHome() {
             />
           ) : (
             <div className="flex h-full min-h-[15rem] items-center justify-center">
-              <span className="text-6xl font-medium text-white/80">
+              <span className="initial-breathe text-6xl font-medium text-white/80">
                 {firstName.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -189,27 +222,14 @@ export function PortalHome() {
                 'linear-gradient(to top, rgba(18,18,18,0.88) 0%, rgba(18,18,18,0) 100%)',
             }}
           >
-            <div className="flex items-end justify-between gap-3">
-              <div className="min-w-0">
-                <p className="truncate text-lg font-semibold text-white">
-                  {profile?.name ?? me.name}
-                </p>
-                <p className="truncate text-sm text-white/80">
-                  {profile?.city || 'Add your city'}
-                </p>
-              </div>
-              <Link
-                href="/portal/profile"
-                className="shrink-0 rounded-full border border-white/50 px-3 py-1.5 text-xs font-semibold text-white"
-              >
-                Edit
-              </Link>
-            </div>
+            <p className="truncate text-lg font-semibold text-white">
+              {profile?.name ?? me.name}
+            </p>
           </div>
         </div>
 
         {/* Progress — bars */}
-        <Tile>
+        <Tile delay={280}>
           <div className="flex items-start justify-between">
             <h2 className="text-lg font-semibold text-[#1a1a1a]">Progress</h2>
             <Corner href="/portal/chat" label="Open your chats" />
@@ -228,10 +248,11 @@ export function PortalHome() {
             {week.map((d, i) => (
               <span key={i} className="flex flex-1 flex-col items-center gap-2">
                 <span
-                  className="w-2 rounded-full"
+                  className={`${d.today ? 'bar-today' : 'bar-grow'} w-2 origin-bottom rounded-full`}
                   style={{
                     height: `${Math.max(8, (d.count / busiest) * 72)}px`,
                     background: d.today ? YELLOW : 'rgba(26,26,26,0.85)',
+                    animationDelay: `${400 + i * 70}ms`,
                   }}
                 />
                 <span className="text-[0.65rem] text-[#1a1a1a]/60">{d.letter}</span>
@@ -241,28 +262,31 @@ export function PortalHome() {
         </Tile>
 
         {/* The dial */}
-        <Tile className="flex flex-col">
+        <Tile delay={360} className="flex flex-col">
           <div className="flex items-start justify-between">
-            <h2 className="text-lg font-semibold text-[#1a1a1a]">The build</h2>
-            <Corner href="/portal/homes" label="See the homes" />
+            <h2 className="text-lg font-semibold text-[#1a1a1a]">The promise</h2>
+            <Corner href="/portal/donate" label="Give" />
           </div>
 
           <div className="relative mx-auto my-2 flex items-center justify-center">
             <svg width="150" height="150" viewBox="0 0 150 150" aria-hidden="true">
-              {Array.from({ length: 60 }).map((_, i) => (
-                <line
-                  key={i}
-                  x1="75"
-                  y1="8"
-                  x2="75"
-                  y2="14"
-                  stroke="rgba(26,26,26,0.18)"
-                  strokeWidth="1.5"
-                  transform={`rotate(${i * 6} 75 75)`}
-                />
-              ))}
+              <g className="bezel-spin">
+                {Array.from({ length: 60 }).map((_, i) => (
+                  <line
+                    key={i}
+                    x1="75"
+                    y1="8"
+                    x2="75"
+                    y2="14"
+                    stroke="rgba(26,26,26,0.18)"
+                    strokeWidth="1.5"
+                    transform={`rotate(${i * 6} 75 75)`}
+                  />
+                ))}
+              </g>
               <circle cx="75" cy="75" r="52" fill="none" stroke="rgba(26,26,26,0.10)" strokeWidth="13" />
               <circle
+                className="dial-draw"
                 cx="75"
                 cy="75"
                 r="52"
@@ -271,16 +295,16 @@ export function PortalHome() {
                 strokeWidth="13"
                 strokeLinecap="round"
                 strokeDasharray={2 * Math.PI * 52}
-                strokeDashoffset={2 * Math.PI * 52 * (1 - totalPct / 100)}
+                strokeDashoffset={0}
                 transform="rotate(-90 75 75)"
               />
             </svg>
             <span className="absolute text-center">
               <span className="block text-2xl font-medium tracking-tight text-[#1a1a1a]">
-                {totalPct}%
+                100%
               </span>
               <span className="block text-[0.65rem] text-[#1a1a1a]/70">
-                {currency.format(totalRaised)}
+                of every gift
               </span>
             </span>
           </div>
@@ -290,53 +314,46 @@ export function PortalHome() {
             className="mt-auto flex min-h-[var(--bh-tap)] items-center justify-center rounded-full text-sm font-semibold text-[#1a1a1a]"
             style={{ background: YELLOW }}
           >
-            Lay a brick
+            Give now
           </Link>
         </Tile>
 
-        {/* Homes — segment bars */}
-        <Tile>
-          <div className="flex items-start justify-between">
-            <h2 className="text-lg font-semibold text-[#1a1a1a]">The homes</h2>
-            <span className="text-lg font-medium text-[#1a1a1a]">{totalPct}%</span>
-          </div>
+        {/* The mission, stated honestly — no invented percentages. The
+            money goes to helping care homes, and this tile says so. */}
+        <Tile delay={440}>
+          <h2 className="text-lg font-semibold text-[#1a1a1a]">The mission</h2>
 
           <div className="mt-4 space-y-3">
-            {projects.map((p, i) => {
-              const pct = Math.min(100, Math.round((p.raised / p.goal) * 100));
-              return (
-                <div key={p.id}>
-                  <div className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-xs text-[#1a1a1a]/70">{p.name}</span>
-                    <span className="shrink-0 text-xs font-semibold text-[#1a1a1a]">{pct}%</span>
-                  </div>
-                  <span className="mt-1 flex h-9 items-center overflow-hidden rounded-xl bg-[#1a1a1a]/10">
-                    <span
-                      className="h-full rounded-xl"
-                      style={{
-                        width: `${pct}%`,
-                        background: i === 0 ? YELLOW : i === 1 ? INK : 'rgba(26,26,26,0.4)',
-                      }}
-                    />
-                  </span>
-                  <p className="mt-1 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-[#1a1a1a]/70">
-                    {BUILD_STAGES[p.stage]}
-                  </p>
-                </div>
-              );
-            })}
+            {[{ label: 'Helping care homes', state: 'Every donation', on: true }].map((row) => (
+              <div
+                key={row.label}
+                className="flex flex-col items-start gap-2 rounded-xl bg-[#1a1a1a]/[0.04] px-3.5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+              >
+                <span className="min-w-0 text-sm font-semibold text-[#1a1a1a]">
+                  {row.label}
+                </span>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-[0.1em] ${
+                    row.on ? 'chip-glow text-[#1a1a1a]' : 'bg-[#1a1a1a]/10 text-[#1a1a1a]/70'
+                  }`}
+                  style={row.on ? { background: YELLOW } : undefined}
+                >
+                  {row.state}
+                </span>
+              </div>
+            ))}
           </div>
         </Tile>
       </div>
 
       {/* ------------------------------- Row two ----------------------------- */}
       <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_1.6fr_1.4fr]">
-        <Tile className="divide-y divide-[#1a1a1a]/10 !py-2">
+        <Tile delay={520} className="divide-y divide-[#1a1a1a]/10 !py-2">
           {[
             { label: 'Your profile', href: '/portal/profile' },
             { label: 'Find people', href: '/portal/find' },
-            { label: 'The homes', href: '/portal/homes' },
-            { label: 'Your giving', href: '/portal/donate' },
+            { label: 'Open your chats', href: '/portal/chat' },
+            { label: 'Donate', href: '/portal/donate' },
           ].map((row) => (
             <Link
               key={row.href}
@@ -351,7 +368,7 @@ export function PortalHome() {
           ))}
         </Tile>
 
-        <Tile>
+        <Tile delay={600}>
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-[#1a1a1a]">People to meet</h2>
             <Link
@@ -391,10 +408,10 @@ export function PortalHome() {
                     )}
                   </span>
                   <Link
-                    href={`/portal/chat?to=${p.id}`}
+                    href={`/portal/people/${p.id}`}
                     className="shrink-0 rounded-full bg-[#1a1a1a] px-4 py-2 text-xs font-semibold text-white"
                   >
-                    Say hello
+                    See profile
                   </Link>
                 </li>
               ))}
@@ -403,12 +420,25 @@ export function PortalHome() {
         </Tile>
 
         {/* The dark task tile */}
-        <div className="rounded-[1.5rem] bg-[#1a1a1a] p-5">
+        <div
+          className="tile-in tile-hover min-w-0 rounded-[1.5rem] bg-[#1a1a1a] p-5"
+          style={{ animationDelay: '680ms' }}
+        >
           <div className="flex items-baseline justify-between">
             <h2 className="text-lg font-semibold text-white">Getting started</h2>
             <span className="text-xl font-medium text-white">
               {doneCount}/{checklist.length}
             </span>
+          </div>
+
+          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/15">
+            <div
+              className="checklist-fill h-full rounded-full"
+              style={{
+                width: `${Math.max(4, (doneCount / checklist.length) * 100)}%`,
+                background: YELLOW,
+              }}
+            />
           </div>
 
           <ul className="mt-4 space-y-1">
@@ -425,7 +455,7 @@ export function PortalHome() {
                     <Icon name={c.icon} size={15} />
                   </span>
                   <span
-                    className={`flex-1 text-sm ${c.done ? 'text-white/60 line-through' : 'text-white'}`}
+                    className={`flex-1 text-sm ${c.done ? 'strike text-white/60' : 'text-white'}`}
                   >
                     {c.label}
                   </span>

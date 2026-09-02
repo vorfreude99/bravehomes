@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { BrandLock } from '@/components/ui/Brand';
 import { LinkButton } from '@/components/ui/Button';
-import { SimpleModeToggle } from '@/components/SettingsProvider';
 
-/** Root-relative so the links still work from /about, /privacy, /contact. */
+/** Root-relative so the links still work from /about, /contact. */
 const NAV = [
   { id: 'how', href: '/#how', label: 'How it works' },
-  { id: 'homes', href: '/#homes', label: 'The homes' },
   { id: 'why', href: '/#why', label: 'Why we exist' },
+  // A real route, not an anchor — the scrollspy filter skips it safely.
+  { id: 'aboutus', href: '/about', label: 'About us' },
 ];
 
 /**
@@ -100,11 +100,6 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
     return () => window.removeEventListener('resize', positionMarker);
   }, [positionMarker]);
 
-  /**
-   * Easy View changes the root font size, so every link gets wider —
-   * but that fires no resize event, and the marker was left sitting at
-   * the old link's coordinates. Watching the nav itself catches it.
-   */
   useEffect(() => {
     const el = nav.current;
     if (!el) return;
@@ -116,9 +111,8 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
 
   /* ------------- measure the bar, and publish it to the page -------------
      `--bh-header` is what every sticky element below uses to clear the
-     header. A ResizeObserver rather than a resize listener, because the
-     bar also grows when Easy View scales the type — which fires no
-     resize event at all. */
+     header. A ResizeObserver rather than a resize listener, since the
+     bar's height can change without the window ever resizing. */
   useLayoutEffect(() => {
     const el = bar.current;
     if (!el) return;
@@ -149,6 +143,20 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
       window.removeEventListener('keydown', onKey);
     };
   }, [open]);
+
+  /**
+   * Closing because a link was tapped, not because the menu was dismissed
+   * on its own — the lock has to drop in this same click, not on the next
+   * render. `setOpen(false)` only schedules the effect above to run its
+   * cleanup later; if navigation starts first, the browser tries to reset
+   * scroll for the new page while the body is still `overflow: hidden`,
+   * silently drops that reset, and the new page opens wherever the old
+   * one had scrolled to instead of from the top.
+   */
+  const closeForNav = useCallback(() => {
+    document.body.style.overflow = '';
+    setOpen(false);
+  }, []);
 
   // An open menu always needs its own solid ground.
   const onPhoto = overlay && !scrolled && !open;
@@ -186,7 +194,6 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
             which a border would shift by a pixel. */}
         <nav
           ref={nav}
-          data-main-nav
           aria-label="Main"
           className={`absolute left-1/2 hidden -translate-x-1/2 items-center gap-0.5 rounded-full p-1 ring-1 transition-colors duration-300 xl:flex ${
             onPhoto ? 'bg-cream/10 ring-cream/20' : 'bg-forest/[0.045] ring-forest/[0.07]'
@@ -239,7 +246,6 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           {/* Wrapped rather than given a `hidden` class: the toggle sets its
               own `inline-flex`, which would win on display in source order. */}
           <span className="hidden items-center gap-1 sm:flex">
-            <SimpleModeToggle className="!border-transparent !bg-transparent !shadow-none !text-olive hover:!bg-sage-mist/50 hover:!text-forest" />
             <LinkButton href="/login" variant={onPhoto ? 'onDark' : 'ghost'}>
               Sign in
             </LinkButton>
@@ -258,7 +264,6 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
 
           <button
             type="button"
-            data-nav-toggle
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-controls="mobile-nav"
@@ -298,7 +303,6 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
       {open && (
         <div
           id="mobile-nav"
-          data-nav-sheet
           className="fixed inset-x-0 bottom-0 z-40 overflow-y-auto bg-cream px-5 pb-10 pt-4 xl:hidden"
           style={{ top: barHeight }}
         >
@@ -307,7 +311,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               <Link
                 key={item.id}
                 href={item.href}
-                onClick={() => setOpen(false)}
+                onClick={closeForNav}
                 className="rise-in flex min-h-[var(--bh-tap)] items-center justify-between rounded-2xl border border-sage/25 bg-parchment px-5 py-4 text-xl font-semibold text-forest"
                 style={{ animationDelay: `${i * 60}ms` }}
               >
@@ -324,7 +328,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               href="/signup"
               variant="primary"
               size="lg"
-              onClick={() => setOpen(false)}
+              onClick={closeForNav}
             >
               Join free — takes a minute
             </LinkButton>
@@ -332,13 +336,12 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               href="/login"
               variant="secondary"
               size="lg"
-              onClick={() => setOpen(false)}
+              onClick={closeForNav}
             >
               Sign in
             </LinkButton>
           </div>
 
-          <SimpleModeToggle className="mt-6 w-full justify-center" />
         </div>
       )}
     </>
