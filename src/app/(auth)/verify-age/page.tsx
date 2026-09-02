@@ -48,8 +48,9 @@ export default async function VerifyAgePage() {
       {status === 'declined' && (
         <div className="mt-6">
           <Notice tone="error">
-            We couldn’t confirm you’re 18 or older from that attempt. If
-            this seems wrong, you’re welcome to try again.
+            We couldn’t confirm you’re 18 or older from the photo. No
+            problem — you can prove it once with an ID document instead
+            (passport, driving licence or national ID).
           </Notice>
         </div>
       )}

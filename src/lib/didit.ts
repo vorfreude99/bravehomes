@@ -30,6 +30,17 @@ export type DiditSession = {
 };
 
 /**
+ * The document-based fallback workflow (ID scan with an 18+ gate on the
+ * date of birth, plus a selfie-to-portrait match). Used after a facial
+ * age estimation declines someone, so a genuine adult with a young face
+ * proves their age once with a document instead of paying for selfie
+ * after selfie. Optional — without it, retries stay on the face check.
+ */
+export function docWorkflowId() {
+  return process.env.DIDIT_DOC_WORKFLOW_ID || null;
+}
+
+/**
  * Starts a hosted verification session for one member.
  *
  * `vendor_data` carries our own user id, so the webhook can find its way
@@ -39,8 +50,9 @@ export type DiditSession = {
 export async function createDiditSession(
   userId: string,
   origin: string,
+  workflowOverride?: string,
 ): Promise<DiditSession> {
-  const workflowId = process.env.DIDIT_WORKFLOW_ID;
+  const workflowId = workflowOverride ?? process.env.DIDIT_WORKFLOW_ID;
   if (!workflowId) throw new Error('DIDIT_WORKFLOW_ID is not set');
 
   const res = await fetch(`${BASE_URL}/session/`, {
@@ -97,10 +109,51 @@ export function ageStatusFromDecision(
     return 'declined';
   }
   if (sessionStatus === 'Approved') {
-    const age = findEstimatedAge(decision);
+    const age = findEstimatedAge(decision) ?? findDateOfBirthAge(decision);
     return age != null && age >= MIN_AGE ? 'approved' : 'declined';
   }
   return 'pending';
+}
+
+/**
+ * Age computed from a `date_of_birth` anywhere in the decision — how a
+ * document (OCR) session states it, where there is no estimated age.
+ * Same fail-closed contract as findEstimatedAge: null unless a sane
+ * date parses.
+ */
+export function findDateOfBirthAge(value: unknown): number | null {
+  const walk = (node: unknown): number | null => {
+    if (node == null) return null;
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        const found = walk(item);
+        if (found != null) return found;
+      }
+      return null;
+    }
+    if (typeof node === 'object') {
+      const dob = (node as Record<string, unknown>)['date_of_birth'];
+      if (typeof dob === 'string') {
+        const born = new Date(dob);
+        if (!Number.isNaN(born.getTime())) {
+          const now = new Date();
+          let age = now.getUTCFullYear() - born.getUTCFullYear();
+          const beforeBirthday =
+            now.getUTCMonth() < born.getUTCMonth() ||
+            (now.getUTCMonth() === born.getUTCMonth() && now.getUTCDate() < born.getUTCDate());
+          if (beforeBirthday) age -= 1;
+          if (age > 0 && age < 120) return age;
+        }
+      }
+      for (const val of Object.values(node as Record<string, unknown>)) {
+        const found = walk(val);
+        if (found != null) return found;
+      }
+    }
+    return null;
+  };
+
+  return walk(value);
 }
 
 /**

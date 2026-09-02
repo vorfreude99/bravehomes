@@ -108,7 +108,8 @@ export default function VerifyAgeCallbackPage() {
           <div className="mt-6">
             <Notice tone="error">
               Brave Homes is for members 18 and older. If this doesn’t
-              seem right, you’re welcome to try again.
+              seem right, you can prove your age once with an ID document
+              instead (passport, driving licence or national ID).
             </Notice>
           </div>
           <VerifyAgeClient retry />

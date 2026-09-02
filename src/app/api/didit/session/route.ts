@@ -4,6 +4,7 @@ import {
   adminDb,
   createDiditSession,
   diditConfigured,
+  docWorkflowId,
   reconcileAgeVerification,
 } from '@/lib/didit';
 
@@ -63,9 +64,16 @@ export async function POST(request: Request) {
 
   const origin = new URL(request.url).origin;
 
+  // A decline from the facial estimate doesn't mean under 18 — it means
+  // the face alone couldn't prove otherwise. The next attempt switches
+  // to the document workflow, where a real adult can't fail twice (and
+  // can't keep burning paid selfie sessions trying).
+  const workflow =
+    profile?.age_verification_status === 'declined' ? (docWorkflowId() ?? undefined) : undefined;
+
   let session;
   try {
-    session = await createDiditSession(user.id, origin);
+    session = await createDiditSession(user.id, origin, workflow);
   } catch (err) {
     console.error('createDiditSession failed:', err);
     return NextResponse.json(
