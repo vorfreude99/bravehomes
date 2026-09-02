@@ -77,7 +77,7 @@ export async function sendWelcomeEmail(to: string, name: string): Promise<{ ok: 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: `${brand.name} <hello@bravehomes.co.uk>`,
+        from: `${brand.name} <info@bravehomes.co.uk>`,
         to,
         subject: `Welcome to ${brand.name}`,
         html: welcomeEmailHtml(name),
