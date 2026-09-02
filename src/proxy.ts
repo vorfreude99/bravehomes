@@ -51,9 +51,33 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirect);
   }
 
+  // Every member has to pass age verification before /portal — checked
+  // here rather than only in the layout so it also covers the very
+  // first request after signup, before any portal page has rendered.
+  //
+  // Gated on Didit actually being configured: if those env vars are
+  // ever missing (a bad deploy, a forgotten Vercel setting), this fails
+  // open rather than locking every member — including whoever is
+  // debugging it — out of the entire portal with no way back in.
+  const diditConfigured = Boolean(process.env.DIDIT_API_KEY && process.env.DIDIT_WORKFLOW_ID);
+  if (user && diditConfigured && pathname.startsWith('/portal')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('age_verification_status')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (profile?.age_verification_status !== 'approved') {
+      const redirect = request.nextUrl.clone();
+      redirect.pathname = '/verify-age';
+      redirect.search = '';
+      return NextResponse.redirect(redirect);
+    }
+  }
+
   return response;
 }
 
 export const config = {
-  matcher: ['/portal/:path*', '/login', '/signup'],
+  matcher: ['/portal/:path*', '/login', '/signup', '/verify-age/:path*'],
 };
