@@ -111,7 +111,7 @@ a:hover{opacity:.85}
 
 <!-- first message helper -->
 <tr><td class="px" style="padding:30px 40px 0 40px;">
-<img src="${SITE}/email-talk.jpg" width="520" alt="A younger and an older person in conversation" style="display:block;width:100%;max-width:520px;height:auto;border:0;outline:none;text-decoration:none;border-radius:12px 12px 0 0;background-color:#ece8de;">
+<img src="${SITE}/email-talk.png" width="520" alt="A younger and an older person in conversation" style="display:block;width:100%;max-width:520px;height:auto;border:0;outline:none;text-decoration:none;border-radius:12px 12px 0 0;background-color:#ece8de;">
 </td></tr>
 <tr><td class="px" style="padding:0 40px 0 40px;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;background-color:#ece8de;border-radius:0 0 12px 12px;">
