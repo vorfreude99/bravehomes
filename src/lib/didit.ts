@@ -119,20 +119,30 @@ export async function reconcileAgeVerification(
   let decision: unknown = null;
   try {
     decision = await getDiditDecision(sessionId);
-  } catch {
+  } catch (err) {
     // Didit may still be processing — the decision endpoint errors until
-    // there is one. Stay pending and let the caller try again later.
+    // there is one. Stay pending and let the caller try again later, but
+    // say so in the logs: a swallowed error here once hid a production
+    // failure for a whole morning.
+    console.error(`didit reconcile: decision fetch failed for ${sessionId}:`, err);
     return 'pending';
   }
 
   const next = ageStatusFromDecision((decision as { status?: string }).status, decision);
+  console.log(
+    `didit reconcile: session ${sessionId} decision=${(decision as { status?: string }).status} -> ${next}`,
+  );
 
   if (next !== 'pending') {
-    await adminDb()
+    const { error } = await adminDb()
       .from('profiles')
       .update({ age_verification_status: next })
       .eq('id', userId)
       .eq('age_verification_session_id', sessionId);
+    if (error) {
+      console.error(`didit reconcile: profile write failed for ${userId}:`, error.message);
+      return 'pending';
+    }
   }
 
   return next;

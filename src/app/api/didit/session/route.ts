@@ -42,6 +42,12 @@ export async function POST(request: Request) {
     .eq('id', user.id)
     .maybeSingle();
 
+  // Already verified — a stale tab's "start again" must never downgrade
+  // an approved profile back to pending.
+  if (profile?.age_verification_status === 'approved') {
+    return NextResponse.json({ verified: true });
+  }
+
   if (
     profile?.age_verification_status === 'pending' &&
     profile.age_verification_session_id

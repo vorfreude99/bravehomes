@@ -55,13 +55,19 @@ export async function POST(request: Request) {
     }
 
     const next = ageStatusFromDecision(event.status, decision);
+    console.log(
+      `didit webhook: session ${event.session_id} status=${event.status} -> ${next} for ${userId}`,
+    );
 
     if (next !== 'pending') {
-      await db
+      const { error } = await db
         .from('profiles')
         .update({ age_verification_status: next })
         .eq('id', userId)
         .eq('age_verification_session_id', event.session_id);
+      if (error) {
+        console.error(`didit webhook: profile write failed for ${userId}:`, error.message);
+      }
     }
   }
 
