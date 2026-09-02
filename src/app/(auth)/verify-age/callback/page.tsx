@@ -87,7 +87,7 @@ export default function VerifyAgeCallbackPage() {
       <p className="rise-in text-xs font-bold uppercase tracking-[0.2em] text-sage-ink">
         One last step
       </p>
-      <h1 className="rise-in mt-3 text-3xl font-medium leading-[1.1] tracking-tight text-forest sm:text-4xl">
+      <h1 className="rise-in mt-3 font-serif text-4xl font-medium leading-[1.1] text-forest sm:text-[2.75rem]">
         {status === 'checking' && (slow ? 'Almost there…' : 'Checking your result…')}
         {status === 'approved' && 'You’re verified'}
         {status === 'declined' && 'We couldn’t confirm your age'}

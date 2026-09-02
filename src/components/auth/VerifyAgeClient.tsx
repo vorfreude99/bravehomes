@@ -49,8 +49,14 @@ export function VerifyAgeClient({ retry = false }: { retry?: boolean }) {
 
   return (
     <div className="mt-6">
-      <Button onClick={() => void start()} disabled={busy} className="w-full">
-        {busy ? 'One moment…' : retry ? 'Try again' : 'Start verification'}
+      <Button
+        onClick={() => void start()}
+        disabled={busy}
+        variant="gold"
+        size="lg"
+        className="cta-sheen press w-full"
+      >
+        {busy ? 'One moment…' : retry ? 'Try again' : 'Confirm my age'}
       </Button>
       {error && (
         <div className="mt-4">
