@@ -240,6 +240,21 @@ export function AuthForm({ mode }: { mode: Mode }) {
           )}
         </Button>
 
+        {isSignup && (
+          <p className="mt-3 text-center text-sm leading-relaxed text-olive">
+            By creating a profile you confirm you are 18 or over and agree to
+            our{' '}
+            <Link href="/terms" className="font-semibold text-forest underline">
+              Terms and Conditions
+            </Link>{' '}
+            and{' '}
+            <Link href="/privacy" className="font-semibold text-forest underline">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+        )}
+
         <div className="mt-4 space-y-2 [@media(max-height:820px)]:mt-2">
           <p className="text-center text-sm text-olive [@media(max-height:820px)]:hidden">
             {isSignup ? 'Already have an account?' : 'New here?'}

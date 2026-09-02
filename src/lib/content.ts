@@ -114,10 +114,10 @@ export const currency = new Intl.NumberFormat('en-GB', {
  */
 export const registration: {
   registeredName: string | null;
-  charityNumber: string | null;
+  companyNumber: string | null;
   registeredOffice: string | null;
 } = {
-  registeredName: null,
-  charityNumber: null,
-  registeredOffice: null,
+  registeredName: 'Brave Homes Community Interest Company',
+  companyNumber: '17348356',
+  registeredOffice: '147 Benhurst Avenue, Hornchurch, England, RM12 4QN',
 };

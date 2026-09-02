@@ -26,8 +26,13 @@ const COLUMNS = [
     ],
   },
   {
-    heading: 'Contact',
-    links: [{ href: '/contact', label: 'Contact us' }],
+    heading: 'Contact & legal',
+    links: [
+      { href: '/contact', label: 'Contact us' },
+      { href: '/terms', label: 'Terms and conditions' },
+      { href: '/privacy', label: 'Privacy policy' },
+      { href: '/safety', label: 'Community & safety rules' },
+    ],
   },
 ];
 
@@ -84,12 +89,13 @@ export function SiteFooter() {
           </p>
 
           {/* Printed only once the real details exist — see `registration`
-              in lib/content.ts. A made-up charity number on a page asking
+              in lib/content.ts. A made-up company number on a page asking
               for money would be worse than no line at all. */}
-          {registration.charityNumber && (
+          {registration.companyNumber && (
             <p>
-              {registration.registeredName ?? brand.name} is a registered
-              charity in England and Wales, no. {registration.charityNumber}
+              {registration.registeredName ?? brand.name} is a community
+              interest company registered in England and Wales, company
+              no. {registration.companyNumber}
               {registration.registeredOffice
                 ? `. Registered office: ${registration.registeredOffice}.`
                 : '.'}
