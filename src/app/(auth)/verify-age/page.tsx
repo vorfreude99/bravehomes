@@ -41,8 +41,9 @@ export default async function VerifyAgePage() {
       <p className="rise-in mt-4 text-ink-muted">
         Brave Homes connects people directly, often across generations —
         we ask everyone to confirm they’re 18 or older before using it.
-        This takes a moment: a quick, live photo, checked by our
-        verification partner. We never see or keep the image ourselves.
+        This takes a moment: a quick, live photo, checked securely by our
+        verification partner Didit. The photo is held by Didit, never
+        stored on Brave Homes itself.
       </p>
 
       {status === 'declined' && (

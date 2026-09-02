@@ -84,8 +84,10 @@ export default function PrivacyPage() {
       <P>
         <strong className="text-forest">When you verify your age</strong> A live selfie
         (and, if needed, a photo of an identity document) captured and assessed by our
-        verification partner Didit. We receive only the outcome of the check — we never
-        see or store the images ourselves.
+        verification partner Didit. Didit stores the images on its secure systems; our
+        own systems store only the outcome of the check. Authorised Brave Homes staff can
+        view a verification in Didit&rsquo;s console where necessary — for example to
+        investigate a report or a disputed check.
       </P>
       <P>
         <strong className="text-forest">When you use the Platform</strong> Messages you
