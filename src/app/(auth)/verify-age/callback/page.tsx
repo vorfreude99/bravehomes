@@ -6,7 +6,9 @@ import { VerifyAgeClient } from '@/components/auth/VerifyAgeClient';
 import { Notice } from '@/components/ui/Field';
 
 const POLL_MS = 2000;
-const TIMEOUT_MS = 20000;
+// Didit's live processing has been observed taking ~36s after the
+// redirect back, so give it a wide margin before offering "try again".
+const TIMEOUT_MS = 90000;
 
 /**
  * Where Didit's hosted flow sends the browser back to.
@@ -75,7 +77,9 @@ export default function VerifyAgeCallbackPage() {
       </h1>
 
       {status === 'checking' && (
-        <p className="rise-in mt-4 text-ink-muted">This usually only takes a few seconds.</p>
+        <p className="rise-in mt-4 text-ink-muted">
+          This can take up to a minute — hang tight, no need to refresh.
+        </p>
       )}
 
       {status === 'declined' && (

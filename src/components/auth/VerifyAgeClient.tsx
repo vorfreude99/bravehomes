@@ -23,8 +23,16 @@ export function VerifyAgeClient({ retry = false }: { retry?: boolean }) {
       const response = await fetch('/api/didit/session', { method: 'POST' });
       const data = (await response.json().catch(() => ({}))) as {
         url?: string;
+        verified?: boolean;
         error?: string;
       };
+
+      // The previous attempt turned out to have passed while nobody was
+      // looking — no need for another selfie.
+      if (response.ok && data.verified) {
+        window.location.href = '/portal';
+        return;
+      }
 
       if (!response.ok || !data.url) {
         setBusy(false);

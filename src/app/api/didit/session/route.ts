@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { adminDb, createDiditSession, diditConfigured } from '@/lib/didit';
+import {
+  adminDb,
+  createDiditSession,
+  diditConfigured,
+  reconcileAgeVerification,
+} from '@/lib/didit';
 
 /**
  * Starts a Didit verification session for the signed-in member.
@@ -26,6 +31,28 @@ export async function POST(request: Request) {
 
   if (!user) {
     return NextResponse.json({ error: 'Please sign in first.' }, { status: 401 });
+  }
+
+  // A "try again" click can race a result that already landed — Didit
+  // can take half a minute to decide, longer than the callback page
+  // waits. Settle the pending attempt first rather than abandoning it.
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('age_verification_status, age_verification_session_id')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (
+    profile?.age_verification_status === 'pending' &&
+    profile.age_verification_session_id
+  ) {
+    const settled = await reconcileAgeVerification(
+      user.id,
+      profile.age_verification_session_id,
+    );
+    if (settled === 'approved') {
+      return NextResponse.json({ verified: true });
+    }
   }
 
   const origin = new URL(request.url).origin;

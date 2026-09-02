@@ -104,6 +104,41 @@ export function ageStatusFromDecision(
 }
 
 /**
+ * Fetches the decision for one session and, if it has settled, writes
+ * the outcome through the service-role client. Returns what the profile
+ * should now read. Used by /api/didit/status (the callback page's poll)
+ * and by /api/didit/session before starting a fresh attempt — without
+ * the latter, an approval that lands after the callback page gives up
+ * gets orphaned the moment the member clicks "try again", which is
+ * exactly what happened to the very first live verification.
+ */
+export async function reconcileAgeVerification(
+  userId: string,
+  sessionId: string,
+): Promise<'approved' | 'declined' | 'pending'> {
+  let decision: unknown = null;
+  try {
+    decision = await getDiditDecision(sessionId);
+  } catch {
+    // Didit may still be processing — the decision endpoint errors until
+    // there is one. Stay pending and let the caller try again later.
+    return 'pending';
+  }
+
+  const next = ageStatusFromDecision((decision as { status?: string }).status, decision);
+
+  if (next !== 'pending') {
+    await adminDb()
+      .from('profiles')
+      .update({ age_verification_status: next })
+      .eq('id', userId)
+      .eq('age_verification_session_id', sessionId);
+  }
+
+  return next;
+}
+
+/**
  * Recursively sorts object keys so the same payload always serialises
  * the same way — Didit's X-Signature-V2 is computed over this canonical
  * form, not whatever key order the JSON happened to arrive in.
