@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation';
 import { VerifyAgeClient } from '@/components/auth/VerifyAgeClient';
 import { Notice } from '@/components/ui/Field';
 
-const POLL_MS = 2000;
+const POLL_MS = 1500;
 // Didit's live processing has been observed taking ~36s after the
 // redirect back, so give it a wide margin before offering "try again".
+// Most results land within a few seconds; the staged copy below keeps
+// the rare slow one from feeling frozen.
 const TIMEOUT_MS = 90000;
+const SLOW_AFTER_MS = 10000;
 
 /**
  * Where Didit's hosted flow sends the browser back to.
@@ -22,10 +25,14 @@ export default function VerifyAgeCallbackPage() {
   const [status, setStatus] = useState<'checking' | 'approved' | 'declined' | 'timed-out'>(
     'checking',
   );
+  const [slow, setSlow] = useState(false);
 
   useEffect(() => {
     let alive = true;
     const startedAt = Date.now();
+    const slowTimer = setTimeout(() => {
+      if (alive) setSlow(true);
+    }, SLOW_AFTER_MS);
 
     const poll = async () => {
       let current: string | undefined;
@@ -61,6 +68,7 @@ export default function VerifyAgeCallbackPage() {
     void poll();
     return () => {
       alive = false;
+      clearTimeout(slowTimer);
     };
   }, [router]);
 
@@ -70,7 +78,7 @@ export default function VerifyAgeCallbackPage() {
         One last step
       </p>
       <h1 className="rise-in mt-3 text-3xl font-medium leading-[1.1] tracking-tight text-forest sm:text-4xl">
-        {status === 'checking' && 'Checking your result…'}
+        {status === 'checking' && (slow ? 'Almost there…' : 'Checking your result…')}
         {status === 'approved' && 'You’re verified'}
         {status === 'declined' && 'We couldn’t confirm your age'}
         {status === 'timed-out' && 'Still checking'}
@@ -78,7 +86,9 @@ export default function VerifyAgeCallbackPage() {
 
       {status === 'checking' && (
         <p className="rise-in mt-4 text-ink-muted">
-          This can take up to a minute — hang tight, no need to refresh.
+          {slow
+            ? 'Your photo is still being analysed — this occasionally takes up to a minute. Hang tight, this page will move on by itself.'
+            : 'This usually only takes a few seconds.'}
         </p>
       )}
 
