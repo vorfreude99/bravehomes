@@ -11,6 +11,15 @@ alter table public.profiles
     check (age_verification_status in ('unverified', 'pending', 'approved', 'declined')),
   add column if not exists age_verification_session_id text;
 
+-- 0011 replaced the table-level select grant with a column list, so a
+-- new column is invisible to `authenticated` until granted here too —
+-- without this, ANY profile select that touches these columns fails
+-- outright with "permission denied for table profiles", and the
+-- verify-age flow polls forever while the webhook-written approval
+-- sits unreadable in the row.
+grant select (age_verification_status, age_verification_session_id)
+  on public.profiles to authenticated;
+
 -- Same hole as 0009, same fix. `update own profile` is row-scoped, not
 -- column-scoped, so without this a signed-in member could run
 --
