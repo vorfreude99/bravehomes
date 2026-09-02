@@ -22,9 +22,9 @@ const SLOW_AFTER_MS = 10000;
  */
 export default function VerifyAgeCallbackPage() {
   const router = useRouter();
-  const [status, setStatus] = useState<'checking' | 'approved' | 'declined' | 'timed-out'>(
-    'checking',
-  );
+  const [status, setStatus] = useState<
+    'checking' | 'approved' | 'declined' | 'timed-out' | 'other-device'
+  >('checking');
   const [slow, setSlow] = useState(false);
 
   useEffect(() => {
@@ -38,6 +38,16 @@ export default function VerifyAgeCallbackPage() {
       let current: string | undefined;
       try {
         const response = await fetch('/api/didit/status');
+
+        // No session on this device: the person scanned Didit's QR code
+        // and did the selfie on their phone, which was never signed in.
+        // The signed-in screen picks the result up by itself — tell this
+        // one it can be put down rather than spinning forever.
+        if (response.status === 401) {
+          if (alive) setStatus('other-device');
+          return;
+        }
+
         const data = (await response.json().catch(() => ({}))) as { status?: string };
         if (response.ok) current = data.status;
       } catch {
@@ -82,6 +92,7 @@ export default function VerifyAgeCallbackPage() {
         {status === 'approved' && 'You’re verified'}
         {status === 'declined' && 'We couldn’t confirm your age'}
         {status === 'timed-out' && 'Still checking'}
+        {status === 'other-device' && 'All done on this device'}
       </h1>
 
       {status === 'checking' && (
@@ -102,6 +113,13 @@ export default function VerifyAgeCallbackPage() {
           </div>
           <VerifyAgeClient retry />
         </>
+      )}
+
+      {status === 'other-device' && (
+        <p className="rise-in mt-4 text-ink-muted">
+          Your photo is in — you can put this down and head back to the
+          screen where you signed in. It will carry on by itself.
+        </p>
       )}
 
       {status === 'timed-out' && (
