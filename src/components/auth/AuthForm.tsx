@@ -216,6 +216,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
           />
         </Field>
 
+        {!isSignup && (
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="inline-flex min-h-[var(--bh-tap)] items-center text-sm font-semibold text-olive underline underline-offset-4 hover:text-forest"
+            >
+              Forgot your password?
+            </Link>
+          </div>
+        )}
+
         {error && <Notice tone="error">{error}</Notice>}
         {info && <Notice tone="success">{info}</Notice>}
 
