@@ -185,11 +185,14 @@ a:hover{opacity:.85}
 }
 
 /**
- * Best-effort — a failed welcome email should never be the reason a
- * signup itself fails or a webhook retries forever. Callers log the
- * result; nothing here throws.
+ * One sender for every email this site produces. Best-effort — callers
+ * log the result; nothing here throws.
  */
-export async function sendWelcomeEmail(to: string, name: string): Promise<{ ok: boolean; error?: string }> {
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return { ok: false, error: 'RESEND_API_KEY not configured' };
 
@@ -203,8 +206,8 @@ export async function sendWelcomeEmail(to: string, name: string): Promise<{ ok: 
       body: JSON.stringify({
         from: `${brand.name} <info@bravehomes.co.uk>`,
         to,
-        subject: `Welcome to ${brand.name}`,
-        html: welcomeEmailHtml(name),
+        subject,
+        html,
       }),
       signal: AbortSignal.timeout(10000),
     });
@@ -216,5 +219,185 @@ export async function sendWelcomeEmail(to: string, name: string): Promise<{ ok: 
     return { ok: true };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Unknown error' };
+  }
+}
+
+/**
+ * A failed welcome email should never be the reason a signup itself
+ * fails or a webhook retries forever.
+ */
+export function sendWelcomeEmail(to: string, name: string) {
+  return sendEmail(to, `Welcome to ${brand.name}`, welcomeEmailHtml(name));
+}
+
+/**
+ * The card every auth email shares — dark masthead with the logo, gold
+ * thread, serif headline, gold CTA, "didn't ask?" aside, footer. The
+ * same design language as the welcome email, but leaner: these emails
+ * exist to be clicked once, not read.
+ */
+function authEmailHtml(opts: {
+  eyebrow: string;
+  headlineHtml: string;
+  intro: string;
+  cta?: { label: string; link: string };
+  code?: string;
+  ignoreNote: string;
+}) {
+  const action = opts.cta
+    ? `<tr><td align="center" style="padding:32px 44px 0 44px;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;"><tr>
+<td align="center" bgcolor="#f0cb4d" style="border-radius:32px;box-shadow:0 12px 28px -14px rgba(201,154,63,0.9);">
+<a href="${opts.cta.link}" style="display:block;padding:19px 20px;font-family:Arial,Helvetica,sans-serif;font-size:18px;line-height:23px;font-weight:bold;color:#2b3323;text-decoration:none;border-radius:32px;">${opts.cta.label} &nbsp;&rarr;</a>
+</td>
+</tr></table>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#8a8474;padding-top:16px;">This link works once. If it&rsquo;s stopped working, just ask for a fresh one.</div>
+</td></tr>`
+    : `<tr><td align="center" style="padding:32px 44px 0 44px;">
+<div style="display:inline-block;background-color:#ece8de;border-radius:14px;padding:18px 34px;font-family:Georgia,'Times New Roman',serif;font-size:34px;line-height:40px;letter-spacing:8px;color:#17171a;">${opts.code ?? ''}</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#8a8474;padding-top:16px;">Type this code where you&rsquo;re asked for it.</div>
+</td></tr>`;
+
+  return `<span style="display:none;font-size:1px;color:#e8e4da;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${opts.intro}</span>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#e8e4da;">
+<tr><td align="center" style="padding:32px 12px;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560" style="width:560px;max-width:560px;">
+<tr><td style="background-color:#f4f1ea;border-radius:16px;overflow:hidden;box-shadow:0 18px 40px -24px rgba(47,58,38,0.45);">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;">
+<tr><td align="center" style="background-color:#2f3a26;padding:32px 32px 28px 32px;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+<td width="64" height="64" align="center" valign="middle" bgcolor="#f4f1ea" style="width:64px;height:64px;border-radius:32px;">
+<img src="${SITE}/email-logo.png" width="40" height="40" alt="${brand.name}" style="display:block;border:0;width:40px;height:40px;">
+</td>
+</tr></table>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:34px;color:#f4f1ea;letter-spacing:-0.3px;padding-top:14px;">Brave<span style="color:#f0cb4d;">Homes</span></div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:16px;color:#b5b2a8;letter-spacing:3.4px;text-transform:uppercase;padding-top:7px;">Connecting generations</div>
+</td></tr>
+<tr><td style="background-color:#f0cb4d;height:4px;font-size:0;line-height:0;">&nbsp;</td></tr>
+<tr><td style="padding:44px 44px 0 44px;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:17px;color:#8a8474;letter-spacing:2.8px;text-transform:uppercase;font-weight:bold;">${opts.eyebrow}</div>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:34px;line-height:40px;color:#17171a;padding-top:14px;">${opts.headlineHtml}</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:27px;color:#4f4f4a;padding-top:18px;">${opts.intro}</div>
+</td></tr>
+${action}
+<tr><td style="padding:34px 44px 0 44px;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td height="1" style="height:1px;background-color:#ddd8cc;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+</td></tr>
+<tr><td style="padding:26px 44px 0 44px;">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;">
+<tr>
+<td width="4" style="width:4px;background-color:#f0cb4d;border-radius:2px;font-size:0;line-height:0;">&nbsp;</td>
+<td style="padding:2px 0 2px 18px;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:23px;color:#4f4f4a;"><strong style="color:#17171a;">Didn&rsquo;t ask for this?</strong> ${opts.ignoreNote}</div>
+</td>
+</tr>
+</table>
+</td></tr>
+<tr><td style="padding:30px 44px 42px 44px;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:25px;color:#4f4f4a;">Stuck? Reply to this email &mdash; a real person reads them.</div>
+<div style="font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:26px;color:#17171a;padding-top:14px;">Warmly,<br><strong>The ${brand.name} team</strong></div>
+</td></tr>
+</table>
+</td></tr>
+<tr><td align="center" style="padding:26px 24px 8px 24px;">
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:18px;color:#8a8474;letter-spacing:2.4px;text-transform:uppercase;font-weight:bold;">Grateful &middot; Honest &middot; Loyal &middot; Brave</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:19px;color:#8a8474;padding-top:10px;">Brave Homes Community Interest Company<br>147 Benhurst Avenue, Hornchurch, England, RM12 4QN</div>
+<div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:19px;padding-top:8px;">
+<a href="${SITE}" style="color:#8a8474;text-decoration:underline;">bravehomes.co.uk</a>
+&nbsp;&middot;&nbsp;
+<a href="${SITE}/privacy" style="color:#8a8474;text-decoration:underline;">Privacy</a>
+</div>
+</td></tr>
+</table>
+</td></tr>
+</table>`;
+}
+
+/**
+ * Subject + body for each auth email GoTrue can ask us to send once the
+ * Send Email hook is on. Every action type must be covered — with the
+ * hook enabled, Supabase sends nothing itself, so an unhandled type
+ * here would be an email that simply never arrives.
+ */
+export function authEmailContent(
+  actionType: string,
+  link: string,
+  code: string,
+): { subject: string; html: string } {
+  switch (actionType) {
+    case 'recovery':
+      return {
+        subject: 'Let’s get you back in',
+        html: authEmailHtml({
+          eyebrow: 'Password reset',
+          headlineHtml: 'Let&rsquo;s get you <i style="color:#6b6b64;">back in.</i>',
+          intro:
+            'Someone asked to reset the password for this account &mdash; hopefully you! Press the button below and choose a new one. Your conversations are exactly where you left them.',
+          cta: { label: 'Choose a new password', link },
+          ignoreNote:
+            'Then simply ignore this email. Your password stays exactly as it is &mdash; nobody can change it without this link, and your account is safe.',
+        }),
+      };
+    case 'signup':
+      return {
+        subject: 'Confirm your email',
+        html: authEmailHtml({
+          eyebrow: 'One quick check',
+          headlineHtml: 'Is this really <i style="color:#6b6b64;">you?</i>',
+          intro:
+            'Welcome to Brave Homes! Press the button below to confirm this is your email address, and your account is ready.',
+          cta: { label: 'Confirm my email', link },
+          ignoreNote:
+            'Then someone typed your address by mistake &mdash; ignore this email and nothing at all will happen.',
+        }),
+      };
+    case 'magiclink':
+      return {
+        subject: 'Your sign-in link',
+        html: authEmailHtml({
+          eyebrow: 'Sign in',
+          headlineHtml: 'Step right <i style="color:#6b6b64;">in.</i>',
+          intro: 'Press the button below and you&rsquo;re signed in &mdash; no password needed.',
+          cta: { label: 'Sign me in', link },
+          ignoreNote: 'Then ignore this email &mdash; nobody can use this link but you.',
+        }),
+      };
+    case 'invite':
+      return {
+        subject: 'You’re invited to Brave Homes',
+        html: authEmailHtml({
+          eyebrow: 'An invitation',
+          headlineHtml: 'Someone saved you <i style="color:#6b6b64;">a seat.</i>',
+          intro:
+            'You&rsquo;ve been invited to join Brave Homes &mdash; a place where generations talk to each other. Press the button to accept and set up your account.',
+          cta: { label: 'Accept the invitation', link },
+          ignoreNote: 'Then feel free to ignore this &mdash; the invitation simply expires.',
+        }),
+      };
+    case 'email_change':
+      return {
+        subject: 'Confirm your new email address',
+        html: authEmailHtml({
+          eyebrow: 'Email change',
+          headlineHtml: 'Confirm your <i style="color:#6b6b64;">new address.</i>',
+          intro:
+            'You asked to change the email on your Brave Homes account. Press the button below to confirm this address.',
+          cta: { label: 'Confirm this address', link },
+          ignoreNote:
+            'Then don&rsquo;t press the button &mdash; your account keeps its current address and nothing changes.',
+        }),
+      };
+    default:
+      // reauthentication (and anything new): GoTrue supplies a code, not a link.
+      return {
+        subject: 'Your Brave Homes confirmation code',
+        html: authEmailHtml({
+          eyebrow: 'Confirmation code',
+          headlineHtml: 'Here&rsquo;s your <i style="color:#6b6b64;">code.</i>',
+          intro: 'Use this code to confirm it&rsquo;s really you:',
+          code,
+          ignoreNote: 'Then ignore this email &mdash; the code expires on its own shortly.',
+        }),
+      };
   }
 }
