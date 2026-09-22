@@ -20,7 +20,7 @@ export default async function CampaignThanksPage({
   if (!campaign) notFound();
 
   return (
-    <div className="text-center">
+    <div className="mx-auto max-w-2xl text-center">
       <p className="text-5xl" aria-hidden="true">
         💛
       </p>
