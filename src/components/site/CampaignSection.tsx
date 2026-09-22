@@ -27,17 +27,43 @@ export function CampaignSection() {
         type="button"
         onClick={() => go(slide - 1)}
         aria-label="Previous appeal"
-        className="press absolute left-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-sage/50 bg-white/80 text-forest shadow-sm backdrop-blur-sm transition-colors hover:border-forest hover:bg-white sm:left-4"
+        className="group absolute left-2 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-forest shadow-[0_12px_28px_-10px_rgba(47,58,35,0.4)] transition-all duration-200 hover:bg-forest hover:text-cream active:scale-95 sm:left-5"
       >
-        <span aria-hidden="true">←</span>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className="-ml-0.5 transition-transform duration-200 group-hover:-translate-x-0.5"
+        >
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
       </button>
       <button
         type="button"
         onClick={() => go(slide + 1)}
         aria-label="Next appeal"
-        className="press absolute right-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-sage/50 bg-white/80 text-forest shadow-sm backdrop-blur-sm transition-colors hover:border-forest hover:bg-white sm:right-4"
+        className="group absolute right-2 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-forest shadow-[0_12px_28px_-10px_rgba(47,58,35,0.4)] transition-all duration-200 hover:bg-forest hover:text-cream active:scale-95 sm:right-5"
       >
-        <span aria-hidden="true">→</span>
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2.2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+          className="-mr-0.5 transition-transform duration-200 group-hover:translate-x-0.5"
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
       </button>
 
       {/* ------------------------------ slides ----------------------------- */}
@@ -122,7 +148,7 @@ export function CampaignSection() {
             <div className="grid w-full items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
-                  Appeal · No. {campaign.number + 1}
+                  Next appeal
                 </p>
 
                 <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
@@ -134,25 +160,32 @@ export function CampaignSection() {
                 <p className="mt-5 max-w-md text-lg leading-relaxed text-olive">
                   Every care home has a list like Meadowbanks&rsquo; —
                   small, priced-to-the-pound things that would make life
-                  warmer. The next appeal lands here soon, and 100% of
-                  every donation will reach it, same as always.
+                  warmer. When the next list reaches us, it lands here.
                 </p>
 
                 <div className="mt-8">
                   <LinkButton href="/contact" variant="secondary" size="lg" className="press">
-                    Know a home that needs help?
+                    Tell us about a care home
                   </LinkButton>
                 </div>
               </div>
 
+              {/* A gallery placard where the next home's photograph will
+                  hang: white card, serif number, one gold rule. */}
               <div className="hidden w-full lg:block">
-                <div className="flex aspect-[4/3] w-full items-center justify-center rounded-3xl border-2 border-dashed border-sage/60">
+                <div className="flex aspect-[4/3] w-full items-center justify-center rounded-3xl bg-white shadow-[0_28px_55px_-30px_rgba(47,58,35,0.45)]">
                   <div className="text-center">
-                    <p className="font-serif text-6xl font-medium text-sage-ink/70">
-                      No. {campaign.number + 1}
+                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-sage-ink">
+                      Appeal
                     </p>
-                    <p className="mt-2 text-xs font-bold uppercase tracking-[0.22em] text-sage-ink/70">
-                      Coming soon
+                    <p className="mt-3 font-serif text-8xl font-medium leading-none text-forest">
+                      <span className="align-top text-4xl text-sage-ink">No.</span> {campaign.number + 1}
+                    </p>
+                    <div className="mx-auto mt-6 h-0.5 w-14 bg-gold" aria-hidden="true" />
+                    <p className="mt-6 font-serif text-xl italic text-olive">
+                      This wall is waiting for
+                      <br />
+                      the next home&rsquo;s photograph.
                     </p>
                   </div>
                 </div>
