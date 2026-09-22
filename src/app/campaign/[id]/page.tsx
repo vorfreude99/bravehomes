@@ -71,14 +71,6 @@ export default async function CampaignPage({
           Every pound lands here.
         </h2>
         <CampaignClient campaignId={campaign.id} goal={campaign.goal} />
-        <p className="mt-8 text-center leading-relaxed text-olive">
-          Brave Homes is a community interest company, and our promise is
-          simple: <strong className="text-forest">100% of every donation
-          is applied to the cause</strong> — Stripe’s card fee is the
-          only thing deducted, by Stripe, before the money reaches us.
-          Nothing goes to salaries or overheads. When this appeal is
-          funded, we’ll share what was bought right here.
-        </p>
       </section>
 
       {/* --------------------- life at the home, full bleed ----------------- */}
