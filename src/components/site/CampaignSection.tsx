@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LinkButton } from '@/components/ui/Button';
 import { CAMPAIGNS } from '@/lib/campaigns';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { currency } from '@/lib/content';
 
 /**
@@ -15,8 +16,23 @@ export function CampaignSection() {
   const campaign = CAMPAIGNS['meadow-banks'];
   const SLIDES = 2;
   const [slide, setSlide] = useState(0);
+  const [signedIn, setSignedIn] = useState(false);
 
   const go = (next: number) => setSlide(((next % SLIDES) + SLIDES) % SLIDES);
+
+  // The big button sends a signed-out visitor to sign in first — the
+  // appeal is theirs to read, but giving starts with an account.
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    createClient()
+      .auth.getUser()
+      .then((res: { data: { user: unknown } }) => setSignedIn(Boolean(res.data.user)))
+      .catch(() => setSignedIn(false));
+  }, []);
+
+  const giveHref = signedIn
+    ? `/campaign/${campaign.id}`
+    : `/login?next=/campaign/${campaign.id}`;
 
   return (
     // A step deeper than sage-mist — the section above is white, so the
@@ -113,15 +129,15 @@ export function CampaignSection() {
 
                 <div className="mt-8">
                   <LinkButton
-                    href={`/campaign/${campaign.id}`}
+                    href={giveHref}
                     size="lg"
                     className="cta-sheen press"
                   >
                     Help raise {currency.format(campaign.goal)}
                   </LinkButton>
                   <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-muted">
-                    Members give in under a minute — joining is free, and
-                    100% of every donation reaches the home.
+                    Sign in to give — it takes under a minute, joining is
+                    free, and 100% of every donation reaches the home.
                   </p>
                 </div>
               </div>
