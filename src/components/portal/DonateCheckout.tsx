@@ -56,9 +56,11 @@ const appearance: Appearance = {
 
 function CheckoutForm({
   amount,
+  returnPath,
   onSuccess,
 }: {
   amount: number;
+  returnPath: string;
   onSuccess: (paymentIntentId: string) => void;
 }) {
   const stripe = useStripe();
@@ -81,7 +83,7 @@ function CheckoutForm({
         // challenge, happens in place.
         redirect: 'if_required',
         confirmParams: {
-          return_url: `${window.location.origin}/portal/donate/thanks`,
+          return_url: `${window.location.origin}${returnPath}`,
         },
       });
 
@@ -149,11 +151,16 @@ export function DonateCheckout({
   clientSecret,
   onClose,
   onSuccess,
+  // A bank-redirect payment leaves the page and comes back here. The
+  // member donate flow returns behind the portal wall; a public appeal
+  // passes its own public thank-you path instead.
+  returnPath = '/portal/donate/thanks',
 }: {
   amount: number;
   clientSecret: string;
   onClose: () => void;
   onSuccess: (paymentIntentId: string) => void;
+  returnPath?: string;
 }) {
   return (
     <div
@@ -251,7 +258,7 @@ export function DonateCheckout({
                     ],
                   }}
                 >
-                  <CheckoutForm amount={amount} onSuccess={onSuccess} />
+                  <CheckoutForm amount={amount} returnPath={returnPath} onSuccess={onSuccess} />
                 </Elements>
               </div>
 

@@ -2,6 +2,7 @@ import { SiteHeader } from '@/components/site/SiteHeader';
 import { SiteFooter } from '@/components/site/SiteFooter';
 import { SplitHero } from '@/components/site/SplitHero';
 import { HowItWorks } from '@/components/site/HowItWorks';
+import { CampaignSection } from '@/components/site/CampaignSection';
 import { ClosingSection } from '@/components/site/ClosingSection';
 import { Reveal } from '@/components/site/Reveal';
 
@@ -21,6 +22,7 @@ export default function LandingPage() {
       <main id="main">
         <SplitHero />
         <HowItWorks />
+        <CampaignSection />
         <ClosingSection />
       </main>
 
