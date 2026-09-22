@@ -48,14 +48,14 @@ export default async function CampaignPage({
   if (!campaign) notFound();
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div>
       {/* ------------------------------ hero ------------------------------ */}
-      <section className="relative overflow-hidden rounded-[2.5rem] shadow-[0_40px_80px_-40px_rgba(20,26,12,0.7)]">
+      <section className="relative overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/meadow-banks-estate.jpg"
           alt="Meadowbanks Care Home and its gardens from above at golden hour, surrounded by Essex countryside"
-          className="aspect-[4/3] w-full object-cover sm:aspect-[21/10]"
+          className="h-[52vh] min-h-[380px] w-full object-cover sm:h-[64vh]"
         />
         <div
           aria-hidden="true"
@@ -65,7 +65,8 @@ export default async function CampaignPage({
               'linear-gradient(180deg, rgba(20,26,12,0.25) 0%, rgba(20,26,12,0) 35%, rgba(20,26,12,0.75) 100%)',
           }}
         />
-        <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10">
+        <div className="absolute inset-x-0 bottom-0 px-5 pb-8 sm:px-10 sm:pb-12">
+          <div className="mx-auto max-w-7xl">
           <p className="text-xs font-bold uppercase tracking-[0.24em] text-gold">
             Brave Homes appeal · No. {campaign.number}
           </p>
@@ -75,17 +76,18 @@ export default async function CampaignPage({
           <p className="mt-4 text-sm font-semibold text-cream/85 sm:text-base">
             {campaign.home} · {campaign.address}
           </p>
+          </div>
         </div>
       </section>
 
       {/* ------------------------- story + the asks ------------------------ */}
-      <section className="mx-auto mt-10 max-w-4xl text-center sm:mt-12">
+      <section className="mx-auto mt-10 max-w-4xl px-5 text-center sm:mt-12 sm:px-8">
         <p className="text-lg leading-relaxed text-olive sm:text-xl">
           {campaign.story}
         </p>
       </section>
 
-      <section className="mt-8">
+      <section className="mx-auto mt-8 max-w-7xl px-5 sm:px-8">
         <h2 className="text-center font-serif text-3xl font-medium text-forest sm:text-4xl">
           Exactly what {currency.format(campaign.goal)} buys
         </h2>
@@ -124,7 +126,7 @@ export default async function CampaignPage({
       </section>
 
       {/* -------------------------- life at the home ----------------------- */}
-      <section className="mt-10 sm:mt-12">
+      <section className="mx-auto mt-10 max-w-7xl px-5 sm:mt-12 sm:px-8">
         <p className="text-center text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
           Life at Meadowbanks
         </p>
@@ -147,7 +149,7 @@ export default async function CampaignPage({
       </section>
 
       {/* ------------------------------- give ------------------------------ */}
-      <section id="give" className="mx-auto mt-10 max-w-3xl sm:mt-12">
+      <section id="give" className="mx-auto mt-10 max-w-3xl px-5 sm:mt-12 sm:px-8">
         <h2 className="text-center font-serif text-3xl font-medium text-forest sm:text-4xl">
           Every pound lands here.
         </h2>

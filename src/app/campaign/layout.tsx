@@ -2,15 +2,14 @@ import { SiteHeader } from '@/components/site/SiteHeader';
 import { SiteFooter } from '@/components/site/SiteFooter';
 
 /**
- * Appeals get their own full-width canvas — the (pages) layout's narrow
- * article column is right for terms and about, wrong for a page whose
- * job is a cinematic photograph and a give button.
+ * Appeals get a full-bleed canvas: no horizontal padding here at all —
+ * the hero runs edge to edge and each section brings its own gutters.
  */
 export default function CampaignLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <SiteHeader />
-      <main id="main" className="overflow-x-clip px-5 pb-16 pt-28 sm:px-8 sm:pt-32">
+      <main id="main" className="overflow-x-clip pb-16 pt-20 sm:pt-24">
         {children}
       </main>
       <SiteFooter />
