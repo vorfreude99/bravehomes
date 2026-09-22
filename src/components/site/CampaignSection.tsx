@@ -73,22 +73,23 @@ export function CampaignSection() {
           </div>
 
           {/* --------------------------- the photographs -------------------- */}
-          {/* Meadowbanks' own pictures: residents in the grounds, with the
-              house itself leaning in from the corner. */}
-          <div data-reveal className="relative mx-auto w-full max-w-md pb-10 lg:pb-14">
+          {/* Meadowbanks' own hero: the whole home and its grounds from the
+              air at golden hour, with two residents walking hand in hand
+              leaning in from the corner. */}
+          <div data-reveal className="relative mx-auto w-full pb-12 lg:pb-16">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/meadow-banks-garden.jpg"
-              alt="Two Meadowbanks residents walking hand in hand through the home's grounds"
-              className="aspect-[4/5] w-full rotate-1 rounded-[2.5rem] object-cover shadow-[0_35px_70px_-35px_rgba(47,58,35,0.6)]"
+              src="/meadow-banks-estate.jpg"
+              alt="Meadowbanks Care Home and its gardens from above at golden hour, surrounded by Essex countryside"
+              className="aspect-[16/11] w-full rotate-1 rounded-[2.5rem] object-cover shadow-[0_35px_70px_-35px_rgba(47,58,35,0.6)]"
               loading="lazy"
             />
 
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/meadow-banks-home.jpg"
-              alt="Meadowbanks Care Home on Hall Lane in evening light"
-              className="absolute -bottom-2 -left-6 z-10 hidden w-[44%] -rotate-6 rounded-3xl object-cover shadow-[0_25px_50px_-22px_rgba(47,58,35,0.55)] ring-4 ring-white sm:block lg:-left-10"
+              src="/meadow-banks-garden.jpg"
+              alt="Two Meadowbanks residents walking hand in hand through the home's grounds"
+              className="absolute -bottom-4 -left-5 z-10 hidden w-[34%] -rotate-6 rounded-3xl object-cover shadow-[0_25px_50px_-22px_rgba(47,58,35,0.55)] ring-4 ring-white sm:block lg:-left-9"
               style={{ aspectRatio: '4 / 5' }}
               loading="lazy"
             />
