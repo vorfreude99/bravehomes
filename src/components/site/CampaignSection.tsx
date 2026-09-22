@@ -1,95 +1,181 @@
+'use client';
+
+import { useState } from 'react';
 import { LinkButton } from '@/components/ui/Button';
 import { CAMPAIGNS } from '@/lib/campaigns';
 import { currency } from '@/lib/content';
 
 /**
- * The live appeal: a calm sage panel in the site's own palette — no
- * gradients, no badges — with the ask in big serif type on the left and
- * Meadowbanks' own photographs leaning against each other on the right.
- * The layout carries the drama; the colours stay quiet.
+ * The live appeals as a carousel: slide one is the Meadow Banks appeal,
+ * slide two says plainly that more are coming — which is the promise
+ * the numbering makes. Arrows either side, dots underneath, calm sage
+ * panel throughout.
  */
 export function CampaignSection() {
   const campaign = CAMPAIGNS['meadow-banks'];
+  const SLIDES = 2;
+  const [slide, setSlide] = useState(0);
+
+  const go = (next: number) => setSlide(((next % SLIDES) + SLIDES) % SLIDES);
 
   return (
     // A step deeper than sage-mist — the section above is white, so the
     // panel needs a genuinely visible tint to read as its own room.
-    <section id="appeal" className="overflow-hidden bg-[#e2e9d4] py-14 sm:py-16">
-      <div className="mx-auto max-w-7xl px-5 sm:px-8">
-        <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
-          {/* ------------------------------ the ask ------------------------- */}
-          <div data-reveal>
-            <p className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
-              <span className="relative flex h-2 w-2" aria-hidden="true">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-ink" />
-              </span>
-              Live appeal · No. {campaign.number}
-            </p>
+    <section id="appeal" className="relative overflow-hidden bg-[#e2e9d4] py-14 sm:py-16">
+      {/* ------------------------------ arrows ----------------------------- */}
+      <button
+        type="button"
+        onClick={() => go(slide - 1)}
+        aria-label="Previous appeal"
+        className="press absolute left-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-sage/50 bg-white/80 text-forest shadow-sm backdrop-blur-sm transition-colors hover:border-forest hover:bg-white sm:left-4"
+      >
+        <span aria-hidden="true">←</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => go(slide + 1)}
+        aria-label="Next appeal"
+        className="press absolute right-2 top-1/2 z-20 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-sage/50 bg-white/80 text-forest shadow-sm backdrop-blur-sm transition-colors hover:border-forest hover:bg-white sm:right-4"
+      >
+        <span aria-hidden="true">→</span>
+      </button>
 
-            <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
-              Make Meadow Banks
-              <br />
-              <i className="text-gold-ink">feel like home.</i>
-            </h2>
+      {/* ------------------------------ slides ----------------------------- */}
+      <div
+        className="flex transition-transform duration-500 ease-out"
+        style={{ transform: `translateX(-${slide * 100}%)` }}
+      >
+        {/* ------------------------ slide 1: Meadow Banks ------------------- */}
+        <div className="w-full shrink-0 px-5 sm:px-8" aria-hidden={slide !== 0}>
+          <div className="mx-auto max-w-7xl">
+            <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+              <div>
+                <p className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
+                  <span className="relative flex h-2 w-2" aria-hidden="true">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-ink" />
+                  </span>
+                  Live appeal · No. {campaign.number}
+                </p>
 
-            <p className="mt-5 text-sm font-bold uppercase tracking-[0.16em] text-sage-ink">
-              {campaign.home} · Hall Lane, Upminster
-            </p>
+                <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
+                  Make Meadow Banks
+                  <br />
+                  <i className="text-gold-ink">feel like home.</i>
+                </h2>
 
-            <p className="mt-5 max-w-md text-lg leading-relaxed text-olive">
-              The home asked for two things: traditional and
-              vintage-style furniture and décor to create a homely
-              setting, and reminiscence and sensory resources — memory
-              boxes, vintage household items, photographs, books, music
-              and activity resources.
-            </p>
+                <p className="mt-5 max-w-md text-lg leading-relaxed text-olive">
+                  The home asked for two things: traditional and
+                  vintage-style furniture and décor to create a homely
+                  setting, and reminiscence and sensory resources —
+                  memory boxes, vintage household items, photographs,
+                  books, music and activity resources.
+                </p>
 
-            {/* The two asks as stats, not paragraphs. */}
-            <div className="mt-7 flex gap-10">
-              {campaign.items.map((item) => (
-                <div key={item.label} className="border-l-2 border-gold pl-4">
-                  <p className="font-serif text-3xl font-medium text-forest sm:text-4xl">
-                    {currency.format(item.amount)}
-                  </p>
-                  <p className="mt-1 max-w-[11rem] text-xs font-semibold uppercase tracking-[0.14em] text-sage-ink">
-                    {item.label}
+                <div className="mt-7 flex gap-10">
+                  {campaign.items.map((item) => (
+                    <div key={item.label} className="border-l-2 border-gold pl-4">
+                      <p className="font-serif text-3xl font-medium text-forest sm:text-4xl">
+                        {currency.format(item.amount)}
+                      </p>
+                      <p className="mt-1 max-w-[11rem] text-xs font-semibold uppercase tracking-[0.14em] text-sage-ink">
+                        {item.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8">
+                  <LinkButton
+                    href={`/campaign/${campaign.id}`}
+                    size="lg"
+                    className="cta-sheen press"
+                  >
+                    Help raise {currency.format(campaign.goal)}
+                  </LinkButton>
+                  <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-muted">
+                    Members give in under a minute — joining is free, and
+                    100% of every donation reaches the home.
                   </p>
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="mt-8">
-              <LinkButton
-                href={`/campaign/${campaign.id}`}
-                size="lg"
-                className="cta-sheen press"
-              >
-                Help raise {currency.format(campaign.goal)}
-              </LinkButton>
-              <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-muted">
-                Members give in under a minute — joining is free, and
-                100% of every donation reaches the home.
-              </p>
+              <div className="w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/meadow-banks-estate.jpg"
+                  alt="Meadowbanks Care Home and its gardens from above at golden hour, surrounded by Essex countryside"
+                  className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[0_28px_55px_-30px_rgba(47,58,35,0.55)]"
+                  loading="lazy"
+                />
+                <p className="mt-3 text-center text-sm font-semibold text-sage-ink">
+                  {campaign.home} — {campaign.address}
+                </p>
+              </div>
             </div>
-          </div>
-
-          {/* --------------------------- the photograph --------------------- */}
-          {/* One picture, full stop: Meadowbanks and its grounds from the
-              air at golden hour. It needs no company. */}
-          <div data-reveal className="w-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/meadow-banks-estate.jpg"
-              alt="Meadowbanks Care Home and its gardens from above at golden hour, surrounded by Essex countryside"
-              className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[0_28px_55px_-30px_rgba(47,58,35,0.55)]"
-              loading="lazy"
-            />
-            <p className="mt-3 text-center text-sm font-semibold text-sage-ink">
-              {campaign.home} — {campaign.address}
-            </p>
           </div>
         </div>
+
+        {/* ---------------------- slide 2: more to come --------------------- */}
+        <div className="w-full shrink-0 px-5 sm:px-8" aria-hidden={slide !== 1}>
+          <div className="mx-auto flex h-full max-w-7xl items-center">
+            <div className="grid w-full items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
+                  Appeal · No. {campaign.number + 1}
+                </p>
+
+                <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
+                  Many more
+                  <br />
+                  <i className="text-gold-ink">to come.</i>
+                </h2>
+
+                <p className="mt-5 max-w-md text-lg leading-relaxed text-olive">
+                  Every care home has a list like Meadowbanks&rsquo; —
+                  small, priced-to-the-pound things that would make life
+                  warmer. The next appeal lands here soon, and 100% of
+                  every donation will reach it, same as always.
+                </p>
+
+                <div className="mt-8">
+                  <LinkButton href="/contact" variant="secondary" size="lg" className="press">
+                    Know a home that needs help?
+                  </LinkButton>
+                </div>
+              </div>
+
+              <div className="hidden w-full lg:block">
+                <div className="flex aspect-[4/3] w-full items-center justify-center rounded-3xl border-2 border-dashed border-sage/60">
+                  <div className="text-center">
+                    <p className="font-serif text-6xl font-medium text-sage-ink/70">
+                      No. {campaign.number + 1}
+                    </p>
+                    <p className="mt-2 text-xs font-bold uppercase tracking-[0.22em] text-sage-ink/70">
+                      Coming soon
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ------------------------------- dots ------------------------------ */}
+      <div className="mt-8 flex justify-center gap-2.5">
+        {Array.from({ length: SLIDES }).map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => go(i)}
+            aria-label={`Go to slide ${i + 1}`}
+            aria-current={slide === i}
+            className={`h-2.5 rounded-full transition-all duration-300 ${
+              slide === i ? 'w-7 bg-forest' : 'w-2.5 bg-sage/60 hover:bg-sage'
+            }`}
+          />
+        ))}
       </div>
     </section>
   );
