@@ -140,7 +140,11 @@ export function CampaignClient({ campaignId, goal }: { campaignId: string; goal:
       </div>
 
       {/* ------------------------------- give -------------------------------- */}
-      {signedIn === false ? (
+      {/* The card form appears only once the session is confirmed — until
+          then (loading, or signed out) the page asks for sign-in, so a
+          visitor never sees a give form they can't actually use. The API
+          enforces the same rule server-side regardless. */}
+      {signedIn !== true ? (
         <div className="card-solid mt-6 p-6 text-center sm:p-8">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-sage-ink">
             Give to this appeal
