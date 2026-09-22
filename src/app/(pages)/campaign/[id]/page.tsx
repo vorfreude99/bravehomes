@@ -47,6 +47,14 @@ export default async function CampaignPage({
         {campaign.home} · {campaign.address}
       </p>
 
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/email-talk.png"
+        alt="A younger and an older person deep in conversation"
+        className="rise-in mt-8 aspect-[2/1] w-full rounded-3xl object-cover shadow-[0_24px_50px_-30px_rgba(47,58,35,0.55)]"
+        style={{ animationDelay: '120ms' }}
+      />
+
       <p className="rise-in mt-6 text-lg leading-relaxed text-olive" style={{ animationDelay: '150ms' }}>
         {campaign.story}
       </p>
