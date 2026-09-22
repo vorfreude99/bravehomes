@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { CampaignProgress } from '@/components/site/CampaignProgress';
 import { useEffect, useState } from 'react';
 import { useSessionUser } from './PortalShell';
 import { getProfile, listMembers, listMessages, type Member, type Message } from '@/lib/db';
@@ -338,6 +339,9 @@ export function PortalHome() {
                 Donate
               </span>
             </Link>
+            <div className="rounded-xl bg-[#1a1a1a]/[0.04] px-3.5 py-3">
+              <CampaignProgress campaignId="meadow-banks" goal={800} tone="dashboard" />
+            </div>
           </div>
         </Tile>
       </div>

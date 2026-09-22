@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { LinkButton } from '@/components/ui/Button';
 import { CAMPAIGNS } from '@/lib/campaigns';
+import { CampaignProgress } from '@/components/site/CampaignProgress';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { currency } from '@/lib/content';
 
@@ -127,7 +128,11 @@ export function CampaignSection() {
                   ))}
                 </div>
 
-                <div className="mt-8">
+                <div className="mt-7 max-w-md">
+                  <CampaignProgress campaignId={campaign.id} goal={campaign.goal} />
+                </div>
+
+                <div className="mt-7">
                   <LinkButton
                     href={giveHref}
                     size="lg"
