@@ -21,18 +21,6 @@ export async function generateMetadata({
   };
 }
 
-/** The two asks, each with the Meadowbanks photograph that shows it. */
-const ITEM_PHOTOS: Record<string, { src: string; alt: string }> = {
-  'Vintage furniture & décor': {
-    src: '/meadow-banks-sitting.jpg',
-    alt: 'A sitting-room corner at Meadowbanks: velvet armchair, vintage radio and framed photographs of old film stars',
-  },
-  'Reminiscence & sensory resources': {
-    src: '/meadow-banks-smile.jpg',
-    alt: 'A Meadowbanks resident beaming with a small dog on his lap',
-  },
-};
-
 /**
  * The appeal as a flagship page: the estate at golden hour as a
  * cinematic hero, each costed ask wearing its own photograph, life at
