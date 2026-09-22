@@ -111,58 +111,6 @@ export default async function CampaignPage({
         </p>
       </section>
 
-      {/* ----------------------- the asks, editorial ----------------------- */}
-      <section className="mx-auto mt-14 max-w-6xl px-5 sm:mt-16 sm:px-8">
-        <h2 className="font-serif text-3xl font-medium text-forest sm:text-4xl">
-          Exactly what {currency.format(campaign.goal)} buys
-        </h2>
-
-        {/* Two feature rows, magazine-style: the photograph on one side,
-            the price set large in serif on the other. No boxes. */}
-        <div className="mt-10 grid items-center gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/meadow-banks-sitting.jpg"
-            alt="A sitting-room corner at Meadowbanks: velvet armchair, vintage radio and framed photographs of old film stars"
-            className="aspect-[4/3] w-full rounded-2xl object-cover"
-            loading="lazy"
-          />
-          <div>
-            <p className="font-serif text-6xl font-medium text-forest sm:text-7xl">
-              {currency.format(campaign.items[0].amount)}
-            </p>
-            <div className="mt-4 h-0.5 w-14 bg-gold" aria-hidden="true" />
-            <h3 className="mt-4 font-serif text-2xl font-medium text-forest">
-              {campaign.items[0].label}
-            </h3>
-            <p className="mt-3 max-w-md text-lg leading-relaxed text-olive">
-              {campaign.items[0].detail}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-14 grid items-center gap-8 lg:grid-cols-[1fr_1.15fr] lg:gap-14 sm:mt-16">
-          <div className="order-2 lg:order-1">
-            <p className="font-serif text-6xl font-medium text-forest sm:text-7xl">
-              {currency.format(campaign.items[1].amount)}
-            </p>
-            <div className="mt-4 h-0.5 w-14 bg-gold" aria-hidden="true" />
-            <h3 className="mt-4 font-serif text-2xl font-medium text-forest">
-              {campaign.items[1].label}
-            </h3>
-            <p className="mt-3 max-w-md text-lg leading-relaxed text-olive">
-              {campaign.items[1].detail}
-            </p>
-          </div>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/meadow-banks-smile.jpg"
-            alt="A Meadowbanks resident beaming with a small dog on his lap"
-            className="order-1 aspect-[4/3] w-full rounded-2xl object-cover lg:order-2"
-            loading="lazy"
-          />
-        </div>
-      </section>
     </div>
   );
 }
