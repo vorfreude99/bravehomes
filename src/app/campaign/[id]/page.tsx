@@ -55,10 +55,7 @@ export default async function CampaignPage({
         />
         <div className="absolute inset-x-0 bottom-0 px-5 pb-8 sm:px-10 sm:pb-12">
           <div className="mx-auto max-w-7xl">
-          <p className="text-xs font-bold uppercase tracking-[0.24em] text-gold">
-            Brave Homes appeal · No. {campaign.number}
-          </p>
-          <h1 className="mt-3 max-w-2xl font-serif text-4xl font-medium leading-[1.05] text-cream sm:text-6xl">
+          <h1 className="max-w-2xl font-serif text-4xl font-medium leading-[1.05] text-cream sm:text-6xl">
             Make Meadow Banks <i className="text-gold">feel like home.</i>
           </h1>
           <p className="mt-4 text-sm font-semibold text-cream/85 sm:text-base">
