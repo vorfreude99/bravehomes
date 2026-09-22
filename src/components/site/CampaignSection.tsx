@@ -76,8 +76,8 @@ export function CampaignSection() {
             Help raise {currency.format(campaign.goal)}
           </LinkButton>
           <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-olive/80">
-            No account needed — anyone can give, and 100% of every
-            donation reaches the appeal.
+            Giving takes a minute for members — joining is free, and
+            100% of every donation reaches the appeal.
           </p>
         </div>
       </div>

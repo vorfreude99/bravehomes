@@ -8,15 +8,11 @@ const MIN = 1;
 const MAX = 10_000;
 
 /**
- * Starts a campaign donation — from anyone.
- *
- * Unlike /api/checkout this needs no account: a resident's family or a
- * neighbour landing on the appeal page can give straight away. A
- * signed-in member's gift is still attached to their account; an
- * anonymous gift stores only whatever email they offer for a receipt.
- * Either way the pledge row is written server-side (service role, since
- * the RLS insert policy is members-only by design) before any card is
- * touched, and carries the campaign id so the money stays traceable.
+ * Starts a campaign donation. Mirrors /api/checkout — signed-in members
+ * only, by choice: every gift belongs to an account — with one
+ * difference: the pledge carries the appeal's id instead of 'general',
+ * so the money stays traceable to what it was given for all the way
+ * through Stripe and the database.
  */
 export async function POST(request: Request) {
   if (!paymentsConfigured()) {
@@ -26,7 +22,16 @@ export async function POST(request: Request) {
     );
   }
 
-  let body: { amount?: unknown; campaignId?: unknown; email?: unknown };
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Please sign in first.' }, { status: 401 });
+  }
+
+  let body: { amount?: unknown; campaignId?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -46,28 +51,12 @@ export async function POST(request: Request) {
     );
   }
 
-  // Optional — a signed-in member gets their gift on their account and
-  // their receipt at their account email, exactly like /api/checkout.
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const offeredEmail =
-    typeof body.email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim())
-      ? body.email.trim()
-      : null;
-  const receiptEmail = user?.email ?? offeredEmail ?? undefined;
-
-  const { data: pledge, error } = await adminDb()
+  // The intent row first, through the member's own client so RLS
+  // vouches for it — if Stripe succeeds and this had failed, we would
+  // have taken money with nothing recording who gave it.
+  const { data: pledge, error } = await supabase
     .from('pledges')
-    .insert({
-      user_id: user?.id ?? null,
-      amount,
-      project_id: campaign.id,
-      status: 'intent',
-      donor_email: user ? null : offeredEmail,
-    })
+    .insert({ user_id: user.id, amount, project_id: campaign.id, status: 'intent' })
     .select('id')
     .single();
 
@@ -82,13 +71,9 @@ export async function POST(request: Request) {
     amount: toPence(amount),
     currency: 'gbp',
     automatic_payment_methods: { enabled: true },
-    receipt_email: receiptEmail,
+    receipt_email: user.email ?? undefined,
     description: `Donation — ${campaign.home} appeal`,
-    metadata: {
-      pledgeId: pledge.id,
-      userId: user?.id ?? 'anonymous',
-      projectId: campaign.id,
-    },
+    metadata: { pledgeId: pledge.id, userId: user.id, projectId: campaign.id },
   });
 
   await adminDb()

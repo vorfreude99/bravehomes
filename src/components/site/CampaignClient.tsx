@@ -1,32 +1,45 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/Button';
+import { Button, LinkButton } from '@/components/ui/Button';
 import { Notice } from '@/components/ui/Field';
 import { DonateCheckout } from '@/components/portal/DonateCheckout';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { currency } from '@/lib/content';
 
 const PRESETS = [10, 25, 50, 100];
 
 /**
  * The giving half of an appeal page: live progress, an amount, a card
- * form, a thank-you. Works signed in or not — the API attaches a
- * member's gift to their account and lets a stranger give with nothing
- * but a card and, if they'd like a receipt, an email.
+ * form, a thank-you. Giving is for signed-in members — a visitor sees
+ * the appeal and the progress, and is walked to sign-in first, coming
+ * straight back here afterwards.
  */
 export function CampaignClient({ campaignId, goal }: { campaignId: string; goal: number }) {
   const [raised, setRaised] = useState<number | null>(null);
   const [supporters, setSupporters] = useState(0);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   const [selected, setSelected] = useState<number | null>(25);
   const [custom, setCustom] = useState('');
-  const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkout, setCheckout] = useState<{ amount: number; clientSecret: string } | null>(null);
   const [done, setDone] = useState(false);
 
   const amount = custom ? Number(custom) : (selected ?? 0);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setSignedIn(false);
+      return;
+    }
+    createClient()
+      .auth.getUser()
+      .then((res: { data: { user: unknown } }) => setSignedIn(Boolean(res.data.user)))
+      .catch(() => setSignedIn(false));
+  }, []);
 
   async function loadProgress() {
     try {
@@ -57,7 +70,7 @@ export function CampaignClient({ campaignId, goal }: { campaignId: string; goal:
       const res = await fetch('/api/campaign-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount, campaignId, email: email || undefined }),
+        body: JSON.stringify({ amount, campaignId }),
       });
       const data = (await res.json().catch(() => ({}))) as {
         clientSecret?: string;
@@ -127,7 +140,34 @@ export function CampaignClient({ campaignId, goal }: { campaignId: string; goal:
       </div>
 
       {/* ------------------------------- give -------------------------------- */}
-      {checkout ? (
+      {signedIn === false ? (
+        <div className="card-solid mt-6 p-6 text-center sm:p-8">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-sage-ink">
+            Give to this appeal
+          </p>
+          <p className="mx-auto mt-3 max-w-md leading-relaxed text-olive">
+            Giving is for Brave Homes members — it keeps every donation
+            attached to a real, verified person. Sign in and you’ll come
+            straight back here.
+          </p>
+          <div className="mx-auto mt-6 flex max-w-sm flex-col gap-3">
+            <LinkButton
+              href={`/login?next=/campaign/${campaignId}`}
+              variant="gold"
+              size="lg"
+              className="cta-sheen w-full"
+            >
+              Sign in to give
+            </LinkButton>
+            <Link
+              href="/signup"
+              className="press flex min-h-[var(--bh-tap)] w-full items-center justify-center rounded-full border-2 border-sage/40 font-semibold text-forest transition-colors hover:border-forest hover:bg-sage-mist/60"
+            >
+              New here? Join free
+            </Link>
+          </div>
+        </div>
+      ) : checkout ? (
         <div className="mt-6 h-[600px] overflow-hidden rounded-[2rem] shadow-[0_30px_60px_-24px_rgba(47,58,35,0.5)]">
           <DonateCheckout
             amount={checkout.amount}
@@ -181,18 +221,6 @@ export function CampaignClient({ campaignId, goal }: { campaignId: string; goal:
             />
           </label>
 
-          <label className="mt-3 block">
-            <span className="sr-only">Email for your receipt (optional)</span>
-            <input
-              type="email"
-              autoComplete="email"
-              placeholder="Email for your receipt (optional)"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-2xl border-2 border-sage/40 bg-white px-4 py-3 text-forest placeholder:text-ink-muted focus:border-forest focus:outline-none"
-            />
-          </label>
-
           {error && (
             <div className="mt-4">
               <Notice tone="error">{error}</Notice>
@@ -212,8 +240,9 @@ export function CampaignClient({ campaignId, goal }: { campaignId: string; goal:
           </Button>
 
           <p className="mt-4 text-center text-xs text-ink-muted">
-            Payments handled securely by Stripe. 100% of every donation
-            reaches the appeal — nothing is kept for costs.
+            Payments handled securely by Stripe. Your receipt goes to
+            your account email, and 100% of every donation reaches the
+            appeal — nothing is kept for costs.
           </p>
         </div>
       )}
