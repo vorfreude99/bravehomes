@@ -47,10 +47,11 @@ export default async function CampaignPage({
         {campaign.home} · {campaign.address}
       </p>
 
+      {/* Meadowbanks' own photograph — one of the rooms this appeal helps. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/email-talk.png"
-        alt="A younger and an older person deep in conversation"
+        src="/meadow-banks-bedroom.jpg"
+        alt="A bright resident's room at Meadowbanks, with an armchair by the window overlooking the trees"
         className="rise-in mt-8 aspect-[2/1] w-full rounded-3xl object-cover shadow-[0_24px_50px_-30px_rgba(47,58,35,0.55)]"
         style={{ animationDelay: '120ms' }}
       />

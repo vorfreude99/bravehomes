@@ -41,13 +41,22 @@ export function CampaignSection() {
           </p>
         </div>
 
-        {/* --------------------------- photograph --------------------------- */}
-        <div data-reveal className="mt-10">
+        {/* ------------------------- the home itself ------------------------ */}
+        {/* Meadowbanks' own photographs — the building on Hall Lane and the
+            kind of sitting-room corner this appeal will furnish. */}
+        <div data-reveal className="mx-auto mt-10 grid max-w-3xl grid-cols-2 gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/donate-hands.jpg"
-            alt="Two hands reaching for each other"
-            className="aspect-[21/9] w-full rounded-3xl object-cover shadow-[0_30px_60px_-30px_rgba(47,58,35,0.55)] ring-1 ring-forest/10"
+            src="/meadow-banks-home.jpg"
+            alt="Meadowbanks Care Home on Hall Lane, Upminster, in evening light"
+            className="aspect-[4/5] w-full -rotate-1 rounded-3xl object-cover shadow-[0_24px_50px_-28px_rgba(47,58,35,0.55)] ring-1 ring-forest/10"
+            loading="lazy"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/meadow-banks-sitting.jpg"
+            alt="A sitting-room corner at Meadowbanks with a velvet armchair, vintage radio and framed photographs"
+            className="mt-6 aspect-[4/5] w-full rotate-1 rounded-3xl object-cover shadow-[0_24px_50px_-28px_rgba(47,58,35,0.55)] ring-1 ring-forest/10"
             loading="lazy"
           />
         </div>
