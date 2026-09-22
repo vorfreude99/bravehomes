@@ -21,8 +21,7 @@ const COLUMNS = [
     heading: 'Get involved',
     links: [
       { href: '/signup', label: 'Join free' },
-      { href: '/campaign/meadow-banks', label: 'Meadow Banks appeal' },
-      { href: '/portal/donate', label: 'Donate' },
+      { href: '/campaign/meadow-banks', label: 'Donate — Meadow Banks appeal' },
       { href: '/login', label: 'Sign in' },
     ],
   },

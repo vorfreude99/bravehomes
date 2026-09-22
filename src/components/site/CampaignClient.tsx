@@ -118,11 +118,11 @@ export function CampaignClient({ campaignId, goal }: { campaignId: string; goal:
               raised of {currency.format(goal)}
             </span>
           </p>
-          {supporters > 0 && (
-            <p className="text-sm font-semibold text-sage-ink">
-              {supporters} {supporters === 1 ? 'supporter' : 'supporters'}
-            </p>
-          )}
+          <p className="text-sm font-semibold text-sage-ink">
+            {raised != null && `${pct}% funded`}
+            {supporters > 0 &&
+              ` · ${supporters} ${supporters === 1 ? 'supporter' : 'supporters'}`}
+          </p>
         </div>
         <div
           className="mt-4 h-3 overflow-hidden rounded-full bg-sage-mist"

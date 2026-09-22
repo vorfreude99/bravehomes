@@ -1,13 +1,10 @@
-import { Suspense } from 'react';
-import type { Metadata } from 'next';
-import { DonateClient } from '@/components/portal/DonateClient';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = { title: 'Donate' };
-
+/**
+ * There is no general donate page any more — all giving goes to the
+ * live appeal, so every old link and bookmark lands there too. The
+ * /thanks route below survives for Stripe's bank-redirect returns.
+ */
 export default function DonatePage() {
-  return (
-    <Suspense fallback={<div className="p-8 text-ink-muted">Loading…</div>}>
-      <DonateClient />
-    </Suspense>
-  );
+  redirect('/campaign/meadow-banks');
 }
