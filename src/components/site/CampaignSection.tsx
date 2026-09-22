@@ -14,9 +14,9 @@ export function CampaignSection() {
   return (
     // A step deeper than sage-mist — the section above is white, so the
     // panel needs a genuinely visible tint to read as its own room.
-    <section id="appeal" className="overflow-hidden bg-[#e2e9d4] py-24 sm:py-32">
+    <section id="appeal" className="overflow-hidden bg-[#e2e9d4] py-14 sm:py-16">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
           {/* ------------------------------ the ask ------------------------- */}
           <div data-reveal>
             <p className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
@@ -46,7 +46,7 @@ export function CampaignSection() {
             </p>
 
             {/* The two asks as stats, not paragraphs. */}
-            <div className="mt-9 flex gap-10">
+            <div className="mt-7 flex gap-10">
               {campaign.items.map((item) => (
                 <div key={item.label} className="border-l-2 border-gold pl-4">
                   <p className="font-serif text-3xl font-medium text-forest sm:text-4xl">
@@ -59,7 +59,7 @@ export function CampaignSection() {
               ))}
             </div>
 
-            <div className="mt-10">
+            <div className="mt-8">
               <LinkButton
                 href={`/campaign/${campaign.id}`}
                 size="lg"
@@ -78,7 +78,7 @@ export function CampaignSection() {
           {/* Meadowbanks' own hero: the whole home and its grounds from the
               air at golden hour, with two residents walking hand in hand
               leaning in from the corner. */}
-          <div data-reveal className="relative mx-auto w-full pb-12 lg:pb-16">
+          <div data-reveal className="relative mx-auto w-full pb-8">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/meadow-banks-estate.jpg"
