@@ -65,37 +65,32 @@ export default async function CampaignPage({
         </div>
       </section>
 
-      {/* ------------------------------- give ------------------------------ */}
-      <section id="give" className="mx-auto mt-10 max-w-3xl px-5 sm:mt-12 sm:px-8">
-        <h2 className="text-center font-serif text-3xl font-medium text-forest sm:text-4xl">
-          Every pound lands here.
-        </h2>
-        <CampaignClient campaignId={campaign.id} goal={campaign.goal} />
-      </section>
+      {/* -------------------- give, beside life at the home ---------------- */}
+      <section id="give" className="mx-auto mt-10 max-w-7xl px-5 sm:mt-12 sm:px-8">
+        <div className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-12">
+          {/* The four acres, holding up the left of the giving. */}
+          <figure className="order-2 lg:order-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/meadow-banks-garden.jpg"
+              alt="Two Meadowbanks residents walking hand in hand through the home's grounds"
+              className="h-full max-h-[640px] w-full rounded-2xl object-cover"
+              style={{ objectPosition: 'center 40%' }}
+              loading="lazy"
+            />
+            <figcaption className="mt-3 text-center font-serif text-lg italic text-olive">
+              Life at Meadowbanks, in the four acres it calls home.
+            </figcaption>
+          </figure>
 
-      {/* --------------------- life at the home, full bleed ----------------- */}
-      <section className="relative mt-14 overflow-hidden sm:mt-16">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/meadow-banks-garden.jpg"
-          alt="Two Meadowbanks residents walking hand in hand through the home's grounds"
-          className="h-[44vh] min-h-[320px] w-full object-cover"
-          style={{ objectPosition: 'center 42%' }}
-          loading="lazy"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute inset-0"
-          style={{
-            background:
-              'linear-gradient(180deg, rgba(20,26,12,0) 45%, rgba(20,26,12,0.6) 100%)',
-          }}
-        />
-        <p className="absolute inset-x-0 bottom-6 px-5 text-center font-serif text-xl italic text-cream sm:text-2xl">
-          Life at Meadowbanks, in the four acres it calls home.
-        </p>
+          <div className="order-1 lg:order-2">
+            <h2 className="font-serif text-3xl font-medium text-forest sm:text-4xl">
+              Every pound lands here.
+            </h2>
+            <CampaignClient campaignId={campaign.id} goal={campaign.goal} />
+          </div>
+        </div>
       </section>
-
     </div>
   );
 }
