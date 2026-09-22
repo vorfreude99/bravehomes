@@ -12,8 +12,8 @@ export function CampaignSection() {
   const campaign = CAMPAIGNS['meadow-banks'];
 
   return (
-    {/* A step deeper than sage-mist — the section above is white, so the
-        panel needs a genuinely visible tint to read as its own room. */}
+    // A step deeper than sage-mist — the section above is white, so the
+    // panel needs a genuinely visible tint to read as its own room.
     <section id="appeal" className="overflow-hidden bg-[#e2e9d4] py-24 sm:py-32">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <div className="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
