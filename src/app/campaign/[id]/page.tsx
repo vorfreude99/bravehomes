@@ -65,6 +65,22 @@ export default async function CampaignPage({
         </div>
       </section>
 
+      {/* ------------------------------- give ------------------------------ */}
+      <section id="give" className="mx-auto mt-10 max-w-3xl px-5 sm:mt-12 sm:px-8">
+        <h2 className="text-center font-serif text-3xl font-medium text-forest sm:text-4xl">
+          Every pound lands here.
+        </h2>
+        <CampaignClient campaignId={campaign.id} goal={campaign.goal} />
+        <p className="mt-8 text-center leading-relaxed text-olive">
+          Brave Homes is a community interest company, and our promise is
+          simple: <strong className="text-forest">100% of every donation
+          is applied to the cause</strong> — Stripe’s card fee is the
+          only thing deducted, by Stripe, before the money reaches us.
+          Nothing goes to salaries or overheads. When this appeal is
+          funded, we’ll share what was bought right here.
+        </p>
+      </section>
+
       {/* --------------------- life at the home, full bleed ----------------- */}
       <section className="relative mt-14 overflow-hidden sm:mt-16">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -85,22 +101,6 @@ export default async function CampaignPage({
         />
         <p className="absolute inset-x-0 bottom-6 px-5 text-center font-serif text-xl italic text-cream sm:text-2xl">
           Life at Meadowbanks, in the four acres it calls home.
-        </p>
-      </section>
-
-      {/* ------------------------------- give ------------------------------ */}
-      <section id="give" className="mx-auto mt-10 max-w-3xl px-5 sm:mt-12 sm:px-8">
-        <h2 className="text-center font-serif text-3xl font-medium text-forest sm:text-4xl">
-          Every pound lands here.
-        </h2>
-        <CampaignClient campaignId={campaign.id} goal={campaign.goal} />
-        <p className="mt-8 text-center leading-relaxed text-olive">
-          Brave Homes is a community interest company, and our promise is
-          simple: <strong className="text-forest">100% of every donation
-          is applied to the cause</strong> — Stripe’s card fee is the
-          only thing deducted, by Stripe, before the money reaches us.
-          Nothing goes to salaries or overheads. When this appeal is
-          funded, we’ll share what was bought right here.
         </p>
       </section>
 
