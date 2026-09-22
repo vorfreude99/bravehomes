@@ -5,75 +5,80 @@ import { currency } from '@/lib/content';
 /**
  * The live appeal, on the front page — a real care home asking for real
  * things at real prices, which is the most honest fundraising pitch the
- * site can make. Photographs on one side, the costed asks on the other,
- * one link; the appeal page does the rest.
+ * site can make. Sits on its own warm gold wash so it reads as a moment
+ * of its own between the white steps above and the dark close below.
+ *
+ * The wide photo is a placeholder for photographs of Meadow Banks
+ * itself — swap in `public/meadow-banks-1.jpg` when the home sends one.
  */
 export function CampaignSection() {
   const campaign = CAMPAIGNS['meadow-banks'];
 
   return (
-    <section id="appeal" className="overflow-hidden bg-cream-deep/60 py-24 sm:py-28">
+    <section
+      id="appeal"
+      className="overflow-hidden py-24 sm:py-28"
+      style={{
+        background:
+          'linear-gradient(165deg, #f6f2e7 0%, #f4ecd5 40%, #f2dfae 100%)',
+      }}
+    >
       <div className="mx-auto max-w-5xl px-5 sm:px-8">
-        <div data-reveal>
-          <p className="text-center text-xs font-bold uppercase tracking-[0.2em] text-sage-ink">
+        <div data-reveal className="text-center">
+          {/* The pill they liked — with a quiet live pulse. */}
+          <span className="inline-flex items-center gap-2 rounded-full bg-forest px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-cream">
+            <span className="relative flex h-2 w-2" aria-hidden="true">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-gold" />
+            </span>
             Live appeal
-          </p>
-          <h2 className="mx-auto mt-4 max-w-2xl text-balance text-center font-serif text-3xl font-medium leading-tight text-forest sm:text-4xl">
+          </span>
+          <h2 className="mx-auto mt-5 max-w-2xl text-balance font-serif text-3xl font-medium leading-tight text-forest sm:text-4xl">
             {campaign.title}
           </h2>
-          <p className="mx-auto mt-3 text-center font-semibold text-olive">
+          <p className="mt-3 font-semibold text-olive">
             {campaign.home} · Upminster
           </p>
         </div>
 
-        <div className="mt-12 grid items-center gap-10 md:grid-cols-[1fr_1.1fr]">
-          {/* -------------------------- photographs ------------------------- */}
-          {/* Same hand-placed, slightly off-axis pairing as the About page —
-              people, not a stock collage. */}
-          <div data-reveal className="grid grid-cols-2 gap-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/homes/couple.jpg"
-              alt="An older couple laughing together outside their home"
-              className="aspect-[4/5] w-full -rotate-2 rounded-3xl object-cover shadow-[0_20px_45px_-28px_rgba(47,58,35,0.5)]"
-              loading="lazy"
-              style={{ objectPosition: 'center 30%' }}
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/auth-together.jpg"
-              alt="A grandmother and her granddaughter laughing, cheek to cheek"
-              className="mt-8 aspect-[4/5] w-full rotate-2 rounded-3xl object-cover shadow-[0_20px_45px_-28px_rgba(47,58,35,0.5)]"
-              loading="lazy"
-              style={{ objectPosition: 'center 25%' }}
-            />
-          </div>
+        {/* --------------------------- photograph --------------------------- */}
+        <div data-reveal className="mt-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/donate-hands.jpg"
+            alt="Two hands reaching for each other"
+            className="aspect-[21/9] w-full rounded-3xl object-cover shadow-[0_30px_60px_-30px_rgba(47,58,35,0.55)] ring-1 ring-forest/10"
+            loading="lazy"
+          />
+        </div>
 
-          {/* --------------------- what the money buys ----------------------- */}
-          <div data-reveal className="space-y-4">
-            {campaign.items.map((item) => (
-              <div key={item.label} className="card-solid border-l-4 border-gold p-6">
-                <p className="text-lg font-bold text-gold-ink">{currency.format(item.amount)}</p>
-                <h3 className="mt-1 font-serif text-xl font-medium text-forest">{item.label}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-olive">{item.detail}</p>
-              </div>
-            ))}
-
-            <div className="pt-2">
-              <LinkButton
-                href={`/campaign/${campaign.id}`}
-                variant="gold"
-                size="lg"
-                className="cta-sheen w-full sm:w-auto"
-              >
-                Help raise {currency.format(campaign.goal)}
-              </LinkButton>
-              <p className="mt-4 max-w-md text-sm leading-relaxed text-ink-muted">
-                No account needed — anyone can give, and 100% of every
-                donation reaches the appeal.
-              </p>
+        {/* --------------------- what the money buys ----------------------- */}
+        <div data-reveal className="mt-8 grid gap-4 sm:grid-cols-2">
+          {campaign.items.map((item) => (
+            <div
+              key={item.label}
+              className="rounded-3xl border-l-4 border-gold bg-white/80 p-6 shadow-[0_14px_35px_-24px_rgba(47,58,35,0.45)] backdrop-blur-sm"
+            >
+              <p className="text-lg font-bold text-gold-ink">{currency.format(item.amount)}</p>
+              <h3 className="mt-1 font-serif text-xl font-medium text-forest">{item.label}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-olive">{item.detail}</p>
             </div>
-          </div>
+          ))}
+        </div>
+
+        <div data-reveal className="mt-10 text-center">
+          <LinkButton
+            href={`/campaign/${campaign.id}`}
+            variant="primary"
+            size="lg"
+            className="cta-sheen"
+          >
+            Help raise {currency.format(campaign.goal)}
+          </LinkButton>
+          <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-olive/80">
+            No account needed — anyone can give, and 100% of every
+            donation reaches the appeal.
+          </p>
         </div>
       </div>
     </section>
