@@ -46,8 +46,13 @@ export default async function proxy(request: NextRequest) {
   }
 
   if (user && (pathname === '/login' || pathname === '/signup')) {
+    // Honour where they were headed — a member clicking "sign in to
+    // give" carries ?next=/campaign/..., and sending them to /portal
+    // instead used to detour them into the age gate for no reason.
+    const next = request.nextUrl.searchParams.get('next');
+    const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : '/portal';
     const redirect = request.nextUrl.clone();
-    redirect.pathname = '/portal';
+    redirect.pathname = safeNext;
     redirect.search = '';
     return NextResponse.redirect(redirect);
   }
