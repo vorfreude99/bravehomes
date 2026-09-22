@@ -324,24 +324,47 @@ export function PortalHome() {
           <h2 className="text-lg font-semibold text-[#1a1a1a]">The mission</h2>
 
           <div className="mt-4 space-y-3">
-            {[{ label: 'Helping care homes', state: 'Every donation', on: true }].map((row) => (
-              <div
-                key={row.label}
-                className="flex flex-col items-start gap-2 rounded-xl bg-[#1a1a1a]/[0.04] px-3.5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
-              >
-                <span className="min-w-0 text-sm font-semibold text-[#1a1a1a]">
-                  {row.label}
-                </span>
-                <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-[0.1em] ${
-                    row.on ? 'chip-glow text-[#1a1a1a]' : 'bg-[#1a1a1a]/10 text-[#1a1a1a]/70'
-                  }`}
-                  style={row.on ? { background: YELLOW } : undefined}
+            {[
+              { label: 'Helping care homes', state: 'Every donation', on: true },
+              {
+                label: 'Meadow Banks Care Home',
+                state: 'Appeal live · £800',
+                on: true,
+                href: '/campaign/meadow-banks',
+              },
+            ].map((row) => {
+              const inner = (
+                <>
+                  <span className="min-w-0 text-sm font-semibold text-[#1a1a1a]">
+                    {row.label}
+                  </span>
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-[0.1em] ${
+                      row.on ? 'chip-glow text-[#1a1a1a]' : 'bg-[#1a1a1a]/10 text-[#1a1a1a]/70'
+                    }`}
+                    style={row.on ? { background: YELLOW } : undefined}
+                  >
+                    {row.state}
+                  </span>
+                </>
+              );
+              const rowClass =
+                'flex flex-col items-start gap-2 rounded-xl bg-[#1a1a1a]/[0.04] px-3.5 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3';
+
+              return row.href ? (
+                <Link
+                  key={row.label}
+                  href={row.href}
+                  className={`${rowClass} transition-colors hover:bg-[#1a1a1a]/[0.08]`}
                 >
-                  {row.state}
-                </span>
-              </div>
-            ))}
+                  {inner}
+                </Link>
+              ) : (
+                <div key={row.label} className={rowClass}>
+                  {inner}
+                </div>
+              );
+            })}
           </div>
         </Tile>
       </div>
