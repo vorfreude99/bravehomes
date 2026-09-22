@@ -37,7 +37,8 @@ export default async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  if (!user && pathname.startsWith('/portal')) {
+  // Appeals are members-only too — the whole page, not just the form.
+  if (!user && (pathname.startsWith('/portal') || pathname.startsWith('/campaign'))) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = '/login';
     redirect.searchParams.set('next', pathname);
@@ -79,5 +80,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/portal/:path*', '/login', '/signup', '/verify-age/:path*'],
+  matcher: ['/portal/:path*', '/campaign/:path*', '/login', '/signup', '/verify-age/:path*'],
 };
