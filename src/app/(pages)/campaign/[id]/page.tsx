@@ -38,7 +38,7 @@ export default async function CampaignPage({
   return (
     <div>
       <p className="rise-in text-xs font-bold uppercase tracking-[0.2em] text-sage-ink">
-        A Brave Homes appeal
+        Brave Homes appeal · No. {campaign.number}
       </p>
       <h1 className="rise-in mt-4 font-serif text-4xl font-medium leading-tight text-forest sm:text-5xl">
         {campaign.title}

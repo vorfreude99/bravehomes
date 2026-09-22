@@ -14,6 +14,8 @@ export type CampaignItem = {
 
 export type Campaign = {
   id: string;
+  /** Appeal number — the first of many, and the numbering says so. */
+  number: number;
   /** The appeal's short name, used in headlines. */
   title: string;
   home: string;
@@ -27,6 +29,7 @@ export type Campaign = {
 export const CAMPAIGNS: Record<string, Campaign> = {
   'meadow-banks': {
     id: 'meadow-banks',
+    number: 1,
     title: 'Make Meadow Banks feel like home',
     home: 'Meadow Banks Care Home',
     address: 'Hall Lane, Upminster RM14 1TT',

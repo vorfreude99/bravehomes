@@ -24,7 +24,7 @@ export function CampaignSection() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-ink" />
               </span>
-              Live appeal
+              Live appeal · No. {campaign.number}
             </p>
 
             <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
