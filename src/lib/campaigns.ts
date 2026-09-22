@@ -32,19 +32,19 @@ export const CAMPAIGNS: Record<string, Campaign> = {
     address: 'Hall Lane, Upminster RM14 1TT',
     goal: 800,
     story:
-      'The team at Meadow Banks asked us for help with something simple and lovely: making their home feel less like a facility and more like a family front room. They know exactly what they need, they told us what it costs, and every penny of this appeal goes to those two things — nothing else.',
+      'Meadowbanks asked us to raise £800 for two things they need. Every penny of this appeal goes to those two things — nothing else.',
     items: [
       {
-        label: 'A homely sitting room',
+        label: 'Vintage furniture & décor',
         amount: 500,
         detail:
-          'Traditional and vintage-style furniture and décor, so the shared spaces feel like the front rooms residents remember — somewhere you sit because you want to, not because a chair was put there.',
+          'Traditional or vintage-style furniture and décor to create a homely setting.',
       },
       {
-        label: 'Memories to hold',
+        label: 'Reminiscence & sensory resources',
         amount: 300,
         detail:
-          'Reminiscence and sensory resources: memory boxes, vintage household items, photographs, books, music and activity resources that help residents reconnect with the lives they’ve lived.',
+          'Memory boxes, vintage household items, photographs, books, music and activity resources.',
       },
     ],
   },

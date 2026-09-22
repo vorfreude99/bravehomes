@@ -55,10 +55,11 @@ export function CampaignSection() {
             </p>
 
             <p className="mt-5 max-w-md text-lg leading-relaxed text-sage-soft">
-              The home asked us for two things, and priced them to the
-              pound: traditional furniture to make the sitting rooms feel
-              like front rooms, and memory boxes, photographs and music
-              to bring lives back within reach.
+              The home asked for two things: traditional and
+              vintage-style furniture and décor to create a homely
+              setting, and reminiscence and sensory resources — memory
+              boxes, vintage household items, photographs, books, music
+              and activity resources.
             </p>
 
             {/* The two asks as stats, not paragraphs. */}
@@ -92,8 +93,8 @@ export function CampaignSection() {
           </div>
 
           {/* --------------------------- the photographs -------------------- */}
-          {/* Meadowbanks' own pictures: the sitting-room corner this appeal
-              multiplies, with the house itself leaning in from the corner. */}
+          {/* Meadowbanks' own pictures: residents in the grounds, with the
+              house itself leaning in from the corner. */}
           <div data-reveal className="relative mx-auto w-full max-w-md pb-10 lg:pb-14">
             <div className="absolute -right-3 -top-5 z-20 rotate-3 rounded-full bg-gold px-5 py-2.5 font-bold text-forest-deep shadow-[0_16px_35px_-12px_rgba(240,203,77,0.7)]">
               Goal · {currency.format(campaign.goal)}
@@ -101,8 +102,8 @@ export function CampaignSection() {
 
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/meadow-banks-sitting.jpg"
-              alt="A sitting-room corner at Meadowbanks with a velvet armchair, vintage radio and framed photographs"
+              src="/meadow-banks-garden.jpg"
+              alt="Two Meadowbanks residents walking hand in hand through the home's grounds"
               className="aspect-[4/5] w-full rotate-1 rounded-[2.5rem] object-cover shadow-[0_50px_90px_-30px_rgba(0,0,0,0.7)] ring-1 ring-white/15"
               loading="lazy"
             />
