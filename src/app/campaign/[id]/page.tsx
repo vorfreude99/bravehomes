@@ -104,13 +104,6 @@ export default async function CampaignPage({
         </p>
       </section>
 
-      {/* ------------------------- story + the asks ------------------------ */}
-      <section className="mx-auto mt-10 max-w-4xl px-5 text-center sm:mt-12 sm:px-8">
-        <p className="text-lg leading-relaxed text-olive sm:text-xl">
-          {campaign.story}
-        </p>
-      </section>
-
     </div>
   );
 }
