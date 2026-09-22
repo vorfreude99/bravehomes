@@ -10,7 +10,7 @@ export default function CampaignLayout({ children }: { children: React.ReactNode
   return (
     <>
       <SiteHeader />
-      <main id="main" className="overflow-x-clip px-5 pb-24 pt-28 sm:px-8 sm:pt-32">
+      <main id="main" className="overflow-x-clip px-5 pb-16 pt-28 sm:px-8 sm:pt-32">
         {children}
       </main>
       <SiteFooter />

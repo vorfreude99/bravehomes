@@ -79,17 +79,17 @@ export default async function CampaignPage({
       </section>
 
       {/* ------------------------- story + the asks ------------------------ */}
-      <section className="mx-auto mt-16 max-w-3xl text-center sm:mt-20">
+      <section className="mx-auto mt-10 max-w-4xl text-center sm:mt-12">
         <p className="text-lg leading-relaxed text-olive sm:text-xl">
           {campaign.story}
         </p>
       </section>
 
-      <section className="mt-10">
+      <section className="mt-8">
         <h2 className="text-center font-serif text-3xl font-medium text-forest sm:text-4xl">
           Exactly what {currency.format(campaign.goal)} buys
         </h2>
-        <div className="mx-auto mt-8 grid max-w-4xl gap-6 sm:grid-cols-2">
+        <div className="mt-6 grid gap-6 sm:grid-cols-2">
           {campaign.items.map((item) => {
             const photo = ITEM_PHOTOS[item.label];
             return (
@@ -124,35 +124,35 @@ export default async function CampaignPage({
       </section>
 
       {/* -------------------------- life at the home ----------------------- */}
-      <section className="mt-16 sm:mt-20">
+      <section className="mt-10 sm:mt-12">
         <p className="text-center text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
           Life at Meadowbanks
         </p>
-        <div className="mx-auto mt-6 grid max-w-4xl grid-cols-2 gap-4 sm:gap-6">
+        <div className="mt-5 grid grid-cols-2 gap-4 sm:gap-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/meadow-banks-garden.jpg"
             alt="Two Meadowbanks residents walking hand in hand through the home's grounds"
-            className="aspect-[4/5] w-full rounded-3xl object-cover shadow-[0_24px_50px_-30px_rgba(47,58,35,0.5)]"
+            className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[0_24px_50px_-30px_rgba(47,58,35,0.5)]"
             loading="lazy"
           />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/meadow-banks-home.jpg"
             alt="Meadowbanks Care Home's entrance on Hall Lane, with hanging flower baskets, in evening light"
-            className="aspect-[4/5] w-full rounded-3xl object-cover shadow-[0_24px_50px_-30px_rgba(47,58,35,0.5)]"
+            className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[0_24px_50px_-30px_rgba(47,58,35,0.5)]"
             loading="lazy"
           />
         </div>
       </section>
 
       {/* ------------------------------- give ------------------------------ */}
-      <section id="give" className="mx-auto mt-16 max-w-2xl sm:mt-20">
+      <section id="give" className="mx-auto mt-10 max-w-3xl sm:mt-12">
         <h2 className="text-center font-serif text-3xl font-medium text-forest sm:text-4xl">
           Every pound lands here.
         </h2>
         <CampaignClient campaignId={campaign.id} goal={campaign.goal} />
-        <p className="mt-10 text-center leading-relaxed text-olive">
+        <p className="mt-8 text-center leading-relaxed text-olive">
           Brave Homes is a community interest company, and our promise is
           simple: <strong className="text-forest">100% of every donation
           is applied to the cause</strong> — Stripe’s card fee is the
