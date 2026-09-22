@@ -325,7 +325,6 @@ export function PortalHome() {
 
           <div className="mt-4 space-y-3">
             {[
-              { label: 'Helping care homes', state: 'Every donation', on: true },
               {
                 label: 'Meadow Banks Care Home',
                 state: 'Appeal live · £800',
