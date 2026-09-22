@@ -85,6 +85,9 @@ export function CampaignSection() {
               className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[0_28px_55px_-30px_rgba(47,58,35,0.55)]"
               loading="lazy"
             />
+            <p className="mt-3 text-center text-sm font-semibold text-sage-ink">
+              {campaign.home} — {campaign.address}
+            </p>
           </div>
         </div>
       </div>
