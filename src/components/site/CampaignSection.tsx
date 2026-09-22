@@ -115,7 +115,7 @@ export function CampaignSection() {
                   books, music and activity resources.
                 </p>
 
-                <div className="mt-7 flex gap-10">
+                <div className="mt-7 flex items-center gap-10">
                   {campaign.items.map((item) => (
                     <div key={item.label} className="border-l-2 border-gold pl-4">
                       <p className="font-serif text-3xl font-medium text-forest sm:text-4xl">
@@ -126,10 +126,11 @@ export function CampaignSection() {
                       </p>
                     </div>
                   ))}
-                </div>
-
-                <div className="mt-7 max-w-md">
-                  <CampaignProgress campaignId={campaign.id} goal={campaign.goal} />
+                  <CampaignProgress
+                    campaignId={campaign.id}
+                    goal={campaign.goal}
+                    variant="ring"
+                  />
                 </div>
 
                 <div className="mt-7">

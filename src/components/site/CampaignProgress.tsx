@@ -13,10 +13,12 @@ export function CampaignProgress({
   campaignId,
   goal,
   tone = 'site',
+  variant = 'bar',
 }: {
   campaignId: string;
   goal: number;
   tone?: 'site' | 'dashboard';
+  variant?: 'bar' | 'ring';
 }) {
   const [raised, setRaised] = useState<number | null>(null);
 
@@ -40,6 +42,55 @@ export function CampaignProgress({
 
   const pct = Math.max(0, Math.min(100, Math.round((raised / goal) * 100)));
   const dark = tone === 'dashboard';
+
+  if (variant === 'ring') {
+    const R = 40;
+    const C = 2 * Math.PI * R;
+    return (
+      <div className="flex flex-col items-center">
+        <div
+          className="relative flex h-[104px] w-[104px] items-center justify-center"
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Appeal progress"
+        >
+          <svg viewBox="0 0 100 100" className="h-full w-full">
+            <circle
+              cx="50"
+              cy="50"
+              r={R}
+              fill="none"
+              stroke={dark ? 'rgba(26,26,26,0.1)' : 'rgba(255,255,255,0.75)'}
+              strokeWidth="9"
+            />
+            <circle
+              cx="50"
+              cy="50"
+              r={R}
+              fill="none"
+              stroke={dark ? '#f5d64e' : 'var(--color-gold)'}
+              strokeWidth="9"
+              strokeLinecap="round"
+              strokeDasharray={C}
+              strokeDashoffset={C * (1 - pct / 100)}
+              transform="rotate(-90 50 50)"
+              style={{ transition: 'stroke-dashoffset 700ms ease' }}
+            />
+          </svg>
+          <span
+            className={`absolute font-serif text-2xl font-medium ${dark ? 'text-[#1a1a1a]' : 'text-forest'}`}
+          >
+            {pct}%
+          </span>
+        </div>
+        <p className={`mt-2 text-xs font-semibold ${dark ? 'text-[#1a1a1a]/70' : 'text-sage-ink'}`}>
+          {currency.format(raised)} of {currency.format(goal)}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div>
