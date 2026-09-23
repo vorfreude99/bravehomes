@@ -43,10 +43,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No such appeal.' }, { status: 404 });
   }
 
+  // Whole pounds only — pledges.amount is an integer column, and a
+  // £10.50 would otherwise either fail opaquely or record a different
+  // amount than Stripe charges.
   const amount = Number(body.amount);
-  if (!Number.isFinite(amount) || amount < MIN || amount > MAX) {
+  if (!Number.isInteger(amount) || amount < MIN || amount > MAX) {
     return NextResponse.json(
-      { error: `Please choose an amount between £${MIN} and £${MAX.toLocaleString()}.` },
+      { error: `Please choose a whole-pound amount between £${MIN} and £${MAX.toLocaleString()}.` },
       { status: 400 },
     );
   }

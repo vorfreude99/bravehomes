@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState, type FormEvent } from 'react';
 import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
+import { upsertProfile } from '@/lib/db';
 import { Button } from '@/components/ui/Button';
 import { Field, IconInput, Notice } from '@/components/ui/Field';
 import { Icon } from '@/components/ui/Icon';
@@ -94,13 +95,16 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
         // Seed the profile row the rest of the portal reads from.
         if (data.user) {
-          await supabase.from('profiles').upsert({
-            id: data.user.id,
+          // A plain UPDATE, not .upsert() — the 0004 trigger has already
+          // created the row, and upsert's ON CONFLICT branch needs SELECT
+          // on the whole row, which 0011's column grants deny. See the
+          // upsertProfile doc comment in lib/db.ts.
+          const { error: seedError } = await upsertProfile(data.user.id, {
             email,
             full_name: fullName,
             age: Number.isFinite(parsedAge) ? parsedAge : null,
-            updated_at: new Date().toISOString(),
           });
+          if (seedError) console.error('profile seed failed:', seedError.message);
         }
       } else {
         const { error: signInError } = await supabase.auth.signInWithPassword({

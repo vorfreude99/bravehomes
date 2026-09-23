@@ -58,7 +58,14 @@ export async function POST(request: Request) {
     const intent = event.data.object as Stripe.PaymentIntent;
     const pledgeId = intent.metadata?.pledgeId;
     if (pledgeId) {
-      await db.from('pledges').update({ status: 'failed' }).eq('id', pledgeId);
+      // Guarded on 'intent': Stripe retries deliveries for days and does
+      // not guarantee order, so a stale failure event arriving after the
+      // succeeded one must not erase a settled payment.
+      await db
+        .from('pledges')
+        .update({ status: 'failed' })
+        .eq('id', pledgeId)
+        .eq('status', 'intent');
     }
   }
 

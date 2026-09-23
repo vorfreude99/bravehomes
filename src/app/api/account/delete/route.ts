@@ -37,20 +37,27 @@ export async function POST() {
   // voice notes would otherwise keep everything past the first page
   // sitting in storage after "deletion", so this pages through until a
   // partial page confirms there's nothing left.
+  // Always listed from offset 0: removing a page shifts the survivors
+  // down, so an advancing offset would skip every other page and leave
+  // half the files orphaned after "deletion". The iteration cap only
+  // guards against a remove() that silently fails forever.
   const PAGE_SIZE = 100;
+  const MAX_PAGES = 100;
   for (const bucket of ['avatars', 'voice-messages']) {
     try {
-      let offset = 0;
-      for (;;) {
+      for (let i = 0; i < MAX_PAGES; i++) {
         const { data: files } = await db.storage
           .from(bucket)
-          .list(user.id, { limit: PAGE_SIZE, offset });
+          .list(user.id, { limit: PAGE_SIZE });
         if (!files?.length) break;
-        await db.storage
+        const { error: removeError } = await db.storage
           .from(bucket)
           .remove(files.map((f) => `${user.id}/${f.name}`));
+        if (removeError) {
+          console.error(`Could not clear ${bucket} for ${user.id}:`, removeError);
+          break;
+        }
         if (files.length < PAGE_SIZE) break;
-        offset += PAGE_SIZE;
       }
     } catch (err) {
       console.error(`Could not clear ${bucket} for ${user.id}:`, err);

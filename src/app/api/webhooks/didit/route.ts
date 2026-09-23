@@ -54,6 +54,17 @@ export async function POST(request: Request) {
       }
     }
 
+    // An Approved event whose decision fetch failed must NOT fail closed
+    // to a written 'declined' — the member genuinely passed. Leave the
+    // row pending and let /api/didit/status reconcile when Didit is
+    // reachable again.
+    if (event.status === 'Approved' && decision == null) {
+      console.error(
+        `didit webhook: decision fetch failed for approved session ${event.session_id}; leaving pending`,
+      );
+      return NextResponse.json({ received: true });
+    }
+
     const next = ageStatusFromDecision(event.status, decision);
     console.log(
       `didit webhook: session ${event.session_id} status=${event.status} -> ${next} for ${userId}`,

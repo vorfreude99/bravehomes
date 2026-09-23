@@ -54,5 +54,7 @@ export const CAMPAIGNS: Record<string, Campaign> = {
 };
 
 export function getCampaign(id: string): Campaign | null {
-  return CAMPAIGNS[id] ?? null;
+  // Own properties only — a request for /campaign/constructor must be a
+  // 404, not Object.prototype dressed up as an appeal.
+  return Object.prototype.hasOwnProperty.call(CAMPAIGNS, id) ? CAMPAIGNS[id] : null;
 }

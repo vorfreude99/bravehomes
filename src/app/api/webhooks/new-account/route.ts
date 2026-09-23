@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import crypto from 'node:crypto';
 import { sendWelcomeEmail } from '@/lib/email';
 
 /**
@@ -17,7 +18,10 @@ export async function POST(request: Request) {
   // Supabase's webhook has no built-in signature — this shared header is
   // the only thing standing between this endpoint and anyone on the
   // internet who finds the URL.
-  if (request.headers.get('x-webhook-secret') !== secret) {
+  const given = request.headers.get('x-webhook-secret') ?? '';
+  const a = Buffer.from(given);
+  const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
     return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   }
 
