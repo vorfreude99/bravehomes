@@ -8,7 +8,7 @@ import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { currency } from '@/lib/content';
 
 /**
- * The live appeals as a carousel: slide one is the Meadow Banks appeal,
+ * The live appeals as a carousel: slide one is the Meadowbanks appeal,
  * slide two says plainly that more are coming — which is the promise
  * the numbering makes. Arrows either side, dots underneath, calm sage
  * panel throughout.
@@ -103,7 +103,7 @@ export function CampaignSection() {
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
-        {/* ------------------------ slide 1: Meadow Banks ------------------- */}
+        {/* ------------------------ slide 1: Meadowbanks ------------------- */}
         <div className="w-full shrink-0 px-5 sm:px-8" aria-hidden={slide !== 0}>
           <div className="mx-auto max-w-7xl">
             <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
@@ -117,7 +117,7 @@ export function CampaignSection() {
                 </p>
 
                 <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
-                  Make Meadow Banks
+                  Make Meadowbanks
                   <br />
                   <i className="text-gold-ink">feel like home.</i>
                 </h2>
@@ -166,8 +166,8 @@ export function CampaignSection() {
               <div className="w-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src="/meadow-banks-estate.jpg"
-                  alt="Meadowbanks Care Home and its gardens from above at golden hour, surrounded by Essex countryside"
+                  src="/meadowbanks-front.jpg"
+                  alt="The Meadowbanks Care Home entrance sign and grounds on Hall Lane, Upminster"
                   className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[0_28px_55px_-30px_rgba(47,58,35,0.55)]"
                   loading="lazy"
                 />

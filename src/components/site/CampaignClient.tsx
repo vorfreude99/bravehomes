@@ -99,7 +99,7 @@ export function CampaignClient({ campaignId, goal }: { campaignId: string; goal:
         </p>
         <h2 className="mt-3 font-serif text-3xl font-medium text-forest">Thank you.</h2>
         <p className="mx-auto mt-3 max-w-md leading-relaxed text-olive">
-          Your gift is on its way to Meadow Banks — every penny of it.
+          Your gift is on its way to Meadowbanks — every penny of it.
           When the furniture arrives and the memory boxes are filled,
           this page is where we’ll show it.
         </p>

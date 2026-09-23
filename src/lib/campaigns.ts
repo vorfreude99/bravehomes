@@ -30,8 +30,8 @@ export const CAMPAIGNS: Record<string, Campaign> = {
   'meadow-banks': {
     id: 'meadow-banks',
     number: 1,
-    title: 'Make Meadow Banks feel like home',
-    home: 'Meadow Banks Care Home',
+    title: 'Make Meadowbanks feel like home',
+    home: 'Meadowbanks Care Home',
     address: 'Hall Lane, Upminster RM14 1TT',
     goal: 800,
     story:

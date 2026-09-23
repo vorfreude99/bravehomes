@@ -329,7 +329,7 @@ export function PortalHome() {
               className="flex flex-col items-start gap-2 rounded-xl bg-[#1a1a1a]/[0.04] px-3.5 py-3 transition-colors hover:bg-[#1a1a1a]/[0.08] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
             >
               <span className="min-w-0 text-sm font-semibold text-[#1a1a1a]">
-                Meadow Banks Care Home
+                Meadowbanks Care Home
               </span>
               <span
                 className="chip-glow shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold text-[#1a1a1a]"
