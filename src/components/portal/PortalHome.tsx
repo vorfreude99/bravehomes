@@ -345,7 +345,10 @@ export function PortalHome() {
               <span className="min-w-0 text-sm font-semibold text-[#1a1a1a]">
                 Partner care homes
               </span>
-              <span className="shrink-0 rounded-full border border-[#1a1a1a]/20 px-4 py-1.5 text-sm font-semibold text-[#1a1a1a]">
+              <span
+                className="chip-glow shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold text-[#1a1a1a]"
+                style={{ background: YELLOW }}
+              >
                 Donate
               </span>
             </Link>
