@@ -342,6 +342,17 @@ export function PortalHome() {
             <div className="rounded-xl bg-[#1a1a1a]/[0.04] px-3.5 py-3">
               <CampaignProgress campaignId="meadow-banks" goal={800} tone="dashboard" />
             </div>
+            <Link
+              href="/portal/donate"
+              className="flex flex-col items-start gap-2 rounded-xl bg-[#1a1a1a]/[0.04] px-3.5 py-3 transition-colors hover:bg-[#1a1a1a]/[0.08] sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+            >
+              <span className="min-w-0 text-sm font-semibold text-[#1a1a1a]">
+                Partner care homes
+              </span>
+              <span className="shrink-0 rounded-full border border-[#1a1a1a]/20 px-4 py-1.5 text-sm font-semibold text-[#1a1a1a]">
+                Donate
+              </span>
+            </Link>
           </div>
         </Tile>
       </div>

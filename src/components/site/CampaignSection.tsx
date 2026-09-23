@@ -34,6 +34,7 @@ export function CampaignSection() {
   const giveHref = signedIn
     ? `/campaign/${campaign.id}`
     : `/login?next=/campaign/${campaign.id}`;
+  const partnersHref = signedIn ? '/portal/donate' : '/login?next=/portal/donate';
 
   return (
     // A step deeper than sage-mist — the section above is white, so the
@@ -164,53 +165,53 @@ export function CampaignSection() {
           </div>
         </div>
 
-        {/* ---------------------- slide 2: more to come --------------------- */}
+        {/* ------------------- slide 2: the partner homes -------------------- */}
         <div className="w-full shrink-0 px-5 sm:px-8" aria-hidden={slide !== 1}>
           <div className="mx-auto flex h-full max-w-7xl items-center">
             <div className="grid w-full items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
-                  Next appeal
+                <p className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
+                  <span className="relative flex h-2 w-2" aria-hidden="true">
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-ink" />
+                  </span>
+                  Beyond the appeal
                 </p>
 
                 <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
-                  Many more
+                  Our other
                   <br />
-                  <i className="text-gold-ink">to come.</i>
+                  <i className="text-gold-ink">partner homes.</i>
                 </h2>
 
                 <p className="mt-5 max-w-md text-lg leading-relaxed text-olive">
-                  Every care home has a list like Meadowbanks&rsquo; —
-                  small, priced-to-the-pound things that would make life
-                  warmer. When the next list reaches us, it lands here.
+                  Meadow Banks is appeal No. 1 — but Brave Homes stands
+                  beside other partner care homes too. A gift to the
+                  partners&rsquo; fund goes wherever the need is
+                  greatest: better rooms, better equipment, better days.
                 </p>
 
                 <div className="mt-8">
-                  <LinkButton href="/contact" variant="secondary" size="lg" className="press">
-                    Tell us about a care home
+                  <LinkButton href={partnersHref} size="lg" className="cta-sheen press">
+                    Donate to partner homes
                   </LinkButton>
+                  <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-muted">
+                    Sign in to give — and 100% of every donation reaches
+                    a care home.
+                  </p>
                 </div>
               </div>
 
-              {/* A gallery placard where the next home's photograph will
-                  hang: white card, serif number, one gold rule. */}
-              <div className="hidden w-full lg:block">
-                <div className="flex aspect-[4/3] w-full items-center justify-center rounded-3xl bg-white shadow-[0_28px_55px_-30px_rgba(47,58,35,0.45)]">
-                  <div className="text-center">
-                    <p className="text-xs font-bold uppercase tracking-[0.3em] text-sage-ink">
-                      Appeal
-                    </p>
-                    <p className="mt-3 font-serif text-8xl font-medium leading-none text-forest">
-                      <span className="align-top text-4xl text-sage-ink">No.</span> {campaign.number + 1}
-                    </p>
-                    <div className="mx-auto mt-6 h-0.5 w-14 bg-gold" aria-hidden="true" />
-                    <p className="mt-6 font-serif text-xl italic text-olive">
-                      This wall is waiting for
-                      <br />
-                      the next home&rsquo;s photograph.
-                    </p>
-                  </div>
-                </div>
+              <div className="w-full">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/donate-hands.jpg"
+                  alt="Two hands reaching for each other"
+                  className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[0_28px_55px_-30px_rgba(47,58,35,0.55)]"
+                  loading="lazy"
+                />
+                <p className="mt-3 text-center text-sm font-semibold text-sage-ink">
+                  Given where it&rsquo;s needed most.
+                </p>
               </div>
             </div>
           </div>

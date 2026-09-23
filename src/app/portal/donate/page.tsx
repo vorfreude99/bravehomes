@@ -1,10 +1,19 @@
-import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import type { Metadata } from 'next';
+import { DonateClient } from '@/components/portal/DonateClient';
+
+export const metadata: Metadata = { title: 'Donate to partner care homes' };
 
 /**
- * There is no general donate page any more — all giving goes to the
- * live appeal, so every old link and bookmark lands there too. The
- * /thanks route below survives for Stripe's bank-redirect returns.
+ * The general fund, back in service: gifts here aren't earmarked to a
+ * named appeal — they go to the partner care homes Brave Homes stands
+ * beside, wherever the need is greatest. Meadow Banks has its own page
+ * at /campaign/meadow-banks.
  */
 export default function DonatePage() {
-  redirect('/campaign/meadow-banks');
+  return (
+    <Suspense fallback={<div className="p-8 text-ink-muted">Loading…</div>}>
+      <DonateClient />
+    </Suspense>
+  );
 }
