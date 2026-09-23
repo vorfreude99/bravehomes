@@ -99,7 +99,7 @@ export function CampaignSection() {
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-ink" />
                   </span>
-                  Live appeal · No. {campaign.number}
+                  Live appeal
                 </p>
 
                 <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
@@ -184,7 +184,7 @@ export function CampaignSection() {
                 </h2>
 
                 <p className="mt-5 max-w-md text-lg leading-relaxed text-olive">
-                  Meadow Banks is appeal No. 1 — but Brave Homes stands
+                  Meadow Banks has its own appeal — and Brave Homes stands
                   beside other partner care homes too. A gift to the
                   partners&rsquo; fund goes wherever the need is
                   greatest: better rooms, better equipment, better days.
