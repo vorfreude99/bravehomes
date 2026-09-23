@@ -170,14 +170,7 @@ export function CampaignSection() {
           <div className="mx-auto flex h-full max-w-7xl items-center">
             <div className="grid w-full items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
               <div>
-                <p className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.22em] text-sage-ink">
-                  <span className="relative flex h-2 w-2" aria-hidden="true">
-                    <span className="relative inline-flex h-2 w-2 rounded-full bg-gold-ink" />
-                  </span>
-                  Beyond the appeal
-                </p>
-
-                <h2 className="mt-5 font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
+                <h2 className="font-serif text-4xl font-medium leading-[1.05] text-forest sm:text-5xl">
                   Our other
                   <br />
                   <i className="text-gold-ink">partner homes.</i>
