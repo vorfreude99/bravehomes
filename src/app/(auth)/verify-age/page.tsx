@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { VerifyAgeClient } from '@/components/auth/VerifyAgeClient';
+import { SwitchAccount } from '@/components/auth/SwitchAccount';
 import { Notice } from '@/components/ui/Field';
 
 export const metadata: Metadata = { title: 'Confirm your age' };
@@ -97,6 +98,8 @@ export default async function VerifyAgePage() {
       </ul>
 
       <VerifyAgeClient retry={declined || status === 'pending'} />
+
+      <SwitchAccount />
 
       <p className="rise-in mt-5 text-center text-sm leading-relaxed text-ink-muted" style={{ animationDelay: '260ms' }}>
         Your photo is checked securely by Didit and never stored on Brave
