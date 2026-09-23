@@ -184,9 +184,8 @@ export function CampaignSection() {
                 </h2>
 
                 <p className="mt-5 max-w-md text-lg leading-relaxed text-olive">
-                  Meadow Banks has its own appeal — and Brave Homes stands
-                  beside other partner care homes too. A gift to the
-                  partners&rsquo; fund goes wherever the need is
+                  Brave Homes stands beside its partner care homes. A gift
+                  to the partners&rsquo; fund goes wherever the need is
                   greatest: better rooms, better equipment, better days.
                 </p>
 
