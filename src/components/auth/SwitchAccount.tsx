@@ -31,7 +31,7 @@ export function SwitchAccount() {
       type="button"
       onClick={() => void signOut()}
       disabled={busy}
-      className="mx-auto mt-5 flex min-h-[var(--bh-tap)] items-center justify-center text-sm font-semibold text-olive underline underline-offset-4 hover:text-forest disabled:opacity-50"
+      className="mx-auto mt-5 flex min-h-[var(--bh-tap)] cursor-pointer items-center justify-center text-sm font-semibold text-olive underline underline-offset-4 hover:text-forest disabled:cursor-default disabled:opacity-50"
     >
       {busy ? 'Signing out…' : 'Not you? Sign out and use a different account'}
     </button>
