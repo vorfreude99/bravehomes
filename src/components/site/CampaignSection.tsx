@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LinkButton } from '@/components/ui/Button';
 import { CAMPAIGNS } from '@/lib/campaigns';
 import { CampaignProgress } from '@/components/site/CampaignProgress';
@@ -20,6 +20,18 @@ export function CampaignSection() {
   const [signedIn, setSignedIn] = useState(false);
 
   const go = (next: number) => setSlide(((next % SLIDES) + SLIDES) % SLIDES);
+
+  // Touch swipe for phones, where the side arrows are hidden.
+  const touchX = useRef<number | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchX.current = e.touches[0].clientX;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (touchX.current == null) return;
+    const dx = e.changedTouches[0].clientX - touchX.current;
+    if (Math.abs(dx) > 45) go(slide + (dx < 0 ? 1 : -1));
+    touchX.current = null;
+  };
 
   // The big button sends a signed-out visitor to sign in first — the
   // appeal is theirs to read, but giving starts with an account.
@@ -45,7 +57,7 @@ export function CampaignSection() {
         type="button"
         onClick={() => go(slide - 1)}
         aria-label="Previous appeal"
-        className="group absolute left-2 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-forest shadow-[0_12px_28px_-10px_rgba(47,58,35,0.4)] transition-all duration-200 hover:bg-forest hover:text-cream active:scale-95 sm:left-5"
+        className="group absolute left-2 top-1/2 z-20 hidden h-12 w-12 sm:flex -translate-y-1/2 items-center justify-center rounded-full bg-white text-forest shadow-[0_12px_28px_-10px_rgba(47,58,35,0.4)] transition-all duration-200 hover:bg-forest hover:text-cream active:scale-95 sm:left-5"
       >
         <svg
           width="20"
@@ -66,7 +78,7 @@ export function CampaignSection() {
         type="button"
         onClick={() => go(slide + 1)}
         aria-label="Next appeal"
-        className="group absolute right-2 top-1/2 z-20 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-forest shadow-[0_12px_28px_-10px_rgba(47,58,35,0.4)] transition-all duration-200 hover:bg-forest hover:text-cream active:scale-95 sm:right-5"
+        className="group absolute right-2 top-1/2 z-20 hidden h-12 w-12 sm:flex -translate-y-1/2 items-center justify-center rounded-full bg-white text-forest shadow-[0_12px_28px_-10px_rgba(47,58,35,0.4)] transition-all duration-200 hover:bg-forest hover:text-cream active:scale-95 sm:right-5"
       >
         <svg
           width="20"
@@ -88,6 +100,8 @@ export function CampaignSection() {
       <div
         className="flex transition-transform duration-500 ease-out"
         style={{ transform: `translateX(-${slide * 100}%)` }}
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
       >
         {/* ------------------------ slide 1: Meadow Banks ------------------- */}
         <div className="w-full shrink-0 px-5 sm:px-8" aria-hidden={slide !== 0}>
@@ -116,7 +130,7 @@ export function CampaignSection() {
                   books, music and activity resources.
                 </p>
 
-                <div className="mt-7 flex items-center gap-10">
+                <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-6 sm:gap-x-10">
                   {campaign.items.map((item) => (
                     <div key={item.label} className="border-l-2 border-gold pl-4">
                       <p className="font-serif text-3xl font-medium text-forest sm:text-4xl">
