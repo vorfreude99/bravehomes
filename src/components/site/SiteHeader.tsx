@@ -261,7 +261,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
               variant={onPhoto ? 'gold' : 'primary'}
               className="px-4 sm:px-6"
             >
-              My portal
+              My account
             </LinkButton>
           ) : (
             <>
@@ -350,7 +350,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           <div className="mt-6 grid gap-3">
             {signedIn ? (
               <LinkButton href="/portal" variant="primary" size="lg" onClick={closeForNav}>
-                My portal
+                My account
               </LinkButton>
             ) : (
               <>
