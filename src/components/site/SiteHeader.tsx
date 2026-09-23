@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { BrandLock } from '@/components/ui/Brand';
 import { LinkButton } from '@/components/ui/Button';
+import { createClient, isSupabaseConfigured } from '@/lib/supabase/client';
 
 /** Root-relative so the links still work from /about, /contact. */
 const NAV = [
@@ -21,6 +22,17 @@ const NAV = [
  */
 export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+
+  // Members don't need selling to — the bar swaps its Sign in / Join
+  // free pair for a single door into the portal.
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    createClient()
+      .auth.getUser()
+      .then((res: { data: { user: unknown } }) => setSignedIn(Boolean(res.data.user)))
+      .catch(() => setSignedIn(false));
+  }, []);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
@@ -243,24 +255,36 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
         </nav>
 
         <div className="flex items-center gap-2">
-          {/* Wrapped rather than given a `hidden` class: the toggle sets its
-              own `inline-flex`, which would win on display in source order. */}
-          <span className="hidden items-center gap-1 sm:flex">
-            <LinkButton href="/login" variant={onPhoto ? 'onDark' : 'ghost'}>
-              Sign in
+          {signedIn ? (
+            <LinkButton
+              href="/portal"
+              variant={onPhoto ? 'gold' : 'primary'}
+              className="px-4 sm:px-6"
+            >
+              My portal
             </LinkButton>
-            <span
-              className={`ml-2 mr-1 h-5 w-px ${onPhoto ? 'bg-cream/25' : 'bg-forest/[0.13]'}`}
-              aria-hidden="true"
-            />
-          </span>
-          <LinkButton
-            href="/signup"
-            variant={onPhoto ? 'gold' : 'primary'}
-            className="px-4 sm:px-6"
-          >
-            Join free
-          </LinkButton>
+          ) : (
+            <>
+              {/* Wrapped rather than given a `hidden` class: the toggle sets its
+                  own `inline-flex`, which would win on display in source order. */}
+              <span className="hidden items-center gap-1 sm:flex">
+                <LinkButton href="/login" variant={onPhoto ? 'onDark' : 'ghost'}>
+                  Sign in
+                </LinkButton>
+                <span
+                  className={`ml-2 mr-1 h-5 w-px ${onPhoto ? 'bg-cream/25' : 'bg-forest/[0.13]'}`}
+                  aria-hidden="true"
+                />
+              </span>
+              <LinkButton
+                href="/signup"
+                variant={onPhoto ? 'gold' : 'primary'}
+                className="px-4 sm:px-6"
+              >
+                Join free
+              </LinkButton>
+            </>
+          )}
 
           <button
             type="button"
@@ -324,22 +348,30 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           </nav>
 
           <div className="mt-6 grid gap-3">
-            <LinkButton
-              href="/signup"
-              variant="primary"
-              size="lg"
-              onClick={closeForNav}
-            >
-              Join free — takes a minute
-            </LinkButton>
-            <LinkButton
-              href="/login"
-              variant="secondary"
-              size="lg"
-              onClick={closeForNav}
-            >
-              Sign in
-            </LinkButton>
+            {signedIn ? (
+              <LinkButton href="/portal" variant="primary" size="lg" onClick={closeForNav}>
+                My portal
+              </LinkButton>
+            ) : (
+              <>
+                <LinkButton
+                  href="/signup"
+                  variant="primary"
+                  size="lg"
+                  onClick={closeForNav}
+                >
+                  Join free — takes a minute
+                </LinkButton>
+                <LinkButton
+                  href="/login"
+                  variant="secondary"
+                  size="lg"
+                  onClick={closeForNav}
+                >
+                  Sign in
+                </LinkButton>
+              </>
+            )}
           </div>
 
         </div>
