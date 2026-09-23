@@ -110,6 +110,9 @@ export function CampaignClient({ campaignId, goal }: { campaignId: string; goal:
   return (
     <div className="mt-10">
       {/* ------------------------------ progress ----------------------------- */}
+      {/* Steps aside while the card form is open, so paying happens in
+          this same space with nothing pushing it below the fold. */}
+      {!checkout && (
       <div className="card-solid p-6">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="font-serif text-3xl font-medium text-forest">
@@ -138,6 +141,7 @@ export function CampaignClient({ campaignId, goal }: { campaignId: string; goal:
           />
         </div>
       </div>
+      )}
 
       {/* ------------------------------- give -------------------------------- */}
       {/* The card form appears only once the session is confirmed — until
